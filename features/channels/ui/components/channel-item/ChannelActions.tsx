@@ -66,7 +66,7 @@ export function ChannelActions({ channel }: { channel: Channel }) {
             size="sm"
             onClick={handleConnect}
             loading={connect.isPending}
-            variant={showReconnect ? 'outline' : 'default'}
+            {...(showReconnect && { variant: 'outline' })}
           >
             {showReconnect ? 'Reconnect' : 'Connect'}
           </Button>
