@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================
+   BASE TOKENS (SINGLE SOURCE OF TRUTH)
+   ========================================================= */
+
+@layer base {
+  :root {
+    /* ---------- BRAND ---------- */
+    --brand: 66 72 116; /* #424874 */
+
+    /* ---------- BACKGROUNDS ---------- */
+    --bg-app: 242 244 248;
+    --bg-surface: 255 255 255;
+    --bg-surface-soft: 245 246 248;
+    --bg-muted: 236 239 244;
+    --bg-sidebar: 17 24 39;
+    --bg-surface-neutral: 251 250 251; /* #FBFAFB */
+
+    /* ---------- AI SYSTEM (NEW PALETTE) ---------- */
+    --ai-surface: 248 245 255;   /* softer, more breathable */
+    --ai-strip: 235 229 255;     /* slightly lighter accent */
+    --ai-accent: 166 177 225;    /* #A6B1E1 */
+    --ai-strong: 66 72 116;      /* #424874 */
+    --ai-border: 166 177 225;
+
+    /* ---------- TEXT ---------- */
+    --text-primary: 17 24 39;
+    --text-secondary: 100 116 139;
+    --text-muted: 148 163 184;
+    --text-inverse: 255 255 255;
+
+    /* ---------- BORDERS ---------- */
+    --border-subtle: 226 232 240;
+    --border-strong: 203 213 225;
+
+    /* ---------- RADIUS ---------- */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 16px;
+
+    /* ---------- STATES ---------- */
+    --state-success: 16 185 129;
+    --state-warning: 245 158 11;
+    --state-error: 220 38 38;
+    --state-info: 59 130 246;
+
+    /* ---------- Z-INDEX ---------- */
+    --z-header: 20;
+    --z-sidebar: 30;
+    --z-dropdown: 50;
+    --z-modal: 100;
+    --z-toast: 200;
+  }
+
+  /* =========================================================
+     GLOBAL BASE STYLES
+     ========================================================= */
+
+  html,
+  body {
+    height: 100%;
+    background: rgb(var(--bg-app));
+    color: rgb(var(--text-primary));
+    font-family: var(--font-sans, system-ui, sans-serif);
+  }
+}
+
+/* =========================================================
+   SCROLLBAR (CLEAN + THIN)
+   ========================================================= */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(17, 24, 39, 0.25) transparent;
+}
+
+/* Chromium / Safari */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(17, 24, 39, 0.28);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+
+  opacity: 0;
+  transition: opacity 120ms ease, background-color 120ms ease;
+}
+
+*:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(17, 24, 39, 0.45);
+}

@@ -1,0 +1,100 @@
+/* =========================================================
+   ROOT DESIGN TOKENS (UPDATED — AI IMPROVED)
+   ========================================================= */
+
+:root {
+  /* ---------- BRAND ---------- */
+  --brand: 66 72 116; /* #424874 (aligned with new palette) */
+
+  /* ---------- BACKGROUNDS ---------- */
+  --bg-app: 242 244 248;        /* slightly adjusted for contrast */
+  --bg-surface: 255 255 255;    /* #ffffff */
+  --bg-sidebar: 17 24 39;       /* deeper neutral */
+  --bg-sidebar-soft: 30 41 59;
+  --bg-app-soft: 248 249 252;
+
+  /* ---------- AI SYSTEM (NEW PALETTE) ---------- */
+  --ai-strip: 220 214 247;      /* #DCD6F7 (main strip) */
+  --ai-surface: 244 238 255;    /* #F4EEFF (expanded panel) */
+  --ai-accent: 166 177 225;     /* #A6B1E1 (progress / highlights) */
+  --ai-strong: 66 72 116;       /* #424874 (text / icon) */
+  --ai-border: 166 177 225;
+
+  /* ---------- SURFACES ---------- */
+  --bg-surface-soft: 249 250 251;
+  --bg-surface-hover: 243 244 246;
+  --bg-muted: 236 239 244;
+
+  /* ---------- TEXT ---------- */
+  --text-primary: 17 24 39;     /* strong readable */
+  --text-secondary: 100 116 139;
+  --text-muted: 148 163 184;
+  --text-inverse: 255 255 255;
+
+  /* ---------- BORDERS ---------- */
+  --border-subtle: 226 232 240;
+  --border-strong: 203 213 225;
+
+  /* ---------- RADIUS ---------- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+
+  /* ---------- SHADOWS ---------- */
+  --shadow-sm:
+    0 1px 1px rgba(0, 0, 0, 0.02);
+
+  --shadow-md:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.06);
+
+  /* ---------- SIZING ---------- */
+  --header-height: 56px;
+  --sidebar-collapsed: 56px;
+  --sidebar-expanded: 240px;
+
+  /* ---------- ANIMATION ---------- */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+
+  /* ---------- SEMANTIC STATES ---------- */
+  --state-error: 220 38 38;
+  --state-disabled-bg: 241 245 249;
+
+  /* ---------- TYPOGRAPHY ---------- */
+  --font-sans:
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Inter,
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  /* ---------- SPACING SCALE ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+
+  /* ---------- INTERACTION ---------- */
+  --focus-ring: 0 0 0 2px rgba(66, 72, 116, 0.25);
+
+  --hover-bg: rgba(0, 0, 0, 0.04);
+  --active-bg: rgba(0, 0, 0, 0.08);
+
+  /* ---------- Z-INDEX ---------- */
+  --z-base: 1;
+  --z-sidebar: 10;
+  --z-header: 20;
+  --z-dropdown: 50;
+  --z-modal: 100;
+  --z-toast: 200;
+}
