@@ -12,3 +12,14 @@ export const CONNECTION_STATE = {
   ERROR: 'error',
   RECONNECT: 'reconnect',
 } as const
+
+export const CHANNEL_TYPES = [
+  { value: 'email', label: 'Email' },
+] as const
+
+export const PROVIDERS = {
+  email: [
+    { value: 'gmail', label: 'Gmail' },
+    { value: 'smtp_imap', label: 'SMTP / IMAP' },
+  ],
+} as const

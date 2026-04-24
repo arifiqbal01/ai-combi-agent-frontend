@@ -3,6 +3,8 @@
 import {
   CHANNEL_STATUS,
   CONNECTION_STATE,
+  CHANNEL_TYPES,
+  PROVIDERS,
 } from './channel.constants'
 
 export type ChannelStatus =
@@ -29,3 +31,9 @@ export type Channel = {
 
   requiresReconnect: boolean
 }
+
+export type ChannelType =
+  (typeof CHANNEL_TYPES)[number]['value']
+
+export type Provider =
+  (typeof PROVIDERS)[ChannelType][number]['value']

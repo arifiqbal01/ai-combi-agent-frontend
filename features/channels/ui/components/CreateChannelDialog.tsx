@@ -18,18 +18,15 @@ import {
   SelectValue,
 } from '@/ui'
 import { useCreateChannel } from '../../application/mutations'
+import {
+  CHANNEL_TYPES,
+  PROVIDERS,
+} from '../../domain/channel.constants'
 
-const CHANNEL_TYPES = [
-  { value: 'email', label: 'Email' },
-]
-
-const PROVIDERS = {
-  email: [
-    { value: 'gmail', label: 'Gmail' },
-    { value: 'smtp_imap', label: 'SMTP / IMAP' },
-    { value: 'imap', label: 'IMAP' },
-  ],
-}
+import {
+  ChannelType,
+  Provider,
+} from '../../domain/channel.types'
 
 export function CreateChannelDialog() {
   const create = useCreateChannel()
@@ -37,10 +34,10 @@ export function CreateChannelDialog() {
   const [open, setOpen] = useState(false)
 
   const [label, setLabel] = useState('')
-  const [channelType, setChannelType] = useState('email')
-  const [provider, setProvider] = useState('gmail')
+  const [channelType, setChannelType] = useState<ChannelType>('email')
+  const [provider, setProvider] = useState<Provider>('gmail')
 
-  const providerOptions = PROVIDERS[channelType] || []
+  const providerOptions = PROVIDERS[channelType]
 
   const handleCreate = () => {
     if (!label) return
@@ -101,12 +98,12 @@ export function CreateChannelDialog() {
   </Text>
 
   <Select
-    value={channelType}
-    onValueChange={(val) => {
-      setChannelType(val)
-      setProvider('gmail') // reset
-    }}
-  >
+      value={channelType}
+      onValueChange={(val: ChannelType) => {
+        setChannelType(val)
+        setProvider(PROVIDERS[val][0].value) // reset safely
+      }}
+    >
     <SelectTrigger>
       <SelectValue placeholder="Select channel type" />
     </SelectTrigger>
@@ -126,9 +123,9 @@ export function CreateChannelDialog() {
   </Text>
 
   <Select
-    value={provider}
-    onValueChange={setProvider}
-  >
+      value={provider}
+      onValueChange={(val: Provider) => setProvider(val)}
+    >
     <SelectTrigger>
       <SelectValue placeholder="Select provider" />
     </SelectTrigger>
