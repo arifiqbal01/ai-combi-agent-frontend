@@ -1,13 +1,15 @@
 'use client'
 
 import {
-  Card,
-  CardHeader,
-  CardBody,
+  Surface,
+  Stack,
+  Inline,
+  Text,
   Button,
   Badge,
   Icon,
 } from '@/ui'
+
 import {
   Inbox,
   Plug,
@@ -19,36 +21,37 @@ import {
 export default function HomePage() {
   return (
     <div className="mx-auto w-full max-w-7xl space-y-8 px-4 py-6">
-      {/* =====================================================
+      {/* =========================
           PAGE HEADER
-      ====================================================== */}
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold text-text-primary">
+      ========================= */}
+      <Stack gap="xs">
+        <Text as="h1" size="xl" weight="semibold">
           Welcome to AI Combi Agent
-        </h1>
-        <p className="text-sm text-text-secondary">
-          Your unified inbox for managing conversations across all channels.
-        </p>
-      </div>
+        </Text>
 
-      {/* =====================================================
-          GETTING STARTED / EMPTY STATE
-      ====================================================== */}
-      <Card>
-        <CardBody className="flex flex-col gap-4">
+        <Text size="sm" tone="secondary">
+          Your unified inbox for managing conversations across all channels.
+        </Text>
+      </Stack>
+
+      {/* =========================
+          GETTING STARTED
+      ========================= */}
+      <Surface className="p-5">
+        <Stack gap="md">
           <Badge tone="brand" size="sm">
             Getting started
           </Badge>
 
-          <h2 className="text-lg font-semibold text-text-primary">
+          <Text size="lg" weight="semibold">
             Your workspace isn’t fully set up yet
-          </h2>
+          </Text>
 
-          <p className="text-sm text-text-secondary max-w-xl">
+          <Text size="sm" tone="secondary" className="max-w-xl">
             Connect at least one channel to start receiving messages.
-          </p>
+          </Text>
 
-          <div className="flex flex-wrap gap-3 pt-2">
+          <Inline gap="sm" className="pt-2 flex-wrap">
             <Button>
               <Icon size="sm">
                 <Plug />
@@ -62,85 +65,98 @@ export default function HomePage() {
                 <ArrowRight />
               </Icon>
             </Button>
-          </div>
-        </CardBody>
-      </Card>
+          </Inline>
+        </Stack>
+      </Surface>
 
-      {/* =====================================================
+      {/* =========================
           NEXT STEPS
-      ====================================================== */}
+      ========================= */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader
-            title="Connect channels"
-            icon={<Plug size={18} />}
-          />
-          <CardBody className="flex flex-col gap-3">
-            <p className="text-sm text-text-secondary">
+        {/* Card 1 */}
+        <Surface className="p-5">
+          <Stack gap="sm">
+            <Inline gap="sm">
+              <Icon size="sm">
+                <Plug />
+              </Icon>
+              <Text weight="semibold">Connect channels</Text>
+            </Inline>
+
+            <Text size="sm" tone="secondary">
               Email, WhatsApp, Instagram, Messenger — bring all conversations
               into one inbox.
-            </p>
+            </Text>
 
             <Button size="sm" variant="ghost" className="self-start">
               Manage channels
             </Button>
-          </CardBody>
-        </Card>
+          </Stack>
+        </Surface>
 
-        <Card>
-          <CardHeader
-            title="Invite your team"
-            icon={<Users size={18} />}
-          />
-          <CardBody className="flex flex-col gap-3">
-            <p className="text-sm text-text-secondary">
+        {/* Card 2 */}
+        <Surface className="p-5">
+          <Stack gap="sm">
+            <Inline gap="sm">
+              <Icon size="sm">
+                <Users />
+              </Icon>
+              <Text weight="semibold">Invite your team</Text>
+            </Inline>
+
+            <Text size="sm" tone="secondary">
               Add admins or support agents to collaborate on conversations.
-            </p>
+            </Text>
 
             <Button size="sm" variant="ghost" className="self-start">
               Invite users
             </Button>
-          </CardBody>
-        </Card>
+          </Stack>
+        </Surface>
 
-        <Card>
-          <CardHeader
-            title="AI assistance"
-            icon={<Sparkles size={18} />}
-          />
-          <CardBody className="flex flex-col gap-3">
-            <p className="text-sm text-text-secondary">
+        {/* Card 3 */}
+        <Surface className="p-5">
+          <Stack gap="sm">
+            <Inline gap="sm">
+              <Icon size="sm">
+                <Sparkles />
+              </Icon>
+              <Text weight="semibold">AI assistance</Text>
+            </Inline>
+
+            <Text size="sm" tone="secondary">
               Draft replies, summarize conversations, and assist agents —
               always under human control.
-            </p>
+            </Text>
 
             <Button size="sm" variant="ghost" className="self-start">
               Learn more
             </Button>
-          </CardBody>
-        </Card>
+          </Stack>
+        </Surface>
       </div>
 
-      {/* =====================================================
+      {/* =========================
           FALLBACK / INFO
-      ====================================================== */}
-      <Card>
-        <CardBody className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
+      ========================= */}
+      <Surface className="p-5">
+        <Inline className="flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <Inline gap="sm">
             <Icon size="md">
               <Inbox />
             </Icon>
-            <p className="text-sm text-text-secondary max-w-xl">
+
+            <Text size="sm" tone="secondary" className="max-w-xl">
               If something isn’t loading or you were redirected here, check your
               connected channels or visit the Inbox.
-            </p>
-          </div>
+            </Text>
+          </Inline>
 
           <Button variant="ghost" size="sm">
             Open Inbox
           </Button>
-        </CardBody>
-      </Card>
+        </Inline>
+      </Surface>
     </div>
   )
 }
