@@ -10,7 +10,6 @@ export default function SignUpPage() {
   const [allowed, setAllowed] = useState(false)
 
   useEffect(() => {
-    // small delay avoids race condition
     const timer = setTimeout(() => {
       const token = sessionStorage.getItem('invite_token')
 
@@ -35,7 +34,6 @@ export default function SignUpPage() {
         path="/sign-up"
         routing="path"
         signInUrl="/login"
-        afterSignUpUrl="/invite/callback"
       />
     </div>
   )
