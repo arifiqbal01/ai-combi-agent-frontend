@@ -1,3 +1,4 @@
-export * from './hooks/useLatestAISuggestion'
-export * from './hooks/useAIRun'
-export * from './hooks/useAISuggestionList'
+export * from './useLatestAISuggestion'
+export * from './useAIRun'
+export * from './useAISuggestionList'
+export * from './useAIProgress'
