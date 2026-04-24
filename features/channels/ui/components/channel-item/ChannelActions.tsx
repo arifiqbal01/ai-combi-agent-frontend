@@ -60,71 +60,70 @@ export function ChannelActions({ channel }: { channel: Channel }) {
     <>
       <Inline gap="sm" className="flex-wrap">
 
-        {/* CONNECT / RECONNECT */}
-        {(showReconnect || showConnect) && (
-          <Button
-            size="sm"
-            onClick={handleConnect}
-            loading={connect.isPending}
-            {...(showReconnect && { variant: 'outline' })}
-          >
-            {showReconnect ? 'Reconnect' : 'Connect'}
-          </Button>
-        )}
+  {(showReconnect || showConnect) && (
+    <Button
+      size="sm"
+      onClick={handleConnect}
+      loading={connect.isPending}
+      {...(showReconnect && { variant: 'secondary' as const })}
+    >
+      {showReconnect ? 'Reconnect' : 'Connect'}
+    </Button>
+  )}
 
-        {/* ENABLE / DISABLE */}
-        {channel.isActive ? (
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => disable.mutate(channel.id)}
-          >
-            Disable
-          </Button>
-        ) : isConnected ? (
-          <Button
-            size="sm"
-            onClick={() => enable.mutate(channel.id)}
-          >
+  {/* ENABLE / DISABLE */}
+  {channel.isActive ? (
+    <Button
+      size="sm"
+      variant="secondary"
+      onClick={() => disable.mutate(channel.id)}
+    >
+      Disable
+    </Button>
+  ) : isConnected ? (
+    <Button
+      size="sm"
+      onClick={() => enable.mutate(channel.id)}
+    >
+      Enable
+    </Button>
+  ) : (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span>
+          <Button size="sm" disabled>
             Enable
           </Button>
-        ) : (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span>
-                <Button size="sm" disabled>
-                  Enable
-                </Button>
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>
-              Connect channel first
-            </TooltipContent>
-          </Tooltip>
-        )}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>
+        Connect channel first
+      </TooltipContent>
+    </Tooltip>
+  )}
 
-        {/* SECONDARY */}
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => sync.mutate(channel.id)}
-          disabled={!isConnected}
-          loading={sync.isPending && sync.variables === channel.id}
-        >
-          Sync
-        </Button>
+  {/* SECONDARY */}
+  <Button
+    size="sm"
+    variant="ghost"
+    onClick={() => sync.mutate(channel.id)}
+    disabled={!isConnected}
+    loading={sync.isPending && sync.variables === channel.id}
+  >
+    Sync
+  </Button>
 
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => test.mutate(channel.id)}
-          disabled={!isConnected}
-          loading={test.isPending && test.variables === channel.id}
-        >
-          Test
-        </Button>
+  <Button
+    size="sm"
+    variant="ghost"
+    onClick={() => test.mutate(channel.id)}
+    disabled={!isConnected}
+    loading={test.isPending && test.variables === channel.id}
+  >
+    Test
+  </Button>
 
-      </Inline>
+</Inline>
 
       {/* 🔥 Manual flow handled by UI */}
       <ManualConnectDialog
