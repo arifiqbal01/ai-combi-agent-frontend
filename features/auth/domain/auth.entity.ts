@@ -1,9 +1,15 @@
 // features/auth/domain/auth.entity.ts
 
-import {
-  AuthUser,
-  AuthSession,
-} from './auth.types'
+import { AuthUser } from './auth.types'
+
+// -----------------------------
+// Session Shape (LOCAL)
+// -----------------------------
+export type AuthSession = {
+  token: string
+  userId: string
+  tenantId: string | null
+}
 
 // -----------------------------
 // Auth Checks
@@ -15,7 +21,7 @@ export const isAuthenticated = (
 }
 
 // -----------------------------
-// Session Builder (NO tenant dependency)
+// Session Builder
 // -----------------------------
 export const buildSession = (
   token: string,
