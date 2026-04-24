@@ -10,10 +10,10 @@ export function useBootstrap() {
   const ready =
     isLoaded &&
     isSignedIn &&
-    app.isLoaded   // 👈 CRITICAL
+    app.isReady   // ✅ FIXED
 
   return {
     ready,
-    hasTenant: app.hasTenant,   // 👈 REQUIRED
+    hasTenant: app.hasTenant,
   }
 }
