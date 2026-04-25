@@ -1,5 +1,3 @@
-// infra/api/headers.ts
-
 type HeaderOptions = {
   token?: string | null
   tenantId?: string | null
@@ -7,9 +5,9 @@ type HeaderOptions = {
 }
 
 export function buildHeaders(options: HeaderOptions): HeadersInit {
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'X-Correlation-ID': crypto.randomUUID(),
+    'X-Correlation-ID': safeCorrelationId(),
   }
 
   if (options.token) {
@@ -21,4 +19,12 @@ export function buildHeaders(options: HeaderOptions): HeadersInit {
   }
 
   return headers
+}
+
+function safeCorrelationId(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID()
+  }
+
+  return Math.random().toString(36).substring(2, 15)
 }

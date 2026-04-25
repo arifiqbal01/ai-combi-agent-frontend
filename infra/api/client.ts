@@ -1,4 +1,3 @@
-// infra/api/client.ts
 'use client'
 
 import { useSessionStore } from '@/core/session/session.store'
@@ -18,28 +17,15 @@ type RequestOptions = {
 }
 
 /* ---------------------------------- */
-/* Clerk Token (SAFE + SSR AWARE)     */
+/* Clerk Token                        */
 /* ---------------------------------- */
-
-// infra/api/client.ts
 
 async function getClerkToken(): Promise<string | null> {
   if (typeof window === 'undefined') return null
 
   const clerk = window.Clerk
 
-  if (!clerk) {
-    console.warn('[Auth] Clerk not available')
-    return null
-  }
-
-  if (!clerk.loaded) {
-    console.warn('[Auth] Clerk not loaded yet')
-    return null
-  }
-
-  if (!clerk.session) {
-    console.warn('[Auth] No active session')
+  if (!clerk || !clerk.loaded || !clerk.session) {
     return null
   }
 
@@ -48,51 +34,55 @@ async function getClerkToken(): Promise<string | null> {
       template: 'ai-combi-agent',
     })
 
-    if (!token) {
-      console.warn('[Auth] Empty token')
-      return null
-    }
-
-    console.log('[Auth] Token acquired')
-
-    return token
-  } catch (err) {
-    console.error('[Auth] Token fetch failed', err)
+    return token ?? null
+  } catch {
     return null
   }
 }
 
 /* ---------------------------------- */
-/* Headers                            */
+/* Headers (FIXED)                    */
 /* ---------------------------------- */
 
-async function prepareHeaders(options?: RequestOptions): Promise<HeadersInit> {
+async function prepareHeaders(
+  path: string,
+  options?: RequestOptions
+): Promise<HeadersInit> {
   const requireAuth = options?.requireAuth ?? true
   const requireTenant = options?.requireTenant ?? true
 
   const token = await getClerkToken()
+  const tenantId = useSessionStore.getState().tenantId
 
-  console.log('[API] Token present:', !!token)
+  console.log('[API DEBUG]', {
+    path,
+    requireAuth,
+    requireTenant,
+    hasToken: !!token,
+    tenantId,
+  })
 
+  // 🔐 AUTH (strict)
   if (requireAuth && !token) {
-    console.error('[API] Missing token → BLOCKED')
+    console.error('[API BLOCKED] Missing token →', path)
     throw unauthorizedError()
   }
 
-  const tenantId = useSessionStore.getState().tenantId
-
-  console.log('[API] Tenant ID:', tenantId)
-
-  // 🔥 HARD BLOCK
+  // ⚠️ TENANT (NON-BLOCKING → critical for bootstrap)
   if (requireTenant && !tenantId) {
-    console.error('[API] BLOCKED → tenant not ready')
-    throw new Error('NO_TENANT')
+    console.warn('[API WARNING] Missing tenant →', path)
+
+    return buildHeaders({
+      token,
+      tenantId: undefined,
+      includeTenant: false, // 🚨 ensures PUBLIC behavior
+    })
   }
 
   return buildHeaders({
     token,
     tenantId,
-    includeTenant: requireTenant,
+    includeTenant: requireTenant && !!tenantId,
   })
 }
 
@@ -131,9 +121,7 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
   try {
     payload = await res.json()
-  } catch {
-    // ignore non-json
-  }
+  } catch {}
 
   if (res.status === 401) {
     throw unauthorizedError()
@@ -156,7 +144,7 @@ export const apiClient = {
         buildApiUrl(path),
         {
           method: 'GET',
-          headers: await prepareHeaders(options),
+          headers: await prepareHeaders(path, options), // ✅ FIXED
         },
         options?.timeoutMs
       )
@@ -180,7 +168,7 @@ export const apiClient = {
         buildApiUrl(path),
         {
           method: 'POST',
-          headers: await prepareHeaders(options),
+          headers: await prepareHeaders(path, options), // ✅ FIXED
           body: JSON.stringify(body),
         },
         options?.timeoutMs

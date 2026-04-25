@@ -13,10 +13,17 @@ export function useAppContext() {
 
   const isAuthenticated = !!auth.isAuthenticated
 
+  console.log('[AppContext] Auth state:', {
+    isLoaded: auth.isLoaded,
+    isAuthenticated,
+  })
+
   // ✅ strict guard
   const canFetchTenants =
     auth.isLoaded &&
     isAuthenticated
+
+  console.log('[AppContext] canFetchTenants:', canFetchTenants)
 
   const {
     data: tenants,
@@ -29,13 +36,17 @@ export function useAppContext() {
     retryDelay: 1000,
     refetchOnWindowFocus: false,
     queryFn: async () => {
+      console.log('[AppContext] Fetching tenants...')
       const res = await authApi.getMyTenants()
+      console.log('[AppContext] Tenants response:', res)
       return res.tenants
     },
   })
 
   useEffect(() => {
     if (!isError) return
+
+    console.error('[AppContext] Tenants fetch ERROR')
 
     clearSession()
     localStorage.removeItem('tenant_id')
@@ -44,7 +55,15 @@ export function useAppContext() {
   }, [isError])
 
   useEffect(() => {
-    if (!tenants || tenants.length === 0) return
+    console.log('[AppContext] Tenant effect triggered:', {
+      tenants,
+      tenantId,
+    })
+
+    if (!tenants || tenants.length === 0) {
+      console.warn('[AppContext] No tenants available')
+      return
+    }
 
     const firstTenant = tenants[0]
 
@@ -52,12 +71,15 @@ export function useAppContext() {
       tenantId && !tenants.some((t) => t.tenant_id === tenantId)
 
     if (isInvalid) {
+      console.warn('[AppContext] Invalid tenant detected → clearing')
       clearSession()
       localStorage.removeItem('tenant_id')
       return
     }
 
     if (!tenantId) {
+      console.log('[AppContext] Setting tenant:', firstTenant)
+
       setSession({
         tenantId: firstTenant.tenant_id,
         tenantName: firstTenant.name,
@@ -76,15 +98,27 @@ export function useAppContext() {
     retry: 2,
     retryDelay: 1000,
     queryFn: async () => {
-      return authApi.getTenantMe()
+      console.log('[AppContext] Fetching tenantMe for:', tenantId)
+      const res = await authApi.getTenantMe()
+      console.log('[AppContext] tenantMe response:', res)
+      return res
     },
   })
 
   const loading = useMemo(() => {
-    if (!auth.isLoaded) return true
-    if (canFetchTenants && isLoading && !tenants) return true
-    if (tenantId && tenantLoading && !tenantMe) return true
-    return false
+    const result =
+      !auth.isLoaded ||
+      (canFetchTenants && isLoading && !tenants) ||
+      (tenantId && tenantLoading && !tenantMe)
+
+    console.log('[AppContext] Loading state:', {
+      authLoaded: auth.isLoaded,
+      tenantsLoading: isLoading,
+      tenantLoading,
+      result,
+    })
+
+    return result
   }, [
     auth.isLoaded,
     canFetchTenants,
@@ -100,6 +134,13 @@ export function useAppContext() {
     isAuthenticated &&
     !!tenantId &&
     !!tenantMe
+
+  console.log('[AppContext] FINAL STATE:', {
+    tenantId,
+    hasTenant: !!tenantId,
+    tenantMe,
+    isBootstrapped,
+  })
 
   return {
     loading,
