@@ -1,19 +1,10 @@
-'use client'
+import { Suspense } from 'react'
+import GoogleCallbackClient from './GoogleCallbackClient'
 
-import { useEffect } from 'react'
-import { Stack, Text } from '@/ui'
-import { useOAuthCallback } from '@/features/channels/application/oauth/useOAuthCallback'
-
-export default function GoogleCallbackPage() {
-  const { handle } = useOAuthCallback()
-
-  useEffect(() => {
-    handle()
-  }, [handle])
-
+export default function Page() {
   return (
-    <Stack className="p-6">
-      <Text>Finalizing connection...</Text>
-    </Stack>
+    <Suspense fallback={null}>
+      <GoogleCallbackClient />
+    </Suspense>
   )
 }
