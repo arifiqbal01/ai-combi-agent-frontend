@@ -1,4 +1,4 @@
-// app/(app)/inbox/inbox-context.tsx
+// feature/inbox/ui/context/inbox-context.tsx
 'use client'
 
 import {

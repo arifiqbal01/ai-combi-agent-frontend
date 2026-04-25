@@ -1,100 +1,62 @@
 'use client'
 
 import {
-
- useState,
- useCallback
-
+  useState,
+  useCallback
 } from 'react'
 
 import {
-
- markMessageRead
-
+  markMessageRead
 } from '@/features/inbox/infrastructure/api/message.api'
 
 import {
-
- Message
-
+  Message,
+  MessageDirection
 } from '@/features/inbox/domain/message/message.types'
 
-export function useConversationRead(){
+export function useConversationRead() {
 
- const [loading,setLoading]=
-  useState(false)
+  const [loading, setLoading] =
+    useState(false)
 
- const markRead=
- useCallback(
+  const markRead =
+    useCallback(async (messageId: string) => {
 
-  async(messageId:string)=>{
+      if (!messageId) return
 
-   if(!messageId)
-    return
+      setLoading(true)
 
-   setLoading(true)
+      try {
+        await markMessageRead(messageId)
+      } finally {
+        setLoading(false)
+      }
 
-   try{
+    }, [])
 
-    await markMessageRead(
-     messageId
-    )
+  /* mark latest inbound */
 
-   }
-   finally{
+  const markLatestInbound =
+    useCallback(async (messages: Message[]) => {
 
-    setLoading(false)
+      const inbound =
+        messages
+          .slice()
+          .reverse()
+          .find(
+            m =>
+              m.direction === MessageDirection.INBOUND // ✅ FIXED
+          )
 
-   }
+      if (!inbound) return
 
-  },
+      await markRead(inbound.id)
 
-  []
+    }, [markRead])
 
- )
-
-/* mark latest inbound */
-
- const markLatestInbound=
-
- useCallback(
-
-  async(messages:Message[])=>{
-
-   const inbound=
-
-    messages
-
-     .slice()
-
-     .reverse()
-
-     .find(
-
-      m=>m.direction==='in'   // ✅ backend enum
-
-     )
-
-   if(!inbound)
-    return
-
-   await markRead(
-    inbound.id
-   )
-
-  },
-
-  [markRead]
-
- )
-
- return{
-
-  markRead,
-
-  markLatestInbound,
-
-  loading
-
- }
+  return {
+    markRead,
+    markLatestInbound,
+    loading
+  }
 }

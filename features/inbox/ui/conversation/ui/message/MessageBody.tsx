@@ -3,42 +3,66 @@
 import { useMemo, useState, useRef, useEffect } from 'react'
 
 type Props = {
-  html: string
+  html?: string
 }
 
 const PREVIEW_HEIGHT = 240
 
 export function MessageBody({ html }: Props) {
+
   const [expanded, setExpanded] = useState(false)
   const [isOverflow, setIsOverflow] = useState(false)
   const [measured, setMeasured] = useState(false)
 
-  const contentRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement | null>(null)
+
+  /* =========================
+     SANITIZE + NORMALIZE
+  ========================= */
 
   const safeHtml = useMemo(() => {
+
     if (!html) return ''
 
     return html.replace(
       /<a(?![^>]*target=)/gi,
       '<a target="_blank" rel="noopener noreferrer" '
     )
+
   }, [html])
 
+  /* =========================
+     OVERFLOW DETECTION
+  ========================= */
+
   useEffect(() => {
+
     const el = contentRef.current
     if (!el) return
 
-    const needsCollapse = el.scrollHeight > PREVIEW_HEIGHT + 20
+    const needsCollapse =
+      el.scrollHeight > PREVIEW_HEIGHT + 20
 
     setIsOverflow(needsCollapse)
     setMeasured(true)
+
   }, [safeHtml])
+
+  /* =========================
+     EMPTY STATE
+  ========================= */
 
   if (!safeHtml) return null
 
+  /* =========================
+     RENDER
+  ========================= */
+
   return (
     <div className="text-[14px] leading-[22px] w-full min-w-0">
+
       <div className="relative">
+
         <div
           ref={contentRef}
           className={`
@@ -57,7 +81,6 @@ export function MessageBody({ html }: Props) {
             [&_table]:block
             [&_table]:overflow-x-auto
 
-            /* GLOBAL LINK STYLE */
             [&_a]:text-[rgb(var(--state-info))]
             [&_a]:underline
             [&_a]:break-all
@@ -80,7 +103,7 @@ export function MessageBody({ html }: Props) {
           }}
         />
 
-        {/* FADE FIXED */}
+        {/* FADE OVERLAY */}
         {measured && !expanded && isOverflow && (
           <div
             className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
@@ -90,11 +113,13 @@ export function MessageBody({ html }: Props) {
             }}
           />
         )}
+
       </div>
 
+      {/* TOGGLE */}
       {isOverflow && (
         <button
-          onClick={() => setExpanded((v) => !v)}
+          onClick={() => setExpanded(v => !v)}
           aria-expanded={expanded}
           className="
             mt-2 text-xs font-medium
@@ -109,6 +134,7 @@ export function MessageBody({ html }: Props) {
           {expanded ? 'Show less' : 'Show full email'}
         </button>
       )}
+
     </div>
   )
 }

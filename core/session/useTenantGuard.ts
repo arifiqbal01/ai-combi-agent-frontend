@@ -1,10 +1,12 @@
-import { useSessionStore } from '@/core/session/session.store'
+// core/session/useTenantGuard.ts
+
+import { useAppContext } from '@/core/app/useAppContext'
 
 export function useTenantGuard() {
-  const tenantId = useSessionStore((s) => s.tenantId)
+  const { tenantId, isBootstrapped } = useAppContext()
 
   return {
     tenantId,
-    hasTenant: !!tenantId,
+    hasTenant: isBootstrapped, // ✅ FIXED
   }
 }

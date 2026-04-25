@@ -1,51 +1,31 @@
-/* =========================
- application/queries/useDocument.ts
-========================= */
-
-import { useQuery } from '@tanstack/react-query'
+import { useAppQuery } from '@/core/query/useAppQuery'
 
 import { getDocument } from '@/features/knowledge/infrastructure/api/knowledge.api'
+import { mapDocumentDetailDTO } from '@/features/knowledge/infrastructure/mappers/knowledge.mapper'
 
-import {
-  KnowledgeStatus,
-} from '@/features/knowledge/domain/knowledge.types'
-
-export type KnowledgeDocumentDetail = {
-  id: string
-  sourceId: string
-  version: string
-  status: KnowledgeStatus
-  content: string
-}
+import { KnowledgeDocument } from '@/features/knowledge/domain/knowledge.types'
 
 export function useDocument(
   sourceId?: string,
   documentId?: string
 ) {
-  return useQuery<KnowledgeDocumentDetail>({
-    // ✅ FIXED (no empty key)
+  return useAppQuery<KnowledgeDocument>({
     queryKey: ['document', documentId],
 
     enabled: !!sourceId && !!documentId,
 
     queryFn: async () => {
-      const res = await getDocument(sourceId!, documentId!)
+      const dto = await getDocument(
+        sourceId!,
+        documentId!
+      )
 
-      // ✅ DO NOT cache null — let UI decide
-      return {
-        id: res.id,
-        sourceId: res.source_id,
-        version: res.version,
-        status: res.status,
-        content: res.content,
-      }
+      return mapDocumentDetailDTO(dto)
     },
 
-    // ✅ CACHE (detail is semi-static)
     staleTime: 60 * 1000,
     gcTime: 10 * 60 * 1000,
 
-    // ✅ UX
     placeholderData: (prev) => prev,
   })
 }

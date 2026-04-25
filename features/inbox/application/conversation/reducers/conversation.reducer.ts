@@ -1,88 +1,40 @@
-import {Conversation}
-from '@/features/inbox/domain/conversation/conversation.types'
+import { messageReducer } from './message.reducer'
+import { aiReducer } from '@/features/inbox/application/ai/reducers/ai.reducer'
+import { conversationMetaReducer } from './conversation.meta.reducer'
 
-import {
- messageReducer
-}
-from './message.reducer'
-
-import {
- aiReducer
-}
-from '@/features/inbox/application/ai/reducers/ai.reducer'
-
-import {
- conversationMetaReducer
-}
-from './conversation.meta.reducer'
-
-export type ConversationState={
-
- conversation:Conversation|null
-
- aiRun?:any
-
- aiSuggestion?:any
-
-}
+import { ConversationAction } from '../types/conversation.actions'
+import { ConversationState } from '../types/conversation.types' // ✅ single source
 
 export function conversationReducer(
   state: ConversationState,
-  action: any
+  action: ConversationAction
 ): ConversationState {
 
-  /* =========================
-     SET CONVERSATION
-  ========================= */
+  switch (action.type) {
 
-  if (action.type === 'SET_CONVERSATION') {
-    return {
-      ...state,
-      conversation: action.payload
-    }
+    case 'SET_CONVERSATION':
+      return {
+        ...state,
+        conversation: action.payload
+      }
+
+    case 'MARK_READ_LOCAL':
+      return {
+        ...state,
+        lastReadMessageId: action.payload
+      }
   }
 
-  /* =========================
-     ✅ LOCAL READ TRACKING (ADD HERE)
-  ========================= */
+  const updatedConversation = conversationMetaReducer(
+    messageReducer(state.conversation, action),
+    action
+  )
 
-  if (action.type === 'MARK_READ_LOCAL') {
-    return {
-      ...state,
-      lastReadMessageId: action.payload
-    }
-  }
-
-  /* =========================
-     DOMAIN REDUCERS
-  ========================= */
-
-  const updatedConversation =
-    conversationMetaReducer(
-      messageReducer(
-        state.conversation,
-        action
-      ),
-      action
-    )
-
-  /* =========================
-     AI REDUCER
-  ========================= */
-
-  const aiState =
-    aiReducer(
-      state,
-      action
-    )
-
-  /* =========================
-     FINAL MERGE
-  ========================= */
+  const aiState = aiReducer(state, action)
 
   return {
-  ...state,        // preserve local fields (IMPORTANT)
-  ...aiState,      // AI updates
-  conversation: updatedConversation
-}
+    ...state,
+    ...aiState,
+    conversation: updatedConversation
+  }
 }

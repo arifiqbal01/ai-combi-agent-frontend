@@ -1,155 +1,140 @@
 'use client'
 
 import {
- MessageContainer
+  MessagePresentationModel
+} from '@/features/inbox/application/conversation/view/models/message.presentation.vm'
+
+import {
+  MessageVariant
+} from '@/features/inbox/domain/message'
+
+import {
+  MessageContainer
 } from './message/MessageContainer'
 
 import {
- MessageHeader
+  MessageHeader
 } from './message/MessageHeader'
 
 import {
- MessageBubble
+  MessageBubble
 } from './message/MessageBubble'
 
 import {
- MessageBody
+  MessageBody
 } from './message/MessageBody'
 
 import {
- MessageAttachments
+  MessageAttachments
 } from './message/MessageAttachments'
 
 import {
- MessageFooter
+  MessageFooter
 } from './message/MessageFooter'
 
 import {
- MessageStatus
+  MessageStatus
 } from './message/MessageStatus'
 
 import { Avatar } from '@/ui'
 
-type Props={
- message:any
+type Props = {
+  message: MessagePresentationModel
 }
 
 export function ConversationMessage({
- message
-}:Props){
+  message
+}: Props){
 
- const hasContent =
-  message.bodyHtml ||
-  message.attachments?.length
+  const isInbound = message.direction === 'in'
 
- const showAvatar =
-  message.direction==='in' &&
-  !message.grouped
+  const hasContent =
+    message.bodyHtml ||
+    message.hasAttachments
 
- return(
+  const showAvatar =
+    isInbound && !message.grouped
 
-  <MessageContainer
+  return(
 
-   align={message.align}
+    <MessageContainer
+      align={message.align}
+      grouped={message.grouped}
+    >
 
-   grouped={message.grouped}
+      <div className="flex gap-3 items-end">
 
-  >
+        {/* AVATAR */}
 
-   <div className="flex gap-3 items-end">
+        {isInbound && (
 
-    {/* AVATAR COLUMN */}
+          showAvatar
+            ? (
+              <Avatar
+                label={message.authorName}
+                size="sm"
+              />
+            )
+            : <div className="w-7"/>
 
-    {message.direction==='in' && (
+        )}
 
-     showAvatar
-      ? (
-        <Avatar
-         label={message.authorName}
-         size="sm"
-        />
-       )
-      : (
-        <div className="w-7"/>
-       )
+        {/* MESSAGE */}
 
-    )}
+        <div className="flex flex-col">
 
-    {/* MESSAGE COLUMN */}
+          <MessageHeader
+            author={{
+              name: message.authorName,
+              type: message.isAI
+                ? 'ai'
+                : 'human'
+            }}
+            variant={message.variant}
+            hidden={!message.showAuthor}
+          />
 
-    <div className="flex flex-col">
+          {hasContent && (
 
-     <MessageHeader
+            <MessageBubble
+              variant={message.variant}
+              grouped={message.grouped}
+            >
 
-      author={{
-       name:message.authorName
-      }}
+              {message.bodyHtml && (
+                <MessageBody html={message.bodyHtml}/>
+              )}
 
-      variant={message.variant}
+              {message.hasAttachments && (
+                <MessageAttachments
+                  attachments={message.attachments}
+                />
+              )}
 
-      hidden={!message.showAuthor}
+              {message.status && (
+                <MessageStatus
+                  state={message.status}
+                />
+              )}
 
-     />
+            </MessageBubble>
 
-     {hasContent && (
+          )}
 
-      <MessageBubble
+          {message.showStatus && (
 
-       variant={message.variant}
+            <MessageFooter
+              time={message.time}
+              status={message.status}
+              direction={message.direction}
+            />
 
-       grouped={message.grouped}
+          )}
 
-      >
+        </div>
 
-       {message.bodyHtml && (
+      </div>
 
-        <MessageBody
-         html={message.bodyHtml}
-        />
-
-       )}
-
-       {message.attachments?.length>0 && (
-
-        <MessageAttachments
-         attachments={message.attachments}
-        />
-
-       )}
-
-       {message.state && (
-
-        <MessageStatus
-         state={message.state}
-        />
-
-       )}
-
-      </MessageBubble>
-
-     )}
-
-     {message.showStatus && (
-
-      <MessageFooter
-
-       time={message.time}
-
-       status={message.status}
-
-       direction={
-        message.direction
-       }
-
-      />
-
-     )}
-
-    </div>
-
-   </div>
-
-  </MessageContainer>
-
- )
+    </MessageContainer>
+  )
 }

@@ -1,7 +1,7 @@
-// app/layout.tsx
 import { ClerkProvider } from '@clerk/nextjs'
 import { AuthProvider } from '@/core/auth/AuthProvider'
 import { QueryProvider } from '@/core/providers/query-provider'
+
 import '@/styles/globals.css'
 
 export default function RootLayout({
@@ -16,9 +16,10 @@ export default function RootLayout({
           suppressHydrationWarning
           className="h-screen overflow-hidden"
         >
-          {/* 🔥 GLOBAL PROVIDERS (ORDER MATTERS) */}
           <QueryProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
           </QueryProvider>
         </body>
       </html>

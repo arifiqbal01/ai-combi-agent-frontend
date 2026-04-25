@@ -1,3 +1,4 @@
+// core/session/useSession.ts
 'use client'
 
 import { useSessionStore } from './session.store'

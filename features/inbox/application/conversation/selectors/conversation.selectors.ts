@@ -1,96 +1,94 @@
-import { ConversationState }
-from '../types/conversation.types'
+import {
+  ConversationState
+} from '@/features/inbox/application/conversation/types/conversation.types'
 
 import {
- isInbound
-} from '../../../domain/message'
+  SyncableMessage
+} from '@/features/inbox/domain/message/message.types'
+
+import {
+  isInbound
+} from '@/features/inbox/domain/message'
+
+/* =========================
+   BASE SELECTORS
+========================= */
 
 export function selectConversation(
- state:ConversationState
-){
- return state.conversation
+  state: ConversationState
+) {
+  return state.conversation
 }
 
 export function selectMessages(
- state:ConversationState
-){
-
- if(!state.conversation)
-  return []
-
- return state.conversation.messages || []
-
+  state: ConversationState
+): SyncableMessage[] {
+  return state.conversation?.messages ?? []
 }
 
-/* single source of truth */
+/* =========================
+   SORTED
+========================= */
+
 export function selectAllMessages(
- state:ConversationState
-){
+  state: ConversationState
+): SyncableMessage[] {
 
- const messages =
-  selectMessages(state)
+  const messages = selectMessages(state)
 
- return [...messages].sort(
-  (a,b)=>
-   new Date(a.meta.createdAt).getTime()
-   -
-   new Date(b.meta.createdAt).getTime()
- )
-
+  return [...messages].sort(
+    (a, b) =>
+      new Date(a.meta.createdAt).getTime() -
+      new Date(b.meta.createdAt).getTime()
+  )
 }
 
-/* last message */
+/* =========================
+   LAST MESSAGE
+========================= */
+
 export function selectLastMessageId(
- state:ConversationState
-){
+  state: ConversationState
+): string | null {
 
- const all =
-  selectAllMessages(state)
+  const all = selectAllMessages(state)
 
- if(!all.length)
-  return null
-
- return all[all.length-1].id
-
+  return all.length
+    ? all[all.length - 1].id
+    : null
 }
 
-/* correct reply selector */
+/* =========================
+   LAST INBOUND
+========================= */
+
 export function selectLastInboundMessageId(
- state:ConversationState
-){
+  state: ConversationState
+): string | null {
 
- const messages =
-  selectAllMessages(state)
+  const messages = selectAllMessages(state)
 
- for(
-  let i = messages.length-1;
-  i >= 0;
-  i--
- ){
+  for (let i = messages.length - 1; i >= 0; i--) {
 
-  const m = messages[i]
+    const m = messages[i]
 
-  if(
-   isInbound(m) &&
-   !m.tempId &&
-   m.kind === 'human'
-  ){
-   return m.id
+    if (
+      isInbound(m) &&
+      !m.tempId
+    ) {
+      return m.id
+    }
   }
 
- }
-
- return null
-
+  return null
 }
 
-/* enterprise safe helper */
+/* =========================
+   CAN REPLY
+========================= */
+
 export function selectCanReply(
- state:ConversationState
-){
-
- return !!selectLastInboundMessageId(
-  state
- )
-
+  state: ConversationState
+): boolean {
+  return !!selectLastInboundMessageId(state)
 }

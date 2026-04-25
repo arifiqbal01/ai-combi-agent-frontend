@@ -1,9 +1,8 @@
-/* application/conversation/view/models/message.presentation.vm.ts */
-
 import {
   Message,
   MessageVariant,
-  MessageSyncState
+  MessageSyncState,
+  DeliveryStatus
 } from '@/features/inbox/domain/message/message.types'
 
 import {
@@ -22,7 +21,6 @@ import {
 export type MessagePresentationModel = {
 
   id: string
-
   clientId?: string
   serverId: string
 
@@ -37,7 +35,7 @@ export type MessagePresentationModel = {
 
   time: string
 
-  status?: string
+  status?: DeliveryStatus
   showStatus: boolean
 
   showAuthor: boolean
@@ -46,44 +44,34 @@ export type MessagePresentationModel = {
   direction: 'in' | 'out'
   align: 'left' | 'right' | 'center'
 
-  /* NEW (important for UI clarity) */
   isAI: boolean
   isAutomated: boolean
-
 }
-
-/* =========================
-   ALIGNMENT (STRICT VARIANT)
-========================= */
 
 const ALIGNMENT_MAP: Record<
   MessageVariant,
   'left' | 'right' | 'center'
 > = {
-
   customer: 'left',
-
   agent: 'right',
-
   ai: 'right',
-
   system: 'center',
-
   internal: 'center'
-
 }
 
 /* =========================
-   STATUS RESOLVER
+   STATUS RESOLVER (FIXED)
 ========================= */
 
 function resolveDeliveryStatus(
   message: Message
-): string | undefined {
+): DeliveryStatus | undefined {
 
-  // Prefer sync state if exists
-  if ((message as any).syncState) {
-    return (message as any).syncState
+  const syncMessage =
+    message as Message & { syncState?: MessageSyncState }
+
+  if (syncMessage.syncState) {
+    return syncMessage.syncState as DeliveryStatus
   }
 
   return message.meta?.status
@@ -94,20 +82,15 @@ function resolveDeliveryStatus(
 ========================= */
 
 export function mapMessageToPresentation(
-
   message: Message,
-
   grouped: boolean
-
 ): MessagePresentationModel {
 
   const identity =
     resolveMessageIdentity(message)
 
-  /* CRITICAL: single source */
   const variant = identity.variant
 
-  /* CRITICAL: stable identity */
   const stableId =
     message.clientId || message.id
 
@@ -116,62 +99,40 @@ export function mapMessageToPresentation(
 
   return {
 
-    /* identity */
     id: stableId,
     clientId: message.clientId,
     serverId: message.id,
 
     variant,
 
-    /* author */
     authorName: identity.displayName,
 
-    /* content */
     bodyHtml: getMessageBody(message),
 
-    attachments: message.attachments || [],
+    attachments: message.attachments ?? [],
     hasAttachments: hasAttachments(message),
 
-    /* meta */
     time: message.meta.displayTime,
 
     status,
 
-    /* =========================
-       DISPLAY RULES
-    ========================= */
-
-    /* only outbound human shows delivery */
     showStatus:
       identity.isOutbound &&
       identity.isHuman,
 
-    /* hide author for grouped + system */
     showAuthor:
       !grouped &&
       variant !== MessageVariant.SYSTEM,
 
     grouped,
 
-    /* =========================
-       DIRECTION (UI SAFE)
-    ========================= */
-
     direction:
       identity.isInbound ? 'in' : 'out',
 
-    /* STRICT: variant-driven alignment */
     align:
       ALIGNMENT_MAP[variant],
 
-    /* =========================
-       AI FLAGS (important)
-    ========================= */
-
     isAI: identity.isAI,
-
-    isAutomated:
-      identity.isAutomated
-
+    isAutomated: identity.isAutomated
   }
 }

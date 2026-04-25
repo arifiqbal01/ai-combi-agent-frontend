@@ -12,11 +12,7 @@ import {
 import { useDocument } from '@/features/knowledge/application/queries/useDocument'
 import { KnowledgeStatus } from '@/features/knowledge/domain/knowledge.types'
 
-/* =========================
- helpers
-========================= */
-
-function parseContent(content?: string) {
+function parseContent(content: string) {
   if (!content) {
     return {
       title: 'Knowledge',
@@ -31,7 +27,6 @@ function parseContent(content?: string) {
 
   const hasTitleStructure = firstLine && secondLine === ''
 
-  // ✅ Proper structured title
   if (hasTitleStructure) {
     return {
       title: firstLine,
@@ -39,7 +34,6 @@ function parseContent(content?: string) {
     }
   }
 
-  // ❗ Fallback title (from content) → truncate with ...
   const MAX = 80
   let fallbackTitle = firstLine || 'Knowledge'
 
@@ -61,10 +55,6 @@ function formatParagraphs(content: string) {
     .filter(Boolean)
 }
 
-/* =========================
- component
-========================= */
-
 export function DocumentDialog({
   sourceId,
   documentId,
@@ -83,30 +73,28 @@ export function DocumentDialog({
     return null
   }
 
-  const { title, body } = parseContent(data?.content)
+  const { title, body } =
+    parseContent(data?.content ?? '')
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) onClose()
+      }}
+    >
       <DialogContent
-        className="
-          max-w-2xl
-          w-full
-          relative
-          rounded-xl
-          p-6
-        "
+        className="max-w-2xl w-full relative rounded-xl p-6"
         onPointerDownOutside={onClose}
         onEscapeKeyDown={onClose}
       >
 
-        {/* CLOSE */}
         <DialogClose asChild>
           <button className="absolute right-5 top-5 text-lg opacity-70 hover:opacity-100">
             ✕
           </button>
         </DialogClose>
 
-        {/* HEADER */}
         {data && (
           <DialogHeader className="mb-4 pb-3 border-b">
             <DialogTitle className="text-lg font-semibold leading-snug">
@@ -115,7 +103,6 @@ export function DocumentDialog({
           </DialogHeader>
         )}
 
-        {/* BODY */}
         <div className="max-h-[65vh] overflow-y-auto pr-1">
 
           {isLoading && (
@@ -131,16 +118,7 @@ export function DocumentDialog({
           )}
 
           {!isLoading && data && (
-            <div
-              className="
-                mt-2
-                space-y-4
-                text-sm
-                leading-relaxed
-                text-text-primary
-                max-w-prose
-              "
-            >
+            <div className="mt-2 space-y-4 text-sm leading-relaxed text-text-primary max-w-prose">
               {formatParagraphs(body).map((para, i) => (
                 <p key={i}>{para}</p>
               ))}

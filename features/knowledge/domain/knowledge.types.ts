@@ -33,10 +33,13 @@ export type KnowledgeStatus =
 ========================= */
 
 export type KnowledgeSource = {
- id: string
- status: KnowledgeStatus
- type: KnowledgeSourceType
- documentCount: number
+  id: string
+  status: KnowledgeStatus
+  type: KnowledgeSourceType
+  documentCount: number
+
+  createdAt?: string
+  updatedAt?: string
 }
 
 /* =========================

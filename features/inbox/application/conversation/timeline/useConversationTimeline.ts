@@ -1,30 +1,29 @@
 import {
+  Conversation
+} from '@/features/inbox/domain/conversation/conversation.types'
 
- buildTimeline
+import {
+  TimelineGroup
+} from '@/features/inbox/domain/timeline/timeline.types'
 
+import {
+  buildTimeline
 } from '@/features/inbox/domain/timeline/timeline.service'
 
 import {
-
- mapTimeline
-
+  mapTimeline
 } from '@/features/inbox/domain/timeline/timeline.mapper'
 
 export function useConversationTimeline(
+  conversation: Conversation | null
+): TimelineGroup[] {
 
- conversation:Conversation | null
+  if (!conversation?.messages?.length) {
+    return []
+  }
 
-){
+  const items =
+    buildTimeline(conversation.messages)
 
- if(!conversation?.messages)
-  return []
-
- const items=
-
-  buildTimeline(
-   conversation.messages
-  )
-
- return mapTimeline(items)
-
+  return mapTimeline(items)
 }

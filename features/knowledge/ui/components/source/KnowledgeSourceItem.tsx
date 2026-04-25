@@ -17,13 +17,13 @@ export function KnowledgeSourceItem({
   onAdd: (id: string) => void
 }) {
   const [open, setOpen] = useState(false)
-  const [docId, setDocId] = useState<string | null>(null)
+  const [docId, setDocId] = useState<string | undefined>()
 
   useEffect(() => {
     if (source.documentCount > 0) {
       setOpen(true)
     }
-  }, [source.documentCount])
+  }, [])
 
   return (
     <Surface className="p-4">
@@ -45,12 +45,11 @@ export function KnowledgeSourceItem({
 
       </Stack>
 
-      {/* VIEW ONLY */}
       <DocumentDialog
         sourceId={source.id}
-        documentId={docId || undefined}
+        documentId={docId}
         open={!!docId}
-        onClose={() => setDocId(null)}
+        onClose={() => setDocId(undefined)}
       />
     </Surface>
   )

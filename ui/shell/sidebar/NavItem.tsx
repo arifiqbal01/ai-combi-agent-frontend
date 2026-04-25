@@ -25,9 +25,11 @@ export default function NavItem({
   return (
     <Link
       href={href}
-      className="flex w-16 flex-col items-center gap-2 py-3"
+      className={clsx(
+        'flex flex-col items-center justify-center gap-1 py-3 transition w-full',
+      )}
     >
-      {/* ICON ONLY ACTIVE */}
+      {/* ICON */}
       <div
         className={clsx(
           'flex h-10 w-10 items-center justify-center rounded-xl transition',
@@ -44,11 +46,12 @@ export default function NavItem({
         </Icon>
       </div>
 
-      {/* LABEL (no background ever) */}
+      {/* LABEL */}
       <Text
         size="xs"
         weight="medium"
         className={clsx(
+          'text-center',
           isActive
             ? 'text-text-primary'
             : 'text-text-secondary'

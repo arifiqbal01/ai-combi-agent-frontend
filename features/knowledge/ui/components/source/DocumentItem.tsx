@@ -5,16 +5,12 @@ import { useArchiveDocument } from '@/features/knowledge/application/mutations/u
 import { KnowledgeDocument } from '@/features/knowledge/domain/knowledge.types'
 import { Trash2 } from 'lucide-react'
 
-function extractTitle(content?: string) {
-  if (!content) return 'Untitled'
-
+function extractTitle(content: string) {
   const firstLine = content.split('\n')[0]?.trim()
   return firstLine || 'Untitled'
 }
 
-function extractPreview(content?: string) {
-  if (!content) return ''
-
+function extractPreview(content: string) {
   const lines = content.split('\n').slice(1).join(' ').trim()
   return lines
 }
@@ -30,7 +26,7 @@ export function DocumentItem({
 }) {
   const archive = useArchiveDocument()
 
-  const baseContent = doc.content || doc.preview
+  const baseContent = doc.content ?? doc.preview ?? ''
   const title = extractTitle(baseContent)
   const preview = extractPreview(baseContent)
 
@@ -43,20 +39,12 @@ export function DocumentItem({
           className="cursor-pointer flex-1 min-w-0"
           onClick={() => onOpen(doc.id)}
         >
-          <Text
-            size="sm"
-            weight="medium"
-            className="line-clamp-1"
-          >
+          <Text size="sm" weight="medium" className="line-clamp-1">
             {title}
           </Text>
 
           {preview && (
-            <Text
-              size="xs"
-              tone="muted"
-              className="line-clamp-1 mt-0.5"
-            >
+            <Text size="xs" tone="muted" className="line-clamp-1 mt-0.5">
               {preview}
             </Text>
           )}
@@ -65,7 +53,7 @@ export function DocumentItem({
         {/* DELETE */}
         <div className="opacity-30 group-hover:opacity-100 transition shrink-0">
           <Button
-            size="xs"
+            size="sm" // ✅ fixed
             variant="ghost"
             loading={archive.isPending}
             className="text-red-500 hover:text-red-600"

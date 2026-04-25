@@ -1,8 +1,4 @@
-/* =========================
- application/queries/useSources.ts
-========================= */
-
-import { useQuery } from '@tanstack/react-query'
+import { useAppQuery } from '@/core/query/useAppQuery'
 
 import { listSources } from '@/features/knowledge/infrastructure/api/knowledge.api'
 import { mapSourceDTO } from '@/features/knowledge/infrastructure/mappers/knowledge.mapper'
@@ -14,7 +10,7 @@ import {
 } from '@/features/knowledge/domain/knowledge.types'
 
 export function useSources() {
-  return useQuery<KnowledgeSource[]>({
+  return useAppQuery<KnowledgeSource[]>({
     queryKey: knowledgeKeys.sources(),
 
     queryFn: async () => {

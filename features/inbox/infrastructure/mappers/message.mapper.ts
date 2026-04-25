@@ -1,29 +1,19 @@
 /* infrastructure/mappers/message.mapper.ts */
 
 import {
- MessageDTO
+  MessageDTO
 } from '../dto/message.dto'
 
 import {
- Message,
- MessageAuthor,
- MessageKind,
- MessageDirection,
- MessageAuthorType,
- DeliveryStatus
+  Message
 } from '@/features/inbox/domain/message'
 
 import {
- mapAttachments
+  mapAttachments
 } from './attachment.mapper'
 
 import {
- Participant,
- ParticipantTransportRole
-} from '@/features/inbox/domain/participant/participant.types'
-
-import {
- processMessages
+  processMessages
 } from '@/features/inbox/application/message/message.pipeline'
 
 import {
@@ -37,142 +27,98 @@ import {
 } from './utils/message.utils'
 
 /* =========================
- Message mapper
+   Message mapper
 ========================= */
 
 export function mapMessageDTO(
+  dto: MessageDTO,
+  channelAccount?: string,
+  conversationSender?: string
+): Message {
 
- dto:MessageDTO,
-
- channelAccount?:string,
-
- conversationSender?:string
-
-):Message{
-
- const kind =
-  resolveKind(dto)
-
- const direction =
-  normalizeDirection(dto.direction)
-
- const createdAt =
-  dto.timestamp
-
- const deliveryStatus =
-  normalizeDeliveryStatus(
-   dto.delivery_status
-  )
-
- return{
-
-  id:dto.id,
-
-  clientId:
-   dto.client_id || undefined,
-
-  direction,
-
-  kind,
-
-  author:
-   resolveAuthor(dto),
-
-  subject:undefined,
-
-  bodyText:
-
-   dto.body_text ||
-
-   dto.preview ||
-
-   undefined,
-
-  bodyHtml:
-   dto.body || '',
-
-  attachments:
-
-   mapAttachments(
-    dto.attachments || []
-   ),
-
-  participants:
-
-   resolveParticipants(
-
-    dto,
-
-    channelAccount,
-
-    conversationSender
-
-   ),
-
-  flags:{
-
-   aiGenerated:
-    dto.actor_type==='ai',
-
-   autoSent:false,
-
-   failed:
-    deliveryStatus===
-    DeliveryStatus.FAILED
-
-  },
-
-  meta:{
-
-   createdAt,
-
-   displayTime:
-    formatDisplayTime(
-     createdAt
-    ),
-
-   status:
-    deliveryStatus
-
+  if (!dto.timestamp) {
+    throw new Error(`MessageDTO missing timestamp: ${dto.id}`)
   }
 
- }
+  const direction =
+    normalizeDirection(dto.direction)
 
+  const kind =
+    resolveKind(dto.actor_type)
+
+  const createdAt = dto.timestamp
+
+  const deliveryStatus =
+    normalizeDeliveryStatus(dto.delivery_status)
+
+  return {
+    id: dto.id,
+
+    clientId: dto.client_id ?? undefined,
+
+    direction,
+
+    kind,
+
+    author:
+      resolveAuthor(dto),
+
+    subject: undefined,
+
+    bodyText:
+      dto.body_text ??
+      dto.preview ??
+      undefined,
+
+    bodyHtml:
+      dto.body ?? '',
+
+    attachments:
+      mapAttachments(dto.attachments ?? []),
+
+    participants:
+      resolveParticipants(
+        dto,
+        channelAccount,
+        conversationSender
+      ),
+
+    flags:
+      resolveFlags(
+        dto.actor_type,
+        deliveryStatus
+      ),
+
+    meta: {
+      createdAt,
+      displayTime:
+        formatDisplayTime(createdAt),
+      status: deliveryStatus
+    }
+  }
 }
 
 /* =========================
- Message list mapper
+   Message list mapper
 ========================= */
 
 export function mapMessages(
+  messages: MessageDTO[] | null | undefined,
+  channelAccount?: string,
+  conversationSender?: string
+): Message[] {
 
- messages:MessageDTO[],
+  if (!messages?.length)
+    return []
 
- channelAccount?:string,
+  const mapped: Message[] =
+    messages.map((message) =>
+      mapMessageDTO(
+        message,
+        channelAccount,
+        conversationSender
+      )
+    )
 
- conversationSender?:string
-
-){
-
- if(!messages?.length)
-  return []
-
- const mapped = messages.map(
-
-  message=>
-
-   mapMessageDTO(
-
-    message,
-
-    channelAccount,
-
-    conversationSender
-
-   )
-
- )
-
- return processMessages(mapped)
-
+  return processMessages(mapped)
 }

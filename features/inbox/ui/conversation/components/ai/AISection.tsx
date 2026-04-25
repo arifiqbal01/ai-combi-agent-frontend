@@ -34,13 +34,11 @@ export function AISection({
   const isIdle = aiState === 'IDLE'
   const isError = aiState === 'ERROR'
 
-  /* ✅ FIXED */
   const hasSuggestion = !!suggestion
   const canExpand = hasSuggestion
 
   const lastSuggestionRef = useRef<string | null>(null)
 
-  /* ✅ FIXED */
   useEffect(() => {
     if (!suggestion) return
 
@@ -59,18 +57,8 @@ export function AISection({
     return 'Ready'
   })()
 
-console.log('AISection DEBUG', {
-  aiState,
-  suggestion,
-  hasSuggestion: !!suggestion,
-  isSuggestion,
-  canExpand: !!suggestion,
-  expanded,
-})
-
   return (
     <div className="w-full px-6 py-3">
-
       <div className="
         max-w-[920px]
         mx-auto
@@ -99,7 +87,6 @@ console.log('AISection DEBUG', {
         )}
 
       </div>
-
     </div>
   )
 }

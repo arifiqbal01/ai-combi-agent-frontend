@@ -1,142 +1,89 @@
-import { Attachment }
-from '@/features/inbox/domain/attachment/attachment.types'
+import { Attachment } from '@/features/inbox/domain/attachment/attachment.types'
+
+export const UploadStatus = {
+  PENDING: 'pending',
+  UPLOADING: 'uploading',
+  DONE: 'done',
+  FAILED: 'failed'
+} as const
 
 export type UploadStatus =
- | 'pending'
- | 'uploading'
- | 'done'
- | 'failed'
+  typeof UploadStatus[keyof typeof UploadStatus]
 
-export type UploadQueueItem={
-
- id:string
-
- file:File
-
- status:UploadStatus
-
- progress:number
-
- attachment?:Attachment
-
- error?:string
-
+export type UploadQueueItem = {
+  id: string
+  file: File
+  status: UploadStatus
+  progress: number
+  attachment?: Attachment
+  error?: string
 }
 
 export function createQueueItem(
- file:File
-):UploadQueueItem{
+  file: File
+): UploadQueueItem {
 
- return{
-
-  id:crypto.randomUUID(),
-
-  file,
-
-  status:'pending',
-
-  progress:0
-
- }
-
+  return {
+    id: crypto.randomUUID(),
+    file,
+    status: UploadStatus.PENDING,
+    progress: 0
+  }
 }
 
 export function markUploading(
+  queue: UploadQueueItem[],
+  id: string
+): UploadQueueItem[] {
 
- queue:UploadQueueItem[],
-
- id:string
-
-){
-
- return queue.map(item=>
-
-  item.id===id
-
-   ? {
-
-      ...item,
-
-      status:'uploading'
-
-     }
-
-   : item
-
- )
-
+  return queue.map(item =>
+    item.id === id
+      ? {
+          ...item,
+          status: UploadStatus.UPLOADING
+        }
+      : item
+  )
 }
 
 export function markDone(
+  queue: UploadQueueItem[],
+  id: string,
+  attachment: Attachment
+): UploadQueueItem[] {
 
- queue:UploadQueueItem[],
-
- id:string,
-
- attachment:Attachment
-
-){
-
- return queue.map(item=>
-
-  item.id===id
-
-   ? {
-
-      ...item,
-
-      status:'done',
-
-      progress:100,
-
-      attachment
-
-     }
-
-   : item
-
- )
-
+  return queue.map(item =>
+    item.id === id
+      ? {
+          ...item,
+          status: UploadStatus.DONE,
+          progress: 100,
+          attachment
+        }
+      : item
+  )
 }
 
 export function markFailed(
+  queue: UploadQueueItem[],
+  id: string
+): UploadQueueItem[] {
 
- queue:UploadQueueItem[],
-
- id:string
-
-){
-
- return queue.map(item=>
-
-  item.id===id
-
-   ? {
-
-      ...item,
-
-      status:'failed',
-
-      error:'Upload failed'
-
-     }
-
-   : item
-
- )
-
+  return queue.map(item =>
+    item.id === id
+      ? {
+          ...item,
+          status: UploadStatus.FAILED,
+          error: 'Upload failed'
+        }
+      : item
+  )
 }
 
 export function removeQueueItem(
+  queue: UploadQueueItem[],
+  id: string
+): UploadQueueItem[] {
 
- queue:UploadQueueItem[],
-
- id:string
-
-){
-
- return queue.filter(
-  item => item.id !== id
- )
-
+  return queue.filter(item => item.id !== id)
 }

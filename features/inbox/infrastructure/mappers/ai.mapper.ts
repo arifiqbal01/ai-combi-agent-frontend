@@ -1,30 +1,34 @@
 /* infrastructure/mappers/ai.mapper.ts */
 
 import {
-
- AISuggestionDTO,
- AIRunDTO
-
+  AISuggestionDTO,
+  AIRunDTO,
+  AISuggestionDecisionDTO,
+  AISuggestionStatusDTO,
+  AIRunStateDTO
 } from '../dto/ai.dto'
 
 import {
-
- AISuggestion,
- AISuggestionDecision,
- AISuggestionStatus,
- AIRun,
- AIRunState
-
+  AISuggestion,
+  AISuggestionDecision,
+  AISuggestionStatus,
+  AIRun,
+  AIRunState
 } from '@/features/inbox/domain/ai/ai.types'
 
-function formatConfidence(
- value:number
-):number{
+/* =========================
+ Helpers
+========================= */
 
- return Math.round(
-  value * 100
- )
+function formatConfidence(value: number): number {
+  return Math.round(value * 100)
+}
 
+function normalizeConfidence(
+  value: number | null | undefined
+): number {
+  if (typeof value !== 'number') return 0
+  return Math.min(1, Math.max(0, value))
 }
 
 /* =========================
@@ -32,17 +36,20 @@ function formatConfidence(
 ========================= */
 
 function normalizeDecision(
- decision:string
-):AISuggestionDecision{
+  decision: AISuggestionDecisionDTO
+): AISuggestionDecision {
 
- if(decision===AISuggestionDecision.AUTO_REPLY)
-  return AISuggestionDecision.AUTO_REPLY
+  switch (decision) {
+    case 'auto_reply':
+      return AISuggestionDecision.AUTO_REPLY
 
- if(decision===AISuggestionDecision.IGNORE)
-  return AISuggestionDecision.IGNORE
+    case 'ignore':
+      return AISuggestionDecision.IGNORE
 
- return AISuggestionDecision.SUGGEST
-
+    case 'suggest':
+    default:
+      return AISuggestionDecision.SUGGEST
+  }
 }
 
 /* =========================
@@ -50,17 +57,20 @@ function normalizeDecision(
 ========================= */
 
 function normalizeStatus(
- status:string
-):AISuggestionStatus{
+  status: AISuggestionStatusDTO
+): AISuggestionStatus {
 
- if(status===AISuggestionStatus.FAILED)
-  return AISuggestionStatus.FAILED
+  switch (status) {
+    case 'failed':
+      return AISuggestionStatus.FAILED
 
- if(status===AISuggestionStatus.READY)
-  return AISuggestionStatus.READY
+    case 'ready':
+      return AISuggestionStatus.READY
 
- return AISuggestionStatus.PENDING
-
+    case 'pending':
+    default:
+      return AISuggestionStatus.PENDING
+  }
 }
 
 /* =========================
@@ -68,20 +78,23 @@ function normalizeStatus(
 ========================= */
 
 function normalizeRunState(
- state:string
-):AIRunState{
+  state: AIRunStateDTO
+): AIRunState {
 
- if(state===AIRunState.COMPLETED)
-  return AIRunState.COMPLETED
+  switch (state) {
+    case 'completed':
+      return AIRunState.COMPLETED
 
- if(state===AIRunState.SKIPPED)
-  return AIRunState.SKIPPED
+    case 'skipped':
+      return AIRunState.SKIPPED
 
- if(state===AIRunState.FAILED)
-  return AIRunState.FAILED
+    case 'failed':
+      return AIRunState.FAILED
 
- return AIRunState.RUNNING
-
+    case 'running':
+    default:
+      return AIRunState.RUNNING
+  }
 }
 
 /* =========================
@@ -89,51 +102,31 @@ function normalizeRunState(
 ========================= */
 
 export function mapAISuggestionDTO(
+  dto: AISuggestionDTO
+): AISuggestion {
 
- dto:AISuggestionDTO
+  const confidence = normalizeConfidence(dto.confidence)
 
-):AISuggestion{
+  return {
+    id: dto.suggestion_id,
 
- return{
+    decision: normalizeDecision(dto.decision),
 
-  id:
-   dto.suggestion_id,
+    content: dto.content?.trim() || '',
 
-  decision:
-   normalizeDecision(
-    dto.decision
-   ),
+    confidence,
+    confidencePercent: formatConfidence(confidence),
 
-  content:
-   dto.content || '',
+    status: normalizeStatus(dto.status),
 
-  confidence:
-   dto.confidence,
+    createdAt: dto.created_at || new Date().toISOString(),
 
-  confidencePercent:
-   formatConfidence(
-    dto.confidence
-   ),
+    messageId: dto.message_id ?? undefined,
 
-  status:
-   normalizeStatus(
-    dto.status
-   ),
+    metadata: dto.metadata ?? undefined,
 
-  createdAt:
-   dto.created_at,
-
-  messageId:
-   dto.message_id || undefined,
-
-  metadata:
-   dto.metadata,
-
-  signals:
-   dto.signals
-
- }
-
+    signals: dto.signals ?? undefined
+  }
 }
 
 /* =========================
@@ -141,64 +134,43 @@ export function mapAISuggestionDTO(
 ========================= */
 
 export function mapAIRunDTO(
+  dto: AIRunDTO
+): AIRun {
 
- dto:AIRunDTO
+  return {
+    id: dto.agent_run_id,
 
-):AIRun{
+    state: normalizeRunState(dto.state),
 
- return{
+    progress:
+      typeof dto.progress === 'number'
+        ? Math.min(100, Math.max(0, dto.progress))
+        : 0,
 
-  id:
-   dto.agent_run_id,
+    active: Boolean(dto.active),
 
-  state:
-   normalizeRunState(
-    dto.state
-   ),
+    updatedAt: dto.updated_at || new Date().toISOString(),
 
-  progress:
-   dto.progress,
+    stage: dto.stage ?? undefined,
 
-  active:
-   dto.active,
-
-  updatedAt:
-   dto.updated_at,
-
-  stage:
-   dto.stage,
-
-  status:
-   dto.status
-
- }
-
+    status: dto.status ?? undefined
+  }
 }
 
 /* =========================
- list mappers
+ List mappers
 ========================= */
 
 export function mapAISuggestions(
+  suggestions: AISuggestionDTO[] | null | undefined
+): AISuggestion[] {
 
- suggestions:AISuggestionDTO[]
-
-):AISuggestion[]{
-
- return suggestions.map(
-  mapAISuggestionDTO
- )
-
+  return (suggestions || []).map(mapAISuggestionDTO)
 }
 
 export function mapAIRuns(
+  runs: AIRunDTO[] | null | undefined
+): AIRun[] {
 
- runs:AIRunDTO[]
-
-):AIRun[]{
-
- return runs.map(
-  mapAIRunDTO
- )
-
+  return (runs || []).map(mapAIRunDTO)
 }

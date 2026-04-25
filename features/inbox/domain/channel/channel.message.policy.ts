@@ -1,123 +1,137 @@
-// feature/inbox/domain/channel/message.channel.rules.ts
-import { ChannelType }
-from './channel.types'
+/* feature/inbox/domain/channel/message.channel.rules.ts */
 
-export type ChannelMessagePolicy={
+import {
+  ChannelType
+} from './channel.types'
 
- capabilities:{
-  canReply:boolean
-  canAttach:boolean
-  canAI:boolean
- }
+/* =========================
+   TYPES
+========================= */
 
- limits:{
-  maxMessageLength:number
-  maxAttachments:number
-  maxFileSizeMB:number
- }
+export type ChannelMessagePolicy = {
 
+  capabilities: {
+    canReply: boolean
+    canAttach: boolean
+    canAI: boolean
+  }
+
+  limits: {
+    maxMessageLength: number
+    maxAttachments: number
+    maxFileSizeMB: number
+  }
 }
 
-export const DEFAULT_CHANNEL_POLICY:ChannelMessagePolicy={
+/* =========================
+   DEFAULT
+========================= */
 
- capabilities:{
-  canReply:true,
-  canAttach:true,
-  canAI:true
- },
+export const DEFAULT_CHANNEL_POLICY: ChannelMessagePolicy = {
 
- limits:{
-  maxMessageLength:5000,
-  maxAttachments:10,
-  maxFileSizeMB:25
- }
+  capabilities: {
+    canReply: true,
+    canAttach: true,
+    canAI: true
+  },
 
+  limits: {
+    maxMessageLength: 5000,
+    maxAttachments: 10,
+    maxFileSizeMB: 25
+  }
 }
 
-export const CHANNEL_MESSAGE_POLICY:
-Record<ChannelType,ChannelMessagePolicy>={
+/* =========================
+   CHANNEL POLICIES
+========================= */
 
- [ChannelType.EMAIL]:{
+export const CHANNEL_MESSAGE_POLICY: Record<
+  ChannelType,
+  ChannelMessagePolicy
+> = {
 
-  capabilities:{
-   canReply:true,
-   canAttach:true,
-   canAI:true
+  [ChannelType.EMAIL]: {
+    capabilities: {
+      canReply: true,
+      canAttach: true,
+      canAI: true
+    },
+    limits: {
+      maxMessageLength: 10000,
+      maxAttachments: 20,
+      maxFileSizeMB: 25
+    }
   },
 
-  limits:{
-   maxMessageLength:10000,
-   maxAttachments:20,
-   maxFileSizeMB:25
-  }
-
- },
-
- [ChannelType.WHATSAPP]:{
-
-  capabilities:{
-   canReply:true,
-   canAttach:true,
-   canAI:true
+  [ChannelType.WHATSAPP]: {
+    capabilities: {
+      canReply: true,
+      canAttach: true,
+      canAI: true
+    },
+    limits: {
+      maxMessageLength: 1024,
+      maxAttachments: 1,
+      maxFileSizeMB: 16
+    }
   },
 
-  limits:{
-   maxMessageLength:1024,
-   maxAttachments:1,
-   maxFileSizeMB:16
-  }
-
- },
-
- [ChannelType.SLACK]:{
-
-  capabilities:{
-   canReply:true,
-   canAttach:true,
-   canAI:true
+  [ChannelType.SLACK]: {
+    capabilities: {
+      canReply: true,
+      canAttach: true,
+      canAI: true
+    },
+    limits: {
+      maxMessageLength: 4000,
+      maxAttachments: 10,
+      maxFileSizeMB: 50
+    }
   },
 
-  limits:{
-   maxMessageLength:4000,
-   maxAttachments:10,
-   maxFileSizeMB:50
-  }
-
- },
-
- [ChannelType.INSTAGRAM]:{
-
-  capabilities:{
-   canReply:true,
-   canAttach:false,
-   canAI:true
+  [ChannelType.INSTAGRAM]: {
+    capabilities: {
+      canReply: true,
+      canAttach: false,
+      canAI: true
+    },
+    limits: {
+      maxMessageLength: 1000,
+      maxAttachments: 0,
+      maxFileSizeMB: 0
+    }
   },
 
-  limits:{
-   maxMessageLength:1000,
-   maxAttachments:0,
-   maxFileSizeMB:0
+  /* 🔥 CRITICAL FIX */
+  [ChannelType.SYSTEM]: {
+    capabilities: {
+      canReply: false,
+      canAttach: false,
+      canAI: false
+    },
+    limits: {
+      maxMessageLength: 0,
+      maxAttachments: 0,
+      maxFileSizeMB: 0
+    }
   }
-
- }
-
 }
+
+/* =========================
+   RESOLVER
+========================= */
 
 export function getChannelMessagePolicy(
+  channel: ChannelType | null | undefined
+): ChannelMessagePolicy {
 
- channel:ChannelType | null | undefined
+  if (!channel) {
+    return DEFAULT_CHANNEL_POLICY
+  }
 
-):ChannelMessagePolicy{
-
- if(!channel)
-  return DEFAULT_CHANNEL_POLICY
-
- return (
-
-  CHANNEL_MESSAGE_POLICY[channel]
-
-  ?? DEFAULT_CHANNEL_POLICY
-
- )
-
+  return (
+    CHANNEL_MESSAGE_POLICY[channel] ??
+    DEFAULT_CHANNEL_POLICY
+  )
 }

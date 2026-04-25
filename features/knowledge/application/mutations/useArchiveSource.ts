@@ -1,22 +1,19 @@
-/* =========================
- application/mutations/useArchiveSource.ts
-========================= */
-
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
+import { useAppMutation } from '@/core/query/useAppMutation'
 
 import { archiveSource } from '@/features/knowledge/infrastructure/api/knowledge.api'
 import { knowledgeKeys } from '@/features/knowledge/application/keys/knowledge.keys'
 
 export function useArchiveSource() {
- const qc = useQueryClient()
+  const qc = useQueryClient()
 
- return useMutation({
-  mutationFn: (id: string) => archiveSource(id),
+  return useAppMutation({
+    mutationFn: (id: string) => archiveSource(id),
 
-  onSuccess: () => {
-   qc.invalidateQueries({
-    queryKey: knowledgeKeys.sources(),
-   })
-  },
- })
+    onSuccess: async () => {
+      await qc.invalidateQueries({
+        queryKey: knowledgeKeys.sources(),
+      })
+    },
+  })
 }

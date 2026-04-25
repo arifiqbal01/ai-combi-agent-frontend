@@ -1,13 +1,13 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useAppQuery } from '@/core/query/useAppQuery'
 
 import { userApi } from '../../infrastructure/api/user.api'
 import { mapCurrentUser } from '../../infrastructure/mappers/user.mapper'
 import { userKeys } from '../keys/user.keys'
 
 export const useCurrentUser = () => {
-  return useQuery({
+  return useAppQuery({
     queryKey: userKeys.me(),
 
     queryFn: async () => {
@@ -16,7 +16,7 @@ export const useCurrentUser = () => {
     },
 
     // ✅ SESSION DATA (very stable)
-    staleTime: 5 * 60 * 1000,   // 5 minutes
+    staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
 
     // ✅ UX

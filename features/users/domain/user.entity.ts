@@ -1,4 +1,4 @@
-import { User, AssignableRole } from './user.types'
+import { User } from './user.types'
 
 // -----------------------------
 // Display Helpers
@@ -28,16 +28,11 @@ export const isOwner = (user: User) =>
 export const isAdmin = (user: User) =>
   user.role === 'admin'
 
-export const isMember = (user: User) =>
-  user.role === 'member'
+export const isAgent = (user: User) =>
+  user.role === 'agent'
 
-// -----------------------------
-// Assignable Roles (UI-safe)
-// -----------------------------
-export const ASSIGNABLE_ROLES: AssignableRole[] = [
-  'admin',
-  'member',
-]
+export const isViewer = (user: User) =>
+  user.role === 'viewer'
 
 // -----------------------------
 // UI Decisions (CRITICAL)

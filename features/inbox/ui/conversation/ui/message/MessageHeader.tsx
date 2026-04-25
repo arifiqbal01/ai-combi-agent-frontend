@@ -1,66 +1,53 @@
 'use client'
 
 import {
- MessageAuthor
-} from '@/features/inbox/domain/message/message.author'
-
-import {
- MessageVariant
-} from './MessageVariant'
+  MessageAuthor,
+  MessageVariant
+} from '@/features/inbox/domain/message'
 
 import { Badge } from '@/ui'
 
-type Props={
- author:MessageAuthor
- variant:MessageVariant
- hidden?:boolean
+type Props = {
+  author: MessageAuthor
+  variant: MessageVariant
+  hidden?: boolean
 }
 
 export function MessageHeader({
- author,
- variant,
- hidden
-}:Props){
+  author,
+  variant,
+  hidden
+}: Props){
 
- if(hidden) return null
+  if (hidden) return null
 
- if(variant==='system')
-  return null
+  if (variant === MessageVariant.SYSTEM)
+    return null
 
- return(
+  return(
 
-  <div className="
+    <div className="
+      flex items-center gap-2
+      text-[12px]
+      text-gray-600
+      font-medium
+      mb-1
+    ">
 
-   flex
-   items-center
-   gap-2
+      {author.name}
 
-   text-[12px]
+      {variant === MessageVariant.AI && (
 
-   text-gray-600
+        <Badge
+          variant="default"
+          className="text-[10px]"
+        >
+          AI
+        </Badge>
 
-   font-medium
+      )}
 
-   mb-1
+    </div>
 
-  ">
-
-   {author.name}
-
-   {variant==='ai' && (
-
-    <Badge
-     variant="default"
-     className="text-[10px]"
-    >
-
-     AI
-
-    </Badge>
-
-   )}
-
-  </div>
-
- )
+  )
 }

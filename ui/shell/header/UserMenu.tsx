@@ -1,4 +1,3 @@
-// ui/shell/header/UserMenu.tsx
 'use client'
 
 import {
@@ -9,7 +8,6 @@ import {
 } from '@/ui'
 
 import { LogOut } from 'lucide-react'
-
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -20,94 +18,89 @@ export default function UserMenu() {
   const { data: user, isLoading } = useCurrentUser()
 
   const [open, setOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
 
   const menuRef = useRef<HTMLDivElement | null>(null)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
+
   const auth = useAuth()
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    if (!open) return
 
-  useEffect(() => {
-  if (!open) return
+    function handleClick(e: MouseEvent) {
+      const target = e.target as Node
 
-  function handleClick(e: MouseEvent) {
-    const target = e.target as Node
-
-    if (
-      menuRef.current &&
-      !menuRef.current.contains(target) &&
-      buttonRef.current &&
-      !buttonRef.current.contains(target)
-    ) {
-      setOpen(false)
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(target)
+      ) {
+        setOpen(false)
+      }
     }
-  }
 
-  document.addEventListener('click', handleClick)
+    document.addEventListener('click', handleClick)
 
-  return () => {
-    document.removeEventListener('click', handleClick)
-  }
-}, [open])
+    return () => {
+      document.removeEventListener('click', handleClick)
+    }
+  }, [open])
 
   async function handleLogout() {
-  setOpen(false)
-  await auth.signOut({
+    setOpen(false)
+    await auth.signOut({
       redirectUrl: '/login',
     })
-}
+  }
 
   function renderMenu() {
-    if (!mounted || !open || !buttonRef.current) return null
+    if (!open || !buttonRef.current) return null
 
     const rect = buttonRef.current.getBoundingClientRect()
 
     return createPortal(
-      <Surface
+      <div
         ref={menuRef}
         role="menu"
-        className="absolute z-[100] w-56 rounded-lg shadow-md"
         style={{
           position: 'fixed',
           top: rect.bottom + 8,
           right: window.innerWidth - rect.right,
+          zIndex: 100,
         }}
       >
-        <Stack gap="sm" className="p-3">
-          {/* USER INFO */}
-          <Stack gap="xs">
-            <Text size="sm" weight="medium">
-              {user?.name || user?.email || 'User'}
-            </Text>
+        <Surface className="w-56 rounded-lg shadow-md">
+          <Stack gap="sm" className="p-3">
+            <Stack gap="xs">
+              <Text size="sm" weight="medium">
+                {user?.name || user?.email || 'User'}
+              </Text>
 
-            <Text size="xs" tone="secondary">
-              {user?.role || ''}
-            </Text>
+              <Text size="xs" tone="secondary">
+                {user?.role || ''}
+              </Text>
+            </Stack>
+
+            <div className="border-t border-border-subtle" />
+
+            <button
+              onClick={handleLogout}
+              className="
+                flex items-center gap-2 px-2 py-2 text-sm
+                text-red-600 hover:bg-bg-muted rounded-md
+              "
+            >
+              <LogOut size={16} />
+              <Text size="sm">Logout</Text>
+            </button>
           </Stack>
-
-          <div className="border-t border-border-subtle" />
-
-          {/* LOGOUT */}
-          <button
-            onClick={handleLogout}
-            className="
-              flex items-center gap-2 px-2 py-2 text-sm
-              text-red-600 hover:bg-bg-muted rounded-md
-            "
-          >
-            <LogOut size={16} />
-            <Text size="sm">Logout</Text>
-          </button>
-        </Stack>
-      </Surface>,
+        </Surface>
+      </div>,
       document.body
     )
   }
 
-  // 🔥 Safe avatar fallback during loading
   const avatarLabel =
     user?.name?.[0]?.toUpperCase() ||
     user?.email?.[0]?.toUpperCase() ||

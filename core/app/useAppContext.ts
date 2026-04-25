@@ -1,4 +1,3 @@
-// core/app/useAppContext.ts
 'use client'
 
 import { useAuth } from '@/core/auth/useAuth'
@@ -13,19 +12,21 @@ export function useAppContext() {
   const queryClient = useQueryClient()
 
   const isAuthenticated = !!auth.isAuthenticated
-  const isReady = auth.isLoaded && isAuthenticated
 
-  // -----------------------------
-  // 1. Fetch Tenants
-  // -----------------------------
+  // ✅ strict guard
+  const canFetchTenants =
+    auth.isLoaded &&
+    isAuthenticated
+
   const {
     data: tenants,
     isLoading,
     isError,
   } = useQuery({
     queryKey: ['my-tenants'],
-    enabled: isReady,
-    retry: false,
+    enabled: canFetchTenants,
+    retry: 2,
+    retryDelay: 1000,
     refetchOnWindowFocus: false,
     queryFn: async () => {
       const res = await authApi.getMyTenants()
@@ -33,75 +34,60 @@ export function useAppContext() {
     },
   })
 
-  // -----------------------------
-  // 2. Handle invalid tenant
-  // -----------------------------
   useEffect(() => {
     if (!isError) return
 
-    console.warn('❌ Tenant fetch error — clearing stale session')
     clearSession()
     localStorage.removeItem('tenant_id')
-    queryClient.invalidateQueries({ queryKey: ['my-tenants'] })
-  }, [isError, clearSession, queryClient])
 
-  // -----------------------------
-  // 3. Validate + auto-select tenant
-  // -----------------------------
+    queryClient.invalidateQueries({ queryKey: ['my-tenants'] })
+  }, [isError])
+
   useEffect(() => {
-    if (!tenants) return
+    if (!tenants || tenants.length === 0) return
+
+    const firstTenant = tenants[0]
 
     const isInvalid =
       tenantId && !tenants.some((t) => t.tenant_id === tenantId)
 
     if (isInvalid) {
-      console.warn('❌ Invalid tenant — resetting')
       clearSession()
       localStorage.removeItem('tenant_id')
       return
     }
 
-    // Auto-select first if none
-    if (!tenantId && tenants.length > 0) {
-      const t = tenants[0]
-
-      console.log('🏢 Selecting tenant:', t)
-
+    if (!tenantId) {
       setSession({
-        tenantId: t.tenant_id,
-        tenantName: t.name,
+        tenantId: firstTenant.tenant_id,
+        tenantName: firstTenant.name,
       })
 
-      localStorage.setItem('tenant_id', t.tenant_id)
+      localStorage.setItem('tenant_id', firstTenant.tenant_id)
     }
-  }, [tenants, tenantId, setSession, clearSession])
+  }, [tenants, tenantId])
 
-  // -----------------------------
-  // 4. Fetch Tenant Context (CRITICAL)
-  // -----------------------------
   const {
     data: tenantMe,
     isLoading: tenantLoading,
   } = useQuery({
     queryKey: ['tenant-me', tenantId],
-    enabled: !!tenantId, // ONLY when tenant exists
-    retry: false,
+    enabled: !!tenantId && !!tenants && canFetchTenants,
+    retry: 2,
+    retryDelay: 1000,
     queryFn: async () => {
       return authApi.getTenantMe()
     },
   })
 
-  // -----------------------------
-  // 5. Final readiness
-  // -----------------------------
   const loading = useMemo(() => {
     if (!auth.isLoaded) return true
-    if (isReady && isLoading && !tenants) return true
+    if (canFetchTenants && isLoading && !tenants) return true
     if (tenantId && tenantLoading && !tenantMe) return true
     return false
   }, [
     auth.isLoaded,
-    isReady,
+    canFetchTenants,
     isLoading,
     tenants,
     tenantId,
@@ -109,12 +95,18 @@ export function useAppContext() {
     tenantMe,
   ])
 
+  const isBootstrapped =
+    auth.isLoaded &&
+    isAuthenticated &&
+    !!tenantId &&
+    !!tenantMe
+
   return {
     loading,
     isAuthenticated,
-    isReady,
+    isReady: canFetchTenants,
+    isBootstrapped,
     hasTenant: !!tenantId,
-    hasNoTenant: tenants ? tenants.length === 0 : undefined,
     tenants,
     tenantId,
     tenantMe,

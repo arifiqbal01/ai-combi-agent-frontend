@@ -1,66 +1,39 @@
-import { useEffect,useState,useCallback } from 'react'
+import { useAppQuery } from '@/core/query/useAppQuery'
 
 import {
- listConversations
+  listConversations
 } from '@/features/inbox/infrastructure/api/conversation.api'
 
 import {
- mapConversationDTO
+  mapConversationListItemDTO
 } from '@/features/inbox/infrastructure/mappers/conversation.mapper'
 
 import {
- Conversation
+  ConversationSummary
 } from '@/features/inbox/domain/conversation/conversation.types'
 
-export function useConversationList(){
+export function useConversationList() {
 
- const [items,setItems]=
-  useState<Conversation[]>([])
+  const query = useAppQuery<ConversationSummary[]>({
+    queryKey: ['conversations'],
 
- const [loading,setLoading]=
-  useState(false)
+    queryFn: async () => {
+      const conversations = await listConversations()
 
- const refresh=
- useCallback(async()=>{
+      return conversations.map(
+        mapConversationListItemDTO
+      )
+    },
 
-  setLoading(true)
+    staleTime: 60 * 1000,
+    gcTime: 10 * 60 * 1000,
 
-  try{
+    refetchInterval: 5000,
+  })
 
-   const res=
-    await listConversations()
-
-   setItems(
-
-    res.conversations.map(
-     mapConversationDTO
-    )
-
-   )
-
+  return {
+    items: query.data ?? [],
+    loading: query.isLoading,
+    refresh: query.refetch
   }
-  finally{
-
-   setLoading(false)
-
-  }
-
- },[])
-
- useEffect(()=>{
-
-  refresh()
-
- },[refresh])
-
- return{
-
-  items,
-
-  loading,
-
-  refresh
-
- }
-
 }

@@ -1,108 +1,98 @@
 /* infrastructure/mappers/attachment.mapper.ts */
 
-import { MessageAttachmentDTO } from '../dto/message.dto'
+import { AttachmentDTO } from '../dto/attachment.dto'
 
 import {
-
- Attachment,
- AttachmentKind
-
+  Attachment,
+  AttachmentKind
 } from '@/features/inbox/domain/attachment/attachment.types'
 
+/* =========================
+ Helpers
+========================= */
+
+function normalizeMime(mime?: string): string {
+  return (mime || '').toLowerCase()
+}
+
+/* =========================
+ Kind resolver
+========================= */
+
 function resolveAttachmentKind(
+  mime?: string
+): AttachmentKind {
 
- mime:string
+  const m = normalizeMime(mime)
 
-):AttachmentKind{
+  if (m.startsWith('image/')) return AttachmentKind.IMAGE
+  if (m.startsWith('video/')) return AttachmentKind.VIDEO
+  if (m.startsWith('audio/')) return AttachmentKind.AUDIO
+  if (m === 'application/pdf') return AttachmentKind.PDF
 
- if(mime.startsWith('image'))
-  return AttachmentKind.IMAGE
-
- if(mime.startsWith('video'))
-  return AttachmentKind.VIDEO
-
- if(mime.startsWith('audio'))
-  return AttachmentKind.AUDIO
-
- if(mime.includes('pdf'))
-  return AttachmentKind.PDF
-
- return AttachmentKind.FILE
-
+  return AttachmentKind.FILE
 }
 
-function resolveIcon(
+/* =========================
+ Icon resolver
+========================= */
 
- kind:AttachmentKind
+function resolveIcon(kind: AttachmentKind): string {
 
-):string{
+  switch (kind) {
+    case AttachmentKind.IMAGE:
+      return 'image'
 
- switch(kind){
+    case AttachmentKind.PDF:
+      return 'pdf'
 
-  case AttachmentKind.IMAGE:
-   return 'image'
+    case AttachmentKind.VIDEO:
+      return 'video'
 
-  case AttachmentKind.PDF:
-   return 'pdf'
+    case AttachmentKind.AUDIO:
+      return 'audio'
 
-  case AttachmentKind.VIDEO:
-   return 'video'
-
-  case AttachmentKind.AUDIO:
-   return 'audio'
-
-  default:
-   return 'file'
-
- }
-
+    default:
+      return 'file'
+  }
 }
+
+/* =========================
+ Single mapper
+========================= */
 
 export function mapAttachmentDTO(
+  dto: AttachmentDTO
+): Attachment {
 
- dto:MessageAttachmentDTO
+  const kind = resolveAttachmentKind(dto.mime_type)
 
-):Attachment{
+  return {
+    id: dto.id ?? dto.storage_key,
 
- const kind =
+    fileName: dto.file_name || 'file',
 
-  resolveAttachmentKind(
-   dto.mime_type
-  )
+    mimeType: dto.mime_type || 'application/octet-stream',
 
- return{
+    fileSize:
+      typeof dto.file_size === 'number'
+        ? dto.file_size
+        : 0,
 
-  id:dto.id,
+    storageKey: dto.storage_key,
 
-  fileName:
-   dto.file_name,
-
-  mimeType:
-   dto.mime_type,
-
-  fileSize:
-   dto.file_size,
-
-  storageKey:
-   dto.storage_key,
-
-  kind,
-
-  icon:
-   resolveIcon(kind)
-
- }
-
+    kind,
+    icon: resolveIcon(kind)
+  }
 }
 
+/* =========================
+ List mapper
+========================= */
+
 export function mapAttachments(
+  attachments: AttachmentDTO[] | null | undefined
+): Attachment[] {
 
- attachments:MessageAttachmentDTO[]
-
-):Attachment[]{
-
- return attachments.map(
-  mapAttachmentDTO
- )
-
+  return (attachments || []).map(mapAttachmentDTO)
 }

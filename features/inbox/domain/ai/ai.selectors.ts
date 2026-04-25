@@ -1,83 +1,65 @@
 /* domain/ai/ai.selectors.ts */
 
 import {
-
- AISuggestion
-
+  AISuggestion
 } from './ai.types'
 
 import {
-
- shouldDisplaySuggestion
-
+  shouldDisplaySuggestion
 } from './ai.rules'
 
+/* =========================
+   TYPES
+========================= */
+
+export type AISuggestionView = {
+  id: string
+  content: string
+  confidence: number
+  confidencePercent: number
+  createdAt: string
+}
+
+/* =========================
+   SELECTORS
+========================= */
+
 export function selectLatestSuggestion(
+  suggestion: AISuggestion | null
+): AISuggestionView | null {
 
- suggestion:AISuggestion | null
+  if (!suggestion) return null
 
-){
+  if (!shouldDisplaySuggestion(suggestion)) {
+    return null
+  }
 
- if(!shouldDisplaySuggestion(
-  suggestion
- ))
-  return null
-
- return{
-
-  id:
-   suggestion.id,
-
-  content:
-   suggestion.content,
-
-  confidence:
-   suggestion.confidence,
-
-  confidencePercent:
-   suggestion.confidencePercent,
-
-  createdAt:
-   suggestion.createdAt
-
- }
-
+  return {
+    id: suggestion.id,
+    content: suggestion.content,
+    confidence: suggestion.confidence,
+    confidencePercent: suggestion.confidencePercent,
+    createdAt: suggestion.createdAt
+  }
 }
 
 export function getSuggestionConfidence(
+  suggestion: AISuggestion | null
+): number {
 
- suggestion:AISuggestion | null
-
-):number{
-
- if(!suggestion)
-  return 0
-
- return suggestion.confidencePercent
-
+  return suggestion?.confidencePercent ?? 0
 }
 
 export function hasSuggestion(
+  suggestion: AISuggestion | null
+): boolean {
 
- suggestion:AISuggestion | null
-
-):boolean{
-
- return Boolean(
-  suggestion
- )
-
+  return suggestion !== null
 }
 
 export function isHighConfidence(
+  suggestion: AISuggestion | null
+): boolean {
 
- suggestion:AISuggestion | null
-
-):boolean{
-
- if(!suggestion)
-  return false
-
- return suggestion.confidence >= 0.75
-
+  return (suggestion?.confidence ?? 0) >= 0.75
 }

@@ -1,30 +1,39 @@
-/* =========================
- application/mutations/useAddSource.ts
-========================= */
+import { useQueryClient } from '@tanstack/react-query'
+import { useAppMutation } from '@/core/query/useAppMutation'
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { addSource } from '@/features/knowledge/infrastructure/api/knowledge.api'
 import { mapSourceDTO } from '@/features/knowledge/infrastructure/mappers/knowledge.mapper'
 
 import {
- KnowledgeSource,
- KnowledgeSourceType,
-} from '../domain/knowledge.types'
+  KnowledgeSource,
+  KnowledgeSourceType,
+} from '@/features/knowledge/domain/knowledge.types'
+
+import { knowledgeKeys } from '../keys/knowledge.keys'
 
 export function useAddSource() {
- const qc = useQueryClient()
+  const qc = useQueryClient()
 
- return useMutation<KnowledgeSource, unknown, KnowledgeSourceType>({
-  mutationFn: async (sourceType) => {
-   const res = await addSource(sourceType)
-   return mapSourceDTO(res)
-  },
+  return useAppMutation<KnowledgeSource, unknown, KnowledgeSourceType>({
+    mutationFn: async (sourceType) => {
+      const res = await addSource(sourceType)
+      return mapSourceDTO(res)
+    },
 
-  onSuccess: (newSource) => {
-   qc.setQueryData(
-    ['knowledge', 'sources'],
-    (old: KnowledgeSource[] = []) => [newSource, ...old]
-   )
-  },
- })
+    onSuccess: async (newSource) => {
+      // ✅ Optimistic insert (deduplicated)
+      qc.setQueryData<KnowledgeSource[]>(
+        knowledgeKeys.sources(),
+        (old = []) =>
+          old.some(s => s.id === newSource.id)
+            ? old
+            : [newSource, ...old]
+      )
+
+      // 🔒 Optional safety: ensure server truth (ordering/extra fields)
+      await qc.invalidateQueries({
+        queryKey: knowledgeKeys.sources(),
+      })
+    },
+  })
 }

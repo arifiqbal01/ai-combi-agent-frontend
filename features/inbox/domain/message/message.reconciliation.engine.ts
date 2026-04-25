@@ -1,52 +1,61 @@
 import {
-
- Message,
- DeliveryStatus
-
+  Message,
+  DeliveryStatus,
+  MessageSyncState
 } from './message.types'
 
+function mapSyncToDelivery(
+  status: MessageSyncState
+): DeliveryStatus {
+  switch (status) {
+    case 'sending':
+    case 'pending':
+      return 'pending'
+    case 'sent':
+      return 'sent'
+    case 'delivered':
+      return 'delivered'
+    case 'read':
+      return 'read'
+    case 'failed':
+      return 'failed'
+    default:
+      return 'pending'
+  }
+}
+
 export function applyDeliveryUpdate(
+  messages: Message[],
+  messageId?: string,
+  clientId?: string,
+  syncStatus?: MessageSyncState
+): Message[] {
 
- messages:Message[],
+  if (!syncStatus) return messages
 
- messageId:string,
+  const status = mapSyncToDelivery(syncStatus)
 
- clientId:string | undefined,
+  return messages.map((m) => {
 
- status:DeliveryStatus
+    const isTarget =
+      m.id === messageId ||
+      (clientId && m.clientId === clientId)
 
-):Message[]{
+    if (!isTarget) return m
 
- return messages.map(m=>{
-
-  if(
-   m.id===messageId ||
-   (clientId && m.clientId===clientId)
-  ){
-
-   /* prevent status regression */
-   if(
-    m.meta?.status === 'read' &&
-    status !== 'read'
-   ){
-    return m
-   }
-
-   return{
-
-    ...m,
-
-    meta:{
-     ...m.meta,
-     status
+    if (
+      m.meta?.status === 'read' &&
+      status !== 'read'
+    ) {
+      return m
     }
 
-   }
-
-  }
-
-  return m
-
- })
-
+    return {
+      ...m,
+      meta: {
+        ...m.meta,
+        status
+      }
+    }
+  })
 }

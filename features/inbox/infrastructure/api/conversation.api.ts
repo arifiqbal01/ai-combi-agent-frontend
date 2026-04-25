@@ -1,30 +1,29 @@
-// features/inbox/infrastructure/api/conversation.api.ts
-
 import { apiClient } from '@/infra/api/client'
 
-const BASE='/inbox/conversations'
+import {
+  ConversationListItemDTO,
+  ConversationDetailDTO
+} from '../dto/conversation.dto'
 
-export function listConversations(){
+const BASE = '/inbox/conversations'
 
- return apiClient.get(`${BASE}`)
+export async function listConversations(): Promise<ConversationListItemDTO[]> {
+  const res = await apiClient.get<{
+    conversations: ConversationListItemDTO[]
+  }>(BASE)
 
+  // ✅ normalize here (ONLY once)
+  return res.conversations
 }
 
-export function getConversation(
- id:string
-){
-
- return apiClient.get(`${BASE}/${id}`)
-
+export async function getConversation(
+  id: string
+): Promise<ConversationDetailDTO> {
+  return apiClient.get(`${BASE}/${id}`)
 }
 
-export function closeConversation(
- id:string
-){
-
- return apiClient.post(
-  `${BASE}/${id}/close`,
-  {}
- )
-
+export async function closeConversation(
+  id: string
+): Promise<void> {
+  await apiClient.post(`${BASE}/${id}/close`, {})
 }

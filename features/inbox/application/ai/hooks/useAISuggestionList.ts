@@ -1,25 +1,26 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useAppQuery } from '@/core/query/useAppQuery'
 
 import { listAISuggestions } from '@/features/inbox/infrastructure/api/ai.api'
 import { mapAISuggestions } from '@/features/inbox/infrastructure/mappers/ai.mapper'
-import { useTenantGuard } from '@/core/session/useTenantGuard'
+import { AISuggestion } from '@/features/inbox/domain/ai/ai.types'
+
+type Action =
+  | { type: 'AI_SUGGESTION'; payload: AISuggestion }
+  | { type: 'AI_SUGGESTION_ERROR'; payload: unknown }
 
 type Props = {
   conversationId: string | null
-  dispatch: any
+  dispatch: React.Dispatch<Action>
 }
 
 export function useAISuggestionList({
   conversationId,
-  dispatch
-}: Props){
-
-  const { hasTenant } = useTenantGuard()
-
-  const query = useQuery({
+  dispatch,
+}: Props) {
+  const query = useAppQuery<AISuggestion[]>({
     queryKey: ['ai', 'list', conversationId],
 
     queryFn: async () => {
@@ -27,20 +28,15 @@ export function useAISuggestionList({
 
       const res = await listAISuggestions(conversationId)
 
-      return mapAISuggestions(
-        res.suggestions ?? []
-      )
+      return mapAISuggestions(res.suggestions ?? [])
     },
 
-    enabled: !!conversationId && hasTenant,
+    // ✅ ONLY local condition
+    enabled: !!conversationId,
 
+    // ✅ polling still valid
     refetchInterval: 5000,
     staleTime: 0,
-
-    retry: (count, err: any) => {
-      if (err?.message === 'NO_TENANT') return false
-      return count < 2
-    }
   })
 
   /* dispatch side-effect */
@@ -50,7 +46,7 @@ export function useAISuggestionList({
     query.data.forEach((suggestion) => {
       dispatch({
         type: 'AI_SUGGESTION',
-        payload: suggestion
+        payload: suggestion,
       })
     })
   }, [query.data, dispatch])
@@ -60,12 +56,12 @@ export function useAISuggestionList({
 
     dispatch({
       type: 'AI_SUGGESTION_ERROR',
-      payload: query.error
+      payload: query.error,
     })
   }, [query.error, dispatch])
 
   return {
     refresh: query.refetch,
-    loading: query.isLoading
+    loading: query.isLoading,
   }
 }

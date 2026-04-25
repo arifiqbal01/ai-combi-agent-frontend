@@ -4,7 +4,12 @@ import { useSources } from '@/features/knowledge/application/queries/useSources'
 import { useAddSource } from '@/features/knowledge/application/mutations/useAddSource'
 import { useUploadDocument } from '@/features/knowledge/application/mutations/useUploadDocument'
 
-import { KnowledgeSourceType } from '@/features/knowledge/domain/knowledge.types'
+import {
+  KnowledgeSourceType,
+  KnowledgeStatus,
+  KnowledgeDocument,
+} from '@/features/knowledge/domain/knowledge.types'
+
 import { knowledgeKeys } from '@/features/knowledge/application/keys/knowledge.keys'
 
 export function useSmartKnowledge() {
@@ -15,8 +20,16 @@ export function useSmartKnowledge() {
   const addSource = useAddSource()
   const upload = useUploadDocument()
 
+  /* -------------------------
+     Ensure GENERAL source (safe)
+  ------------------------- */
   async function getGeneralSource() {
-    const existing = sources.find(
+    const cached =
+      queryClient.getQueryData<typeof sources>(
+        knowledgeKeys.sources()
+      ) || []
+
+    const existing = cached.find(
       s => s.type === KnowledgeSourceType.GENERAL
     )
 
@@ -26,14 +39,12 @@ export function useSmartKnowledge() {
       KnowledgeSourceType.GENERAL
     )
 
-    // ✅ refresh sources after creating
-    queryClient.invalidateQueries({
-      queryKey: knowledgeKeys.sources(),
-    })
-
     return created
   }
 
+  /* -------------------------
+     Add knowledge
+  ------------------------- */
   async function addKnowledge(
     content: string,
     sourceId?: string
@@ -47,21 +58,31 @@ export function useSmartKnowledge() {
       finalSourceId = source.id
     }
 
-    // ✅ OPTIMISTIC UPDATE (instant UI)
+    if (!finalSourceId) return
+
     const tempId = 'temp-' + Date.now()
 
-    queryClient.setQueryData(
+    /* -------------------------
+       Optimistic update (safe)
+    ------------------------- */
+    queryClient.setQueryData<KnowledgeDocument[]>(
       knowledgeKeys.documents(finalSourceId),
-      (old: any[] = []) => [
-        {
-          id: tempId,
-          content,
-          preview: content,
-          status: 'PROCESSING',
-          createdAt: new Date().toISOString(),
-        },
-        ...old,
-      ]
+      (old = []) => {
+        if (old.some(d => d.id === tempId)) return old
+
+        return [
+          {
+            id: tempId,
+            sourceId: finalSourceId,
+            version: 'draft',
+            content,
+            preview: content,
+            status: KnowledgeStatus.PROCESSING,
+            createdAt: new Date().toISOString(),
+          },
+          ...old,
+        ]
+      }
     )
 
     try {
@@ -70,20 +91,15 @@ export function useSmartKnowledge() {
         content,
       })
 
-      // ✅ refresh real data
-      queryClient.invalidateQueries({
-        queryKey: knowledgeKeys.documents(finalSourceId),
-      })
-
-      queryClient.invalidateQueries({
-        queryKey: knowledgeKeys.sources(),
-      })
+      // ✅ No manual invalidation needed (handled in mutation)
 
     } catch (err) {
-      // ❌ rollback optimistic
-      queryClient.setQueryData(
+      /* -------------------------
+         Rollback
+      ------------------------- */
+      queryClient.setQueryData<KnowledgeDocument[]>(
         knowledgeKeys.documents(finalSourceId),
-        (old: any[] = []) =>
+        (old = []) =>
           old.filter(d => d.id !== tempId)
       )
 

@@ -28,8 +28,8 @@ type Props = {
   tone?: Tone
   weight?: Weight
   className?: string
-  as?: keyof JSX.IntrinsicElements
-} & React.HTMLAttributes<HTMLElement> // ✅ KEY FIX
+  as?: React.ElementType
+} & React.HTMLAttributes<HTMLElement>
 
 const SIZE_MAP: Record<Size, string> = {
   xs: 'text-xs',

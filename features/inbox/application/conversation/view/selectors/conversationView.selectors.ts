@@ -1,64 +1,83 @@
-import { Conversation }
-from '@/features/inbox/domain/conversation/conversation.types'
+import {
+  Conversation
+} from '@/features/inbox/domain/conversation/conversation.types'
 
 import {
-
- getLastMessage
-
+  getLastMessage
 } from '@/features/inbox/domain/conversation/conversation.selectors'
 
-export type ConversationViewVM={
+export type ConversationViewVM = {
 
- id:string
+  id: string
+  subject: string
 
- subject:string
+  unread: number
 
- unread:number
+  identity: string
 
- identity:string
-
- preview:string
-
+  preview: string
 }
 
+/* =========================
+   Helpers
+========================= */
+
+function resolveIdentity(
+  conversation: Conversation
+): string {
+
+  const participant =
+    conversation.participants?.find(p => p.address)
+
+  return participant?.address ?? 'Unknown'
+}
+
+function resolvePreview(
+  lastMessage: ReturnType<typeof getLastMessage>
+): string {
+
+  if (!lastMessage) return ''
+
+  if (lastMessage.bodyText && lastMessage.bodyText.trim()) {
+    return lastMessage.bodyText
+  }
+
+  if (lastMessage.bodyHtml && lastMessage.bodyHtml.trim()) {
+    return lastMessage.bodyHtml
+  }
+
+  if (lastMessage.subject) {
+    return lastMessage.subject
+  }
+
+  return ''
+}
+
+/* =========================
+   Mapper
+========================= */
+
 export function mapConversationToViewVM(
+  conversation: Conversation
+): ConversationViewVM {
 
- conversation:Conversation
+  const last =
+    getLastMessage(conversation)
 
-):ConversationViewVM{
+  return {
+    id: conversation.id,
 
- const last=
-  getLastMessage(
-   conversation
-  )
+    subject:
+      conversation.subject ||
+      '(No subject)',
 
- return{
+    unread:
+      conversation.unreadCount,
 
-  id:conversation.id,
+    identity:
+      resolveIdentity(conversation),
 
-  subject:
-
-   conversation.subject ||
-
-   '(No subject)',
-
-  unread:
-   conversation.unreadCount,
-
-  identity:
-
-   conversation.participants?.[0]?.address ||
-
-   'Unknown',
-
-  preview:
-
-   last?.bodyText ||
-
-   last?.subject ||
-
-   ''
-
- }
-
+    preview:
+      resolvePreview(last)
+  }
 }

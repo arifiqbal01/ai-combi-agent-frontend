@@ -1,40 +1,27 @@
 'use client'
 
-export function ComposerFiles({
+import { ReactNode } from 'react'
 
- children,
- onFiles
+type Props = {
+  children: ReactNode
+  onFiles: (files: File[]) => void
+}
 
-}){
+export function ComposerFiles({ children, onFiles }: Props) {
 
- function drop(e:any){
-
-  e.preventDefault()
-
-  const files=
-   Array.from(
-    e.dataTransfer.files
-   )
-
-  onFiles(files)
-
- }
-
- return(
-
-  <div
-
-   onDragOver={(e)=>
+  function drop(e: React.DragEvent<HTMLDivElement>) {
     e.preventDefault()
-   }
 
-   onDrop={drop}
+    const files = Array.from(e.dataTransfer.files)
+    onFiles(files)
+  }
 
-  >
-
-   {children}
-
-  </div>
-
- )
+  return (
+    <div
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={drop}
+    >
+      {children}
+    </div>
+  )
 }

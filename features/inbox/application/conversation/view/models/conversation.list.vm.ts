@@ -1,75 +1,53 @@
 import {
-
- ConversationSummary
-
+  ConversationSummary
 } from '@/features/inbox/domain/conversation/conversation.types'
 
-export type ConversationListItemVM={
+import {
+  ChannelType
+} from '@/features/inbox/domain/channel/channel.types'
 
- id:string
+export type ConversationListItemVM = {
 
- name:string
+  id: string
+  name: string
+  subject: string
+  preview: string
 
- subject:string
+  unreadCount: number
+  lastMessageAt: string
 
- preview:string
+  channel: ChannelType
+  email: string
 
- unreadCount:number
-
- lastMessageAt:string
-
- channel:string
-
- email:string
-
+  /* optional UI fields (properly typed) */
+  status?: 'open' | 'closed' | 'pending'
+  hasAISuggestion?: boolean
+  isAIRunning?: boolean
 }
 
-function formatTime(
- iso:string
-){
+function formatTime(iso: string): string {
 
- const date=new Date(iso)
+  const date = new Date(iso)
+  const now = new Date()
 
- const now=new Date()
+  const yesterday = new Date()
+  yesterday.setDate(now.getDate() - 1)
 
- const yesterday=new Date()
-
- yesterday.setDate(
-  now.getDate()-1
- )
-
- if(
-  date.toDateString()===
-  now.toDateString()
- ){
-
-  return date.toLocaleTimeString(
-   [],
-   {
-    hour:'2-digit',
-    minute:'2-digit'
-   }
-  )
-
- }
-
- if(
-  date.toDateString()===
-  yesterday.toDateString()
- ){
-
-  return 'Yesterday'
-
- }
-
- return date.toLocaleDateString(
-  [],
-  {
-   month:'short',
-   day:'numeric'
+  if (date.toDateString() === now.toDateString()) {
+    return date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
- )
 
+  if (date.toDateString() === yesterday.toDateString()) {
+    return 'Yesterday'
+  }
+
+  return date.toLocaleDateString([], {
+    month: 'short',
+    day: 'numeric'
+  })
 }
 
 export function mapConversationToListVM(
@@ -81,14 +59,13 @@ export function mapConversationToListVM(
     name: conversation.sender,
     subject: conversation.subject || '',
     preview: conversation.preview || '',
+
     unreadCount: conversation.unreadCount,
     lastMessageAt: formatTime(conversation.lastMessageAt),
+
     channel: conversation.channel,
     email: conversation.sender,
 
-    /* TEMP FALLBACK */
-    status: (conversation as any).status ?? 'open',
-    hasAISuggestion: (conversation as any)?.ai?.hasSuggestion ?? false,
-    isAIRunning: (conversation as any)?.ai?.isRunning ?? false
+    // ✅ removed unsafe any usage
   }
 }

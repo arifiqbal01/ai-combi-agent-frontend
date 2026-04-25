@@ -3,88 +3,107 @@
 import { useState } from 'react'
 
 import {
- Stack,
- Text,
- Input,
- Button,
- Inline,
- toast,
+  Stack,
+  Text,
+  Input,
+  Button,
+  Inline,
+  toast,
 } from '@/ui'
 
 type FAQ = { q: string; a: string }
 
 export function FAQForm({
- onSubmit,
+  onSubmit,
 }: {
- onSubmit: (data: FAQ[]) => Promise<void>
+  onSubmit: (data: FAQ[]) => Promise<void>
 }) {
- const [items, setItems] = useState<FAQ[]>([
-  { q: '', a: '' },
- ])
+  const [items, setItems] = useState<FAQ[]>(([
+    { q: '', a: '' },
+  ]))
 
- function update(index: number, key: 'q' | 'a', value: string) {
-  const next = [...items]
-  next[index][key] = value
-  setItems(next)
- }
+  const [loading, setLoading] = useState(false)
 
- function addItem() {
-  setItems([...items, { q: '', a: '' }])
- }
-
- function removeItem(index: number) {
-  if (items.length === 1) return
-  setItems(items.filter((_, i) => i !== index))
- }
-
- async function handleSubmit() {
-  const valid = items.filter(i => i.q && i.a)
-
-  if (!valid.length) {
-   toast.error('Add at least one FAQ')
-   return
+  function update(index: number, key: 'q' | 'a', value: string) {
+    setItems(prev =>
+      prev.map((item, i) =>
+        i === index
+          ? { ...item, [key]: value }
+          : item
+      )
+    )
   }
 
-  await onSubmit(valid)
- }
+  function addItem() {
+    setItems(prev => [...prev, { q: '', a: '' }])
+  }
 
- return (
-  <Stack gap="sm">
+  function removeItem(index: number) {
+    if (items.length === 1) return
+    setItems(prev => prev.filter((_, i) => i !== index))
+  }
 
-   <Text weight="medium">Add FAQs</Text>
+  async function handleSubmit() {
+    const valid = items.filter(
+      i => i.q.trim() && i.a.trim()
+    )
 
-   {items.map((item, i) => (
-    <Stack key={i} gap="xs" className="border rounded-md p-2">
-     <Input
-      placeholder="Question"
-      value={item.q}
-      onChange={e => update(i, 'q', e.target.value)}
-     />
+    if (!valid.length) {
+      toast.error('Add at least one FAQ')
+      return
+    }
 
-     <Input
-      placeholder="Answer"
-      value={item.a}
-      onChange={e => update(i, 'a', e.target.value)}
-     />
+    try {
+      setLoading(true)
+      await onSubmit(valid)
+    } finally {
+      setLoading(false)
+    }
+  }
 
-     <Inline className="justify-end">
-      <Button size="xs" variant="ghost" onClick={() => removeItem(i)}>
-       Remove
-      </Button>
-     </Inline>
+  return (
+    <Stack gap="sm">
+
+      <Text weight="medium">Add FAQs</Text>
+
+      {items.map((item, i) => (
+        <Stack key={i} gap="xs" className="border rounded-md p-2">
+
+          <Input
+            placeholder="Question"
+            value={item.q}
+            onChange={e => update(i, 'q', e.target.value)}
+          />
+
+          <Input
+            placeholder="Answer"
+            value={item.a}
+            onChange={e => update(i, 'a', e.target.value)}
+          />
+
+          <Inline className="justify-end">
+            <Button
+              size="sm" // ✅ fixed
+              variant="ghost"
+              onClick={() => removeItem(i)}
+            >
+              Remove
+            </Button>
+          </Inline>
+
+        </Stack>
+      ))}
+
+      <Inline>
+        <Button variant="secondary" onClick={addItem}>
+          Add more
+        </Button>
+
+        <Button onClick={handleSubmit} loading={loading}>
+          Save
+        </Button>
+      </Inline>
+
     </Stack>
-   ))}
-
-   <Inline>
-    <Button variant="secondary" onClick={addItem}>
-     Add more
-    </Button>
-
-    <Button onClick={handleSubmit}>
-     Save
-    </Button>
-   </Inline>
-
-  </Stack>
- )
+  )
 }

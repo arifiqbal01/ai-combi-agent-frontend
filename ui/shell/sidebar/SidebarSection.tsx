@@ -9,10 +9,8 @@ type Item = {
 
 export default function SidebarSection({
   items,
-  collapsed,
 }: {
   items: Item[]
-  collapsed?: boolean
 }) {
   return (
     <Stack gap="xs">
@@ -20,7 +18,6 @@ export default function SidebarSection({
         <NavItem
           key={item.href}
           {...item}
-          collapsed={collapsed}
         />
       ))}
     </Stack>

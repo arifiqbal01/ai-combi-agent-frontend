@@ -1,6 +1,7 @@
 'use client'
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
+import { useAppMutation } from '@/core/query/useAppMutation'
 
 import { userApi } from '../../infrastructure/api/user.api'
 import { mapUser } from '../../infrastructure/mappers/user.mapper'
@@ -9,18 +10,18 @@ import { userKeys } from '../keys/user.keys'
 export const useAddUser = () => {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  return useAppMutation({
     mutationFn: userApi.addUser,
 
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       const newUser = mapUser(data)
 
-      // Option 1: Safe (recommended)
-      queryClient.invalidateQueries({
+      // ✅ Safe strategy (recommended)
+      await queryClient.invalidateQueries({
         queryKey: userKeys.list(),
       })
 
-      // Option 2: Optimistic (optional later)
+      // 🔁 Optional (future optimization)
       // queryClient.setQueryData(userKeys.list(), ...)
     },
   })

@@ -1,8 +1,4 @@
-/* =========================
- application/queries/useDocumentsBySource.ts
-========================= */
-
-import { useQuery } from '@tanstack/react-query'
+import { useAppQuery } from '@/core/query/useAppQuery'
 
 import { listDocuments } from '@/features/knowledge/infrastructure/api/knowledge.api'
 import { mapDocumentDTO } from '@/features/knowledge/infrastructure/mappers/knowledge.mapper'
@@ -13,8 +9,7 @@ import {
 } from '@/features/knowledge/domain/knowledge.types'
 
 export function useDocumentsBySource(sourceId?: string) {
-  return useQuery<KnowledgeDocument[]>({
-    // ✅ FIXED (no empty key)
+  return useAppQuery<KnowledgeDocument[]>({
     queryKey: ['documents', sourceId],
 
     enabled: !!sourceId,
@@ -39,7 +34,7 @@ export function useDocumentsBySource(sourceId?: string) {
     // ✅ SMOOTH UX
     placeholderData: (prev) => prev,
 
-    // ✅ CONDITIONAL POLLING (optimized)
+    // ✅ CONDITIONAL POLLING
     refetchInterval: (query) => {
       const data = query.state.data as KnowledgeDocument[] | undefined
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useReducer } from 'react'
+import { useEffect, useMemo, useReducer, useState } from 'react'
 
 import { useConversation } from '../view/hooks'
 import { useConversationTimeline } from '../timeline'
@@ -17,6 +17,12 @@ import { useConversationDerivedState } from './useConversationDerivedState'
 
 import { selectAllMessages } from '../selectors/conversation.selectors'
 
+import { Message } from '@/features/inbox/domain/message/message.types'
+import { Conversation } from '@/features/inbox/domain/conversation/conversation.types'
+
+import { ConversationState } from '../types/conversation.types'
+import { ConversationAction, ConversationDispatch } from '../types/conversation.actions'
+
 type Props = {
   conversationId: string | null
 }
@@ -25,68 +31,69 @@ export function useConversationController({
   conversationId,
 }: Props) {
 
-  /* =========================
-     🔥 REACT QUERY (FIXED)
-  ========================= */
-
   const {
     data: conversation,
     isLoading: loading
   } = useConversation(conversationId)
 
-  const send = useSendMessage()
-  const reply = useReplyMessage()
+  const sendUsecase = useSendMessage()
+  const replyUsecase = useReplyMessage()
   const read = useMarkConversationRead()
 
-  const [state, dispatch] = useReducer(
+  /* ✅ WRAP USECASES (fix return type issue) */
+  const send = {
+    execute: async (params: any) => {
+      await sendUsecase.execute(params)
+    },
+    sending: sendUsecase.sending
+  }
+
+  const reply = {
+    execute: async (params: any) => {
+      await replyUsecase.execute(params)
+    },
+    replying: replyUsecase.replying
+  }
+
+  const [state, dispatch] = useReducer<
+    React.Reducer<ConversationState, ConversationAction>
+  >(
     conversationReducer,
     {
       conversation: null,
       aiRun: null,
       aiSuggestion: null,
+      lastReadMessageId: null,
     }
   )
 
-  /* =========================
-     🔥 SYNC FROM SERVER (FIXED)
-     (important for polling updates)
-  ========================= */
+  const typedDispatch = dispatch as ConversationDispatch
+
+  const [sending, setSending] = useState(false)
+  const [, setScrolled] = useState(false)
 
   useEffect(() => {
     if (!conversation) return
 
-    dispatch({
+    typedDispatch({
       type: 'SET_CONVERSATION',
       payload: conversation,
     })
-  }, [conversation])   // ✅ FULL OBJECT (not just id)
+  }, [conversation, typedDispatch])
 
-  /* =========================
-     🔥 SAFE MESSAGE SELECTOR
-  ========================= */
-
-  const messages = useMemo(
+  const messages: Message[] = useMemo(
     () => selectAllMessages(state),
-    [state.conversation?.messages]
+    [state]
   )
 
-  /* =========================
-     🔥 TIMELINE (STABLE)
-  ========================= */
-
-  const timeline =
-    useConversationTimeline(
-      state.conversation
-        ? {
-            ...state.conversation,
-            messages,
-          }
-        : null
-    )
-
-  /* =========================
-     🔥 SEND / REPLY (GUARDED)
-  ========================= */
+  const timeline = useConversationTimeline(
+    state.conversation
+      ? {
+          ...state.conversation,
+          messages,
+        }
+      : null
+  )
 
   const {
     sendMessage,
@@ -94,38 +101,25 @@ export function useConversationController({
     retryMessage,
   } = useConversationSendController({
     conversationId,
-    dispatch,
+    dispatch: typedDispatch,
     send,
     reply,
+    setSending
   })
-
-  /* =========================
-     🔥 READ CONTROLLER (SAFE)
-  ========================= */
 
   useConversationReadController({
     messages,
     read,
-    dispatch
+    dispatch: typedDispatch
   })
-
-  /* =========================
-     🔥 DERIVED STATE
-  ========================= */
 
   const {
     lastInboundMessageId,
     canReply,
   } = useConversationDerivedState(state)
 
-  /* =========================
-     🔥 HARD GUARD (IMPORTANT)
-  ========================= */
-
   const isReady =
-    !!conversationId &&
-    !!state.conversation &&
-    !loading
+    Boolean(conversationId && state.conversation && !loading)
 
   return {
     state,
@@ -138,10 +132,12 @@ export function useConversationController({
     loading,
     isReady,
 
-    /* 🚀 guarded actions */
-    sendMessage: isReady ? sendMessage : () => {},
-    replyMessage: isReady ? replyMessage : () => {},
-    retryMessage: isReady ? retryMessage : () => {},
+    sending,
+    setScrolled,
+
+    sendMessage: isReady ? sendMessage : async () => {},
+    replyMessage: isReady ? replyMessage : async () => {},
+    retryMessage: isReady ? retryMessage : async () => {},
 
     lastInboundMessageId,
     canReply,

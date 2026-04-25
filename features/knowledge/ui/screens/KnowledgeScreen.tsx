@@ -41,23 +41,21 @@ export function KnowledgeScreen() {
   const isEmpty = !isLoading && sources.length === 0
   const hasData = sources.length > 0
 
-  // ✅ SORT SOURCES (latest first)
-  const sortedSources = [...sources].sort(
-    (a, b) =>
-      new Date(b.updatedAt || b.createdAt || 0).getTime() -
-      new Date(a.updatedAt || a.createdAt || 0).getTime()
-  )
+  const sortedSources = [...sources].sort((a, b) => {
+    const aTime = a.updatedAt ?? a.createdAt ?? ''
+    const bTime = b.updatedAt ?? b.createdAt ?? ''
+
+    return new Date(bTime).getTime() - new Date(aTime).getTime()
+  })
 
   return (
     <Stack gap="md" className="h-full p-4">
 
-      {/* HEADER */}
       <Inline className="justify-between items-center">
         <Text size="lg" weight="semibold">
           Knowledge
         </Text>
 
-        {/* ✅ KEEP THIS — THIS IS THE WORKING BUTTON */}
         <Button
           size="sm"
           variant="secondary"
@@ -67,25 +65,22 @@ export function KnowledgeScreen() {
         </Button>
       </Inline>
 
-      {/* GLOBAL DIALOG */}
       <KnowledgePresetDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         sourceId={selectedSourceId}
       />
 
-      {/* LOADING */}
       {isLoading && <KnowledgeSkeletonList />}
 
-      {/* EMPTY */}
       {isEmpty && <KnowledgeEmptyState />}
 
-      {/* LIST */}
       {hasData && (
         <Stack gap="sm">
 
           {isFetching && !isLoading && (
             <Text size="xs" tone="muted">
+              Updating...
             </Text>
           )}
 

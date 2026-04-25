@@ -4,17 +4,19 @@ import {
   selectLastInboundMessageId
 } from '../selectors/conversation.selectors'
 
+import { ConversationState } from '../types/conversation.types' // ✅ FIXED
+
 export function useConversationDerivedState(
-  state: any
+  state: ConversationState
 ) {
 
   const lastInboundMessageId = useMemo(
     () => selectLastInboundMessageId(state),
-    [state.conversation?.messages]
+    [state] // ✅ FIXED
   )
 
   return {
     lastInboundMessageId,
-    canReply: !!lastInboundMessageId
+    canReply: Boolean(lastInboundMessageId)
   }
 }

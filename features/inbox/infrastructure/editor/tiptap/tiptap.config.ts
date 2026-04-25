@@ -3,78 +3,50 @@
 import { Editor } from '@tiptap/react'
 
 import {
- createTipTapExtensions
+  createTipTapExtensions
 } from './tiptap.extensions'
 
-type Params={
-
- content?:string
-
- onUpdate?:(html:string)=>void
-
- onReady?:(editor:Editor)=>void
-
+type Params = {
+  content?: string
+  onUpdate?: (html: string) => void
+  onReady?: (editor: Editor) => void
 }
 
 export function createTipTapEditor({
+  content = '',
+  onUpdate,
+  onReady
+}: Params) {
 
- content='',
+  const editor = new Editor({
+    extensions: createTipTapExtensions(),
 
- onUpdate,
+    content,
 
- onReady
+    onCreate({ editor }) {
+      onReady?.(editor)
+    },
 
-}:Params){
+    onUpdate({ editor }) {
+      onUpdate?.(editor.getHTML())
+    },
 
- return new Editor({
+    editorProps: {
+      attributes: {
+        class: `
+          prose prose-sm
+          max-w-none
+          text-[14px]
+          leading-relaxed
+          px-3
+          py-2
+          focus:outline-none
+          overflow-y-auto
+        `,
+        style: 'scroll-padding-bottom:40px'
+      }
+    }
+  })
 
-  immediatelyRender:false,
-
-  extensions:
-   createTipTapExtensions(),
-
-  content,
-
-  onCreate({editor}){
-
-   onReady?.(editor)
-
-  },
-
-  onUpdate({editor}){
-
-   onUpdate?.(
-    editor.getHTML()
-   )
-
-  },
-
-  editorProps:{
-
-   attributes:{
-
-    class:`
-     prose prose-sm
-     max-w-none
-
-     text-[14px]
-     leading-relaxed
-
-     px-3
-     py-2
-
-     focus:outline-none
-
-     overflow-y-auto
-    `,
-
-    style:
-     'scroll-padding-bottom:40px'
-
-   }
-
-  }
-
- })
-
+  return editor
 }

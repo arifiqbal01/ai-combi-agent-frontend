@@ -1,291 +1,177 @@
 import {
-
- Message,
- MessageSyncState,
- MessageDirection,
- MessageKind,
- MessageAuthorType,
- DeliveryStatus
-
+  Message,
+  SyncableMessage,
+  MessageSyncState,
+  MessageDirection,
+  MessageKind,
+  MessageAuthorType,
+  DeliveryStatus
 } from './message.types'
 
 import {
+  Attachment
+} from '../attachment/attachment.types'
 
- isFailed
-
+import {
+  isFailed
 } from './message.delivery.rules'
 
-export type SyncableMessage =
- Message & {
-
- syncState?:MessageSyncState
-
- tempId?:string
-
-}
-
-/* ---------------------------
- state transitions
---------------------------- */
-
 export function markSending(
-
- message:SyncableMessage
-
-):SyncableMessage{
-
- return{
-
-  ...message,
-
-  syncState:MessageSyncState.SENDING,
-
-  meta:{
-   ...message.meta,
-   status:DeliveryStatus.PENDING
+  message: SyncableMessage
+): SyncableMessage {
+  return {
+    ...message,
+    syncState: MessageSyncState.SENDING,
+    meta: {
+      ...message.meta,
+      status: DeliveryStatus.PENDING
+    }
   }
-
- }
-
 }
 
 export function markSent(
-
- message:SyncableMessage
-
-):SyncableMessage{
-
- /* prevent regression */
- if(message.meta.status===DeliveryStatus.READ)
-  return message
-
- return{
-
-  ...message,
-
-  syncState:MessageSyncState.SENT,
-
-  meta:{
-   ...message.meta,
-   status:DeliveryStatus.SENT
+  message: SyncableMessage
+): SyncableMessage {
+  if (message.meta.status === DeliveryStatus.READ) {
+    return message
   }
 
- }
-
+  return {
+    ...message,
+    syncState: MessageSyncState.SENT,
+    meta: {
+      ...message.meta,
+      status: DeliveryStatus.SENT
+    }
+  }
 }
 
 export function markDelivered(
-
- message:SyncableMessage
-
-):SyncableMessage{
-
- if(
-  message.meta.status===DeliveryStatus.READ
- )
-  return message
-
- return{
-
-  ...message,
-
-  syncState:MessageSyncState.DELIVERED,
-
-  meta:{
-   ...message.meta,
-   status:DeliveryStatus.DELIVERED
+  message: SyncableMessage
+): SyncableMessage {
+  if (message.meta.status === DeliveryStatus.READ) {
+    return message
   }
 
- }
-
+  return {
+    ...message,
+    syncState: MessageSyncState.DELIVERED,
+    meta: {
+      ...message.meta,
+      status: DeliveryStatus.DELIVERED
+    }
+  }
 }
 
 export function markRead(
-
- message:SyncableMessage
-
-):SyncableMessage{
-
- return{
-
-  ...message,
-
-  syncState:MessageSyncState.READ,
-
-  meta:{
-   ...message.meta,
-   status:DeliveryStatus.READ
+  message: SyncableMessage
+): SyncableMessage {
+  return {
+    ...message,
+    syncState: MessageSyncState.READ,
+    meta: {
+      ...message.meta,
+      status: DeliveryStatus.READ
+    }
   }
-
- }
-
 }
 
 export function markFailed(
-
- message:SyncableMessage
-
-):SyncableMessage{
-
- /* don't override delivered/read */
- if(
-  message.meta.status===DeliveryStatus.DELIVERED ||
-  message.meta.status===DeliveryStatus.READ
- )
-  return message
-
- return{
-
-  ...message,
-
-  syncState:MessageSyncState.FAILED,
-
-  meta:{
-   ...message.meta,
-   status:DeliveryStatus.FAILED
+  message: SyncableMessage
+): SyncableMessage {
+  if (
+    message.meta.status === DeliveryStatus.DELIVERED ||
+    message.meta.status === DeliveryStatus.READ
+  ) {
+    return message
   }
 
- }
-
+  return {
+    ...message,
+    syncState: MessageSyncState.FAILED,
+    meta: {
+      ...message.meta,
+      status: DeliveryStatus.FAILED
+    }
+  }
 }
 
-/* ---------------------------
- retry logic
---------------------------- */
-
 export function canRetryMessage(
+  message: SyncableMessage
+): boolean {
+  if (message.syncState === MessageSyncState.FAILED) {
+    return true
+  }
 
- message:SyncableMessage
+  if (isFailed(message.meta.status)) {
+    return true
+  }
 
-):boolean{
-
- if(
-  message.syncState===
-  MessageSyncState.FAILED
- )
-  return true
-
- if(
-  isFailed(
-   message.meta.status
-  )
- )
-  return true
-
- return false
-
+  return false
 }
 
 export function retryMessage(
-
- message:SyncableMessage
-
-):SyncableMessage{
-
- return{
-
-  ...message,
-
-  syncState:
-   MessageSyncState.SENDING,
-
-  meta:{
-   ...message.meta,
-   status:DeliveryStatus.PENDING
+  message: SyncableMessage
+): SyncableMessage {
+  return {
+    ...message,
+    syncState: MessageSyncState.SENDING,
+    meta: {
+      ...message.meta,
+      status: DeliveryStatus.PENDING
+    }
   }
-
- }
-
 }
 
-/* ---------------------------
- optimistic creation
---------------------------- */
-
 export function createOptimisticMessage(
+  body: string,
+  attachments: Attachment[] = []
+): SyncableMessage {
 
- body:string,
+  const now = new Date().toISOString()
 
- attachments:any[]=[]
+  const tempId =
+    `temp-${crypto.randomUUID?.() ?? `${Date.now()}`}`
 
-):SyncableMessage{
+  const clientId =
+    crypto.randomUUID?.() ?? `${Date.now()}-client`
 
- const now =
-  new Date().toISOString()
+  const normalizedAttachments: Attachment[] =
+    attachments.map((a) => ({
+      ...a,
+      id: a.id ?? `temp-file-${crypto.randomUUID?.() ?? Date.now()}`
+    }))
 
- const tempId =
-  `temp-${crypto.randomUUID()}`
+  return {
+    id: tempId,
+    tempId,
+    clientId,
 
- const clientId =
-  crypto.randomUUID()
+    direction: MessageDirection.OUTBOUND,
+    kind: MessageKind.HUMAN,
 
- const normalizedAttachments =
-  attachments.map((a,index)=>({
+    subject: undefined,
 
-   ...a,
+    bodyText: body,
+    bodyHtml: body,
 
-   id:
+    author: {
+      name: 'You',
+      type: MessageAuthorType.HUMAN
+    },
 
-    a.id ||
+    attachments: normalizedAttachments,
+    participants: [],
 
-    `temp-file-${crypto.randomUUID()}`
+    meta: {
+      createdAt: now,
+      displayTime: new Date(now).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      status: DeliveryStatus.PENDING
+    },
 
- }))
-
- return{
-
-  id:tempId,
-
-  tempId,
-
-  clientId,
-
-  direction:
-   MessageDirection.OUTBOUND,
-
-  kind:
-   MessageKind.HUMAN,
-
-  bodyText:body,
-
-  bodyHtml:body,
-
-  author:{
-
-   name:'You',
-
-   type:
-    MessageAuthorType.HUMAN
-
-  },
-
-  attachments:
-   normalizedAttachments,
-
-  participants:[],
-
-  meta:{
-
-   createdAt:now,
-
-   displayTime:
-
-    new Date(now)
-     .toLocaleTimeString([],{
-
-      hour:'2-digit',
-      minute:'2-digit'
-
-     }),
-
-   status:
-    DeliveryStatus.PENDING
-
-  },
-
-  syncState:
-   MessageSyncState.SENDING
-
- }
-
+    syncState: MessageSyncState.SENDING
+  }
 }

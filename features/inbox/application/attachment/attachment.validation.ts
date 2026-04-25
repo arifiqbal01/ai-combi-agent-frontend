@@ -1,103 +1,88 @@
 // features/inbox/application/attachment/services/attachment.validation.ts
 
-import { MessagePolicy }
-from '@/features/inbox/domain/message/message.policy'
+import { MessagePolicy } from '@/features/inbox/domain/message/message.policy'
 
 import {
- ALLOWED_ATTACHMENT_MIME_TYPES
-}
-from '@/features/inbox/domain/attachment/attachment.rules'
+  ALLOWED_ATTACHMENT_MIME_TYPES
+} from '@/features/inbox/domain/attachment/attachment.rules'
 
 export function validateAttachment(
+  file: File,
+  policy: MessagePolicy
+): {
+  valid: boolean
+  reason?: string
+} {
 
- file:File,
+  /* =========================
+     Capability check
+  ========================= */
 
- policy:MessagePolicy
-
-){
-
- if(!policy.capabilities.canAttach){
-
-  return{
-
-   valid:false,
-
-   reason:'Attachments not allowed'
-
+  if (!policy.capabilities.canAttach) {
+    return {
+      valid: false,
+      reason: 'Attachments not allowed'
+    }
   }
 
- }
+  /* =========================
+     File size check
+  ========================= */
 
- if(
+  const maxSizeBytes =
+    policy.limits.maxFileSizeMB * 1024 * 1024
 
-  file.size >
-  policy.limits.maxFileSizeMB *
-  1024 * 1024
-
- ){
-
-  return{
-
-   valid:false,
-
-   reason:'File too large'
-
+  if (file.size > maxSizeBytes) {
+    return {
+      valid: false,
+      reason: 'File too large'
+    }
   }
 
- }
+  /* =========================
+     MIME type check (FIXED)
+  ========================= */
 
- if(
+  const allowedTypes =
+    ALLOWED_ATTACHMENT_MIME_TYPES as readonly string[]
 
-  !ALLOWED_ATTACHMENT_MIME_TYPES.includes(
-   file.type
-  )
-
- ){
-
-  return{
-
-   valid:false,
-
-   reason:'File type not allowed'
-
+  if (!allowedTypes.includes(file.type)) {
+    return {
+      valid: false,
+      reason: 'File type not allowed'
+    }
   }
 
- }
+  /* =========================
+     Valid
+  ========================= */
 
- return{
-
-  valid:true
-
- }
-
+  return {
+    valid: true
+  }
 }
 
+/* =========================
+   Attachment count limit
+========================= */
+
 export function validateAttachmentLimit(
+  current: number,
+  incoming: number,
+  max: number
+): {
+  valid: boolean
+  reason?: string
+} {
 
- current:number,
-
- incoming:number,
-
- max:number
-
-){
-
- if(current + incoming > max){
-
-  return{
-
-   valid:false,
-
-   reason:'Attachment limit reached'
-
+  if (current + incoming > max) {
+    return {
+      valid: false,
+      reason: 'Attachment limit reached'
+    }
   }
 
- }
-
- return{
-
-  valid:true
-
- }
-
+  return {
+    valid: true
+  }
 }

@@ -1,1 +1,1 @@
-export * from './conversationListSelectors'
+export * from './conversationList.selectors'

@@ -18,7 +18,11 @@ export function useAIProgress({
   const [localProgress, setLocalProgress] = useState(5)
 
   useEffect(() => {
-    if (!active) return
+    if (!active) {
+      // ✅ reset when not active
+      setLocalProgress(5)
+      return
+    }
 
     const interval = setInterval(() => {
       setLocalProgress(prev =>

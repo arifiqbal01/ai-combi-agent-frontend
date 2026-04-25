@@ -1,11 +1,16 @@
 import { Inline, Stack, Text, Button } from '@/ui'
-import { KnowledgeSource, KnowledgeStatus } from '@/features/knowledge/domain/knowledge.types'
+import {
+  KnowledgeSource,
+  KnowledgeStatus,
+  KnowledgeSourceType,
+} from '@/features/knowledge/domain/knowledge.types'
 
-const LABELS: Record<string, string> = {
+const LABELS: Record<KnowledgeSourceType, string> = {
   faq: 'FAQs',
   general: 'General',
   website: 'Website',
   policy: 'Policy',
+  contact_info: 'Contact Info',
 }
 
 export function SourceHeader({
@@ -23,31 +28,28 @@ export function SourceHeader({
     <Inline className="justify-between items-center">
 
       {/* LEFT */}
-      <Stack
-        gap="xs"
-        className="cursor-pointer flex-1"
+      <div
         onClick={onToggle}
+        className="flex-1 cursor-pointer"
       >
-        {/* TITLE */}
-        <Text weight="semibold">
-         {LABELS[source.type] || source.type}
-        </Text>
-
-        {/* META ROW */}
-        <Inline gap="xs" className="items-center">
-
-          <Text size="sm" tone="muted">
-            {source.documentCount} items
+        <Stack gap="xs">
+          <Text weight="semibold">
+            {LABELS[source.type]}
           </Text>
 
-          {source.status === KnowledgeStatus.PROCESSING && (
-            <Text size="xs" tone="muted">
-              • Updating...
+          <Inline gap="xs" className="items-center">
+            <Text size="sm" tone="muted">
+              {source.documentCount} items
             </Text>
-          )}
 
-        </Inline>
-      </Stack>
+            {source.status === KnowledgeStatus.PROCESSING && (
+              <Text size="xs" tone="muted">
+                • Updating...
+              </Text>
+            )}
+          </Inline>
+        </Stack>
+      </div>
 
       {/* RIGHT */}
       <Button

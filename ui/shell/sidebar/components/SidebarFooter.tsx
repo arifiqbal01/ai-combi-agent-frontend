@@ -9,10 +9,8 @@ type Item = {
 
 export default function SidebarFooter({
   items,
-  collapsed,
 }: {
   items: Item[]
-  collapsed?: boolean
 }) {
   return (
     <div className="border-t border-white/10 pt-3">
@@ -21,7 +19,6 @@ export default function SidebarFooter({
           <NavItem
             key={item.href}
             {...item}
-            collapsed={collapsed}
           />
         ))}
       </Stack>

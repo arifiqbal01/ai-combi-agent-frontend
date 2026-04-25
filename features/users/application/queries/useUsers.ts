@@ -1,13 +1,13 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useAppQuery } from '@/core/query/useAppQuery'
 
 import { userApi } from '../../infrastructure/api/user.api'
 import { mapUsers } from '../../infrastructure/mappers/user.mapper'
 import { userKeys } from '../keys/user.keys'
 
 export const useUsers = () => {
-  return useQuery({
+  return useAppQuery({
     queryKey: userKeys.list(),
 
     queryFn: async () => {
@@ -16,7 +16,7 @@ export const useUsers = () => {
     },
 
     // ✅ LIST DATA (moderately dynamic)
-    staleTime: 60 * 1000,       // 1 minute
+    staleTime: 60 * 1000,
     gcTime: 5 * 60 * 1000,
 
     // ✅ smooth UI

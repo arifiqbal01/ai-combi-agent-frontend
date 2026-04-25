@@ -1,132 +1,72 @@
-import { Message }
-from '../message/message.types'
-
-import { TimelineItem }
-from './timeline.types'
-
-import {
-
- canGroupMessages,
- isSameDay
-
-} from './timeline.grouping.rules'
+import { Message } from '../message/message.types'
+import { TimelineItem } from './timeline.types'
+import { canGroupMessages } from './timeline.grouping.rules'
 
 export function buildTimeline(
+  messages: Message[],
+  lastReadMessageId?: string
+): TimelineItem[] {
+  const items: TimelineItem[] = []
 
- messages:Message[],
+  let lastMessage: Message | null = null
+  let lastDay: string | null = null
+  let unreadInserted = false
 
- lastReadMessageId?:string
+  for (const msg of messages) {
+    const date = new Date(msg.meta.createdAt)
+    const dayKey = date.toDateString()
 
-):TimelineItem[]{
+    // 📅 Day separator
+    if (dayKey !== lastDay) {
+      items.push({
+        type: 'time',
+        id: `day-${dayKey}`,
+        label: formatDay(date),
+      })
 
- const items:TimelineItem[]=[]
+      lastDay = dayKey
+      lastMessage = null
+    }
 
- let lastMessage:Message | null=null
+    // 📩 Unread separator (insert BEFORE first unread)
+    if (
+      lastReadMessageId &&
+      !unreadInserted &&
+      msg.id === lastReadMessageId
+    ) {
+      items.push({
+        type: 'unread',
+        id: 'unread',
+        label: 'Unread messages',
+      })
 
- let lastDay:string | null=null
+      unreadInserted = true
+    }
 
- let unreadInserted=false
+    const grouped = canGroupMessages(msg, lastMessage)
 
- for(const msg of messages){
+    items.push({
+      type: 'message',
+      id: msg.id,
+      message: msg,
+      grouped,
+    })
 
-  const date=
-   new Date(msg.meta.createdAt)
-
-  const dayKey=
-   date.toDateString()
-
-  if(dayKey!==lastDay){
-
-   items.push({
-
-    type:'time',
-
-    id:`day-${dayKey}`,
-
-    label:formatDay(date)
-
-   })
-
-   lastDay=dayKey
-
-   lastMessage=null
-
+    lastMessage = msg
   }
 
-  if(
-
-   lastReadMessageId &&
-
-   !unreadInserted &&
-
-   msg.id===lastReadMessageId
-
-  ){
-
-   items.push({
-
-    type:'unread',
-
-    id:'unread',
-
-    label:'Unread messages'
-
-   })
-
-   unreadInserted=true
-
-  }
-
-  const grouped=
-   canGroupMessages(
-    msg,
-    lastMessage
-   )
-
-  items.push({
-
-   type:'message',
-
-   id:msg.id,
-
-   message:msg,
-
-   grouped
-
-  })
-
-  lastMessage=msg
-
- }
-
- return items
-
+  return items
 }
 
-function formatDay(
- date:Date
-){
+function formatDay(date: Date): string {
+  const today = new Date()
+  const yesterday = new Date()
+  yesterday.setDate(today.getDate() - 1)
 
- const today=new Date()
+  if (date.toDateString() === today.toDateString()) return 'Today'
 
- const yesterday=new Date()
+  if (date.toDateString() === yesterday.toDateString())
+    return 'Yesterday'
 
- yesterday.setDate(
-  today.getDate()-1
- )
-
- if(
-  date.toDateString()===
-  today.toDateString()
- )
-  return 'Today'
-
- if(
-  date.toDateString()===
-  yesterday.toDateString()
- )
-  return 'Yesterday'
-
- return date.toLocaleDateString()
-
+  return date.toLocaleDateString()
 }

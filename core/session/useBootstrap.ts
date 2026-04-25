@@ -10,7 +10,7 @@ export function useBootstrap() {
   const ready =
     isLoaded &&
     isSignedIn &&
-    app.isReady   // ✅ FIXED
+    app.isBootstrapped   // ✅
 
   return {
     ready,

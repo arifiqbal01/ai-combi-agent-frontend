@@ -5,12 +5,13 @@ export default clerkMiddleware(async (auth, req) => {  // ← async
   const { userId } = await auth()                       // ← await
   const { pathname } = req.nextUrl
 
-  const isPublicRoute = [
-    '/login',
-    '/sign-up',
-    '/sso-callback',
-    '/invite',
-  ].some((route) => pathname.startsWith(route))
+    const isPublicRoute = [
+      '/',
+      '/login',
+      '/sign-up',
+      '/sso-callback',
+      '/invite',
+    ].some((route) => pathname === route || pathname.startsWith(route))
 
   if (!userId && !isPublicRoute) {
     return NextResponse.redirect(new URL('/login', req.url))

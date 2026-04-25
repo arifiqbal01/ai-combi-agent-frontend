@@ -1,58 +1,55 @@
 'use client'
 
 import {
- MessageAuthor as Author,
- MessageVariant
+  MessageAuthor as Author,
+  MessageVariant
 } from '@/features/inbox/domain/message'
 
-import { Badge } from '@/shared/ui'
+import { Badge, Avatar } from '@/ui'
 
-type Props={
- author:Author
- variant:MessageVariant
+type Props = {
+  author: Author | null | undefined
+  variant: MessageVariant
 }
 
 export function MessageAuthor({
- author,
- variant
-}:Props){
+  author,
+  variant
+}: Props){
 
- if(variant==='system')
-  return null
+  if (variant === MessageVariant.SYSTEM)
+    return null
 
- return(
+  return (
 
-  <div className="
-   flex
-   items-center
-   gap-2
+    <div className="
+      flex items-center gap-2
+      text-[11px]
+      text-text-secondary
+      font-medium
+      mb-0.5
+    ">
 
-   text-[11px]
+      {/* ✅ Avatar added */}
+      <Avatar
+        label={author?.name}
+        size="sm"
+      />
 
-   text-text-secondary
+      <span>
+        {author?.name || 'Unknown'}
+      </span>
 
-   font-medium
+      {variant === MessageVariant.AI && (
+        <Badge
+          variant="default"
+          className="text-[10px] px-1.5 py-0"
+        >
+          AI
+        </Badge>
+      )}
 
-   mb-0.5
-  ">
+    </div>
 
-   <span>
-    {author.name}
-   </span>
-
-   {variant==='ai' && (
-
-    <Badge
-     variant="default"
-     className="text-[10px] px-1.5 py-0"
-    >
-     AI
-    </Badge>
-
-   )}
-
-  </div>
-
- )
-
+  )
 }

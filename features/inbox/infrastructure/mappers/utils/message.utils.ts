@@ -7,22 +7,34 @@ import {
   DeliveryStatus
 } from '@/features/inbox/domain/message'
 
+import {
+  MessageDirectionDTO,
+  ActorTypeDTO
+} from '../../dto/message.dto'
+
+import {
+  Participant,
+  ParticipantTransportRole
+} from '@/features/inbox/domain/participant/participant.types'
+
 /* =========================
    Direction normalization
 ========================= */
 
 export function normalizeDirection(
-  direction?: string
+  direction?: MessageDirectionDTO | string | null
 ): MessageDirection {
 
-  if (
-    direction === 'out' ||
-    direction === 'outbound'
-  ) {
-    return MessageDirection.OUTBOUND
-  }
+  switch (direction) {
+    case 'outbound':
+    case 'out':
+      return MessageDirection.OUTBOUND
 
-  return MessageDirection.INBOUND
+    case 'inbound':
+    case 'in':
+    default:
+      return MessageDirection.INBOUND
+  }
 }
 
 /* =========================
@@ -33,22 +45,25 @@ export function normalizeDeliveryStatus(
   status?: string | null
 ): DeliveryStatus {
 
-  if (!status)
-    return DeliveryStatus.SENT
+  switch (status) {
+    case 'pending':
+      return DeliveryStatus.PENDING
 
-  if (status === DeliveryStatus.PENDING)
-    return DeliveryStatus.PENDING
+    case 'sent':
+      return DeliveryStatus.SENT
 
-  if (status === DeliveryStatus.DELIVERED)
-    return DeliveryStatus.DELIVERED
+    case 'delivered':
+      return DeliveryStatus.DELIVERED
 
-  if (status === DeliveryStatus.READ)
-    return DeliveryStatus.READ
+    case 'read':
+      return DeliveryStatus.READ
 
-  if (status === DeliveryStatus.FAILED)
-    return DeliveryStatus.FAILED
+    case 'failed':
+      return DeliveryStatus.FAILED
 
-  return DeliveryStatus.SENT
+    default:
+      return DeliveryStatus.SENT
+  }
 }
 
 /* =========================
@@ -56,16 +71,20 @@ export function normalizeDeliveryStatus(
 ========================= */
 
 export function resolveKind(
-  actorType?: string | null
+  actorType?: ActorTypeDTO | string | null
 ): MessageKind {
 
-  if (actorType === 'ai')
-    return MessageKind.AI
+  switch (actorType) {
+    case 'ai':
+      return MessageKind.AI
 
-  if (actorType === 'system')
-    return MessageKind.SYSTEM
+    case 'system':
+      return MessageKind.SYSTEM
 
-  return MessageKind.HUMAN
+    case 'human':
+    default:
+      return MessageKind.HUMAN
+  }
 }
 
 /* =========================
@@ -74,9 +93,9 @@ export function resolveKind(
 
 export function resolveAuthor(
   dto: {
-    actor_type?: string | null
+    actor_type?: ActorTypeDTO | string | null
     sender?: string | null
-    direction?: string
+    direction?: MessageDirectionDTO | string
   }
 ): {
   name: string
@@ -121,7 +140,7 @@ export function resolveAuthor(
 ========================= */
 
 export function resolveFlags(
-  actorType?: string | null,
+  actorType?: ActorTypeDTO | string | null,
   deliveryStatus?: DeliveryStatus
 ) {
 
@@ -140,32 +159,28 @@ export function resolveFlags(
 
 export function formatDisplayTime(
   iso: string
-) {
+): string {
 
   const date = new Date(iso)
 
-  return date.toLocaleTimeString(
-    [],
-    {
-      hour: '2-digit',
-      minute: '2-digit'
-    }
-  )
+  if (Number.isNaN(date.getTime())) {
+    return ''
+  }
+
+  return date.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
 /* =========================
    Participants resolver
 ========================= */
 
-import {
-  Participant,
-  ParticipantTransportRole
-} from '@/features/inbox/domain/participant/participant.types'
-
 export function resolveParticipants(
   dto: {
     sender?: string | null
-    direction?: string
+    direction?: MessageDirectionDTO | string
   },
   channelAccount?: string,
   conversationSender?: string
@@ -177,11 +192,11 @@ export function resolveParticipants(
   if (direction === MessageDirection.INBOUND) {
     return [
       {
-        address: dto.sender || '',
+        address: dto.sender ?? '',
         role: ParticipantTransportRole.FROM
       },
       {
-        address: channelAccount || '',
+        address: channelAccount ?? '',
         role: ParticipantTransportRole.TO
       }
     ]
@@ -189,11 +204,11 @@ export function resolveParticipants(
 
   return [
     {
-      address: channelAccount || '',
+      address: channelAccount ?? '',
       role: ParticipantTransportRole.FROM
     },
     {
-      address: conversationSender || '',
+      address: conversationSender ?? '',
       role: ParticipantTransportRole.TO
     }
   ]

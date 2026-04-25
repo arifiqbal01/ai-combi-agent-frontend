@@ -1,36 +1,36 @@
-import { useQuery } from '@tanstack/react-query'
+import { useAppQuery } from '@/core/query/useAppQuery'
 
 import { getConversation } from '@/features/inbox/infrastructure/api/conversation.api'
 import { mapConversationDetailDTO } from '@/features/inbox/infrastructure/mappers/conversation.mapper'
-import { useTenantGuard } from '@/core/session/useTenantGuard'
 
-export function useConversation(conversationId: string | null) {
+import {
+  Conversation
+} from '@/features/inbox/domain/conversation/conversation.types'
 
-  const { hasTenant } = useTenantGuard()
+export function useConversation(
+  conversationId: string | null
+) {
 
-  return useQuery({
+  return useAppQuery<Conversation>({
     queryKey: ['conversation', conversationId],
 
     queryFn: async () => {
-      if (!conversationId) throw new Error('NO_CONVERSATION')
+      if (!conversationId) {
+        throw new Error('NO_CONVERSATION')
+      }
 
       const dto = await getConversation(conversationId)
+
       return mapConversationDetailDTO(dto)
     },
 
-    enabled: !!conversationId && hasTenant,
+    // only local condition
+    enabled: !!conversationId,
 
-    // ✅ CACHE IMPROVEMENTS
-    staleTime: 30 * 1000,        // 30s → data considered fresh
-    gcTime: 5 * 60 * 1000,       // keep in cache for 5 min
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
 
-    refetchInterval: 5000,       // keep polling
-    refetchOnWindowFocus: false, // avoid unnecessary refetch spam
-
-    retry: (count, err: any) => {
-      if (err?.message === 'NO_CONVERSATION') return false
-      if (err?.message === 'NO_TENANT') return false
-      return count < 2
-    },
+    refetchInterval: 5000,
+    refetchOnWindowFocus: false,
   })
 }

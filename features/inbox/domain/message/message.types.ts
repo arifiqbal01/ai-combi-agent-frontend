@@ -48,14 +48,10 @@ export type MessageFlags={
 
 }
 
-export type MessageMeta={
-
- createdAt:string
-
- displayTime:string
-
- status:string
-
+export type MessageMeta = {
+  createdAt: string
+  displayTime: string
+  status: DeliveryStatus
 }
 
 export type Message={

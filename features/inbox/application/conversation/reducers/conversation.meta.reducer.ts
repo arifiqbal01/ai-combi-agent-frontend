@@ -1,47 +1,38 @@
 import {
+  applyConversationUpdate,
+  updateUnreadCount
+} from '@/features/inbox/domain/conversation/conversation.sync.engine'
 
- applyConversationUpdate,
- updateUnreadCount
+import {
+  Conversation
+} from '@/features/inbox/domain/conversation/conversation.types'
 
-}
-from '@/features/inbox/domain/conversation/conversation.sync.engine'
+import {
+  ConversationAction
+} from '../types/conversation.actions'
 
 export function conversationMetaReducer(
+  conversation: Conversation | null,
+  action: ConversationAction
+): Conversation | null {
 
- conversation:any,
+  if (!conversation) return conversation
 
- action:any
+  switch (action.type) {
 
-){
+    case 'CONVERSATION_UPDATE':
+      return applyConversationUpdate(
+        conversation,
+        action.payload
+      )
 
- if(!conversation) return conversation
+    case 'UNREAD_UPDATE':
+      return updateUnreadCount(
+        conversation,
+        action.payload
+      )
 
- switch(action.type){
-
- case 'CONVERSATION_UPDATE':
-
-  return applyConversationUpdate(
-
-   conversation,
-
-   action.payload
-
-  )
-
- case 'UNREAD_UPDATE':
-
-  return updateUnreadCount(
-
-   conversation,
-
-   action.payload
-
-  )
-
- default:
-
-  return conversation
-
- }
-
+    default:
+      return conversation
+  }
 }

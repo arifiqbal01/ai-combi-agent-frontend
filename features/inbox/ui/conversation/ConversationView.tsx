@@ -1,158 +1,128 @@
 'use client'
 
 import {
-
- useConversationController
-
+  useConversationController
 } from '@/features/inbox/application/conversation/controller'
 
 import {
-
- useConversationAIController
-
+  useConversationAIController
 } from '@/features/inbox/application/ai/controller'
 
 import {
+  useMessagePolicy
+} from '@/features/inbox/application/message/useMessagePolicy'
 
- ConversationLayout,
- ConversationHeader,
- ConversationTimeline,
- ConversationComposer,
- ConversationAISection
-
+import {
+  ConversationLayout,
+  ConversationHeader,
+  ConversationTimeline,
+  ConversationComposer,
+  ConversationAISection
 } from './components'
 
 import {
-
- ConversationEmpty
-
+  ConversationEmpty
 } from './ui/ConversationEmpty'
 
 import {
-
- ConversationLoading
-
+  ConversationLoading
 } from './ui/ConversationLoading'
 
-type Props={
+import { Attachment } from '@/features/inbox/domain/attachment/attachment.types'
 
- conversationId:string | null
-
+type Props = {
+  conversationId: string | null
 }
 
 export function ConversationView({
-
- conversationId
-
-}:Props){
-
- const controller=
-
- useConversationController({
-
   conversationId
+}: Props) {
 
- })
+  const controller =
+    useConversationController({
+      conversationId
+    })
 
- const ai =
- useConversationAIController({
+  const ai =
+    useConversationAIController({
+      state: controller.state
+    })
 
-  state:controller.state   // ← FIXED
+  const policy =
+    useMessagePolicy(conversationId)
 
- })
+  if (!conversationId) {
+    return <ConversationEmpty />
+  }
 
- if(!conversationId)
-  return <ConversationEmpty/>
+  if (controller.loading) {
+    return <ConversationLoading />
+  }
 
- if(controller.loading)
-  return <ConversationLoading/>
+  if (!controller.conversation) {
+    return <ConversationEmpty />
+  }
 
- if(!controller.conversation)
-  return <ConversationEmpty/>
+  return (
+    <ConversationLayout
 
- return(
+      header={
+        <ConversationHeader
+          conversation={controller.conversation}
+        />
+      }
 
-  <ConversationLayout
+      timeline={
+        <ConversationTimeline
+          timeline={controller.timeline}
+          onScrollStateChange={controller.setScrolled}
+        />
+      }
 
-   header={
+      aiSection={
+        <ConversationAISection
+          aiState={ai.aiState}
+          suggestion={ai.suggestion?.content}
+          confidence={ai.suggestion?.confidencePercent}
+          ui={ai.ui}
 
-    <ConversationHeader
+          onInsert={() => {
+            if (!ai.suggestion) return
+            if (!controller.lastInboundMessageId) return
 
-     conversation={
-      controller.conversation
-     }
+            controller.replyMessage({
+              body: ai.suggestion.content,
+              attachments: [],
+              replyToMessageId: controller.lastInboundMessageId
+            })
+          }}
+        />
+      }
 
-    />
+      composer={
+        <ConversationComposer
 
-   }
+          policy={policy}
 
-   timeline={
+          context={{
+            conversationId,
+            channel: controller.conversation.channel
+          }}
 
-    <ConversationTimeline
+          sending={controller.sending}
 
-     timeline={
-      controller.timeline
-     }
+          onSend={(params) => {
+            if (!controller.lastInboundMessageId) return
 
-     onScrollStateChange={
-      controller.setScrolled
-     }
-
-    />
-
-   }
-
-   aiSection={
-    <ConversationAISection
-      aiState={ai.aiState}
-      suggestion={ai.suggestion?.content}
-      confidence={ai.suggestion?.confidencePercent}
-
-      /* ✅ use controller UI model */
-      ui={ai.ui}
-
-      onInsert={() => {
-        if (!ai.suggestion) return
-
-        controller.replyMessage({
-          body: ai.suggestion.content,
-          attachments: [],
-          replyToMessageId:
-            controller.lastInboundMessageId
-        })
-      }}
-    />
-   }
-
-   composer={
-
-    <ConversationComposer
-
-     onSend={(params)=>{
-
-      controller.replyMessage({
-
-       body:params.body,
-
-       attachments:
-        params.attachments,
-
-       replyToMessageId:
-        controller.lastInboundMessageId
-
-      })
-
-     }}
-
-     sending={
-      controller.replying
-     }
+            controller.replyMessage({
+              body: params.body,
+              attachments: (params.attachments ?? []) as Attachment[],
+              replyToMessageId: controller.lastInboundMessageId
+            })
+          }}
+        />
+      }
 
     />
-
-   }
-
-  />
-
- )
+  )
 }

@@ -22,7 +22,7 @@ export const authApi = {
   },
 
   // -----------------------------
-  // All user tenants (bootstrap)
+  // All user tenants (important for bootstrap)
   // -----------------------------
   getMyTenants: () => {
     return apiClient.get<MyTenantsResponseDTO>('/auth/tenants', {

@@ -1,32 +1,29 @@
 import { apiClient } from '@/infra/api/client'
 
-const BASE='/inbox/conversations'
+import {
+  MessageResponseDTO,
+  NewMessageRequestDTO
+} from '../dto/message.dto'
 
-export async function sendMessage(
+const BASE = '/inbox/conversations'
 
- conversationId:string,
- payload:NewMessageRequest
+export function sendMessage(
+  conversationId: string,
+  payload: NewMessageRequestDTO
+): Promise<MessageResponseDTO> {
 
-){
-
- const data = await apiClient.post(
-
-  `${BASE}/${conversationId}/messages`,
-  payload
-
- )
-
- return data as MessageResponseDTO
-
+  return apiClient.post<MessageResponseDTO>(
+    `${BASE}/${conversationId}/messages`,
+    payload
+  )
 }
 
-export function markMessageRead(messageId:string){
+export function markMessageRead(
+  messageId: string
+): Promise<void> {
 
- return apiClient.post(
-
-  `/inbox/messages/${messageId}/read`,
-  {}
-
- )
-
+  return apiClient.post<void>(
+    `/inbox/messages/${messageId}/read`,
+    {}
+  )
 }

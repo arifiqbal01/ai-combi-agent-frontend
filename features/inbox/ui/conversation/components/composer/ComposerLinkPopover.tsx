@@ -1,194 +1,88 @@
 'use client'
 
-import {
- useEffect,
- useRef,
- useState
-} from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { Editor } from '@tiptap/react'
+import { Link, X } from 'lucide-react'
 
-import {
- Link,
- X
-} from 'lucide-react'
-
-type Props={
-
- editor:any
-
- onClose:()=>void
-
+type Props = {
+  editor: Editor
+  onClose: () => void
 }
 
-export function ComposerLinkPopover({
+export function ComposerLinkPopover({ editor, onClose }: Props) {
 
- editor,
- onClose
+  const ref = useRef<HTMLDivElement | null>(null)
+  const [url, setUrl] = useState('')
 
-}:Props){
+  useEffect(() => {
 
- const ref = useRef(null)
+    function click(e: MouseEvent) {
+      const target = e.target as Node
 
- const [url,setUrl]=
- useState('')
-
- useEffect(()=>{
-
-  function click(e:any){
-
-   if(
-
-    ref.current &&
-    !ref.current.contains(e.target)
-
-   ){
-
-    onClose()
-
-   }
-
-  }
-
-  document.addEventListener(
-   'mousedown',
-   click
-  )
-
-  return()=>{
-
-   document.removeEventListener(
-    'mousedown',
-    click
-   )
-
-  }
-
- },[])
-
- function apply(){
-
-  if(!url){
-
-   editor
-    .chain()
-    .focus()
-    .unsetLink()
-    .run()
-
-   onClose()
-
-   return
-
-  }
-
-  editor
-   .chain()
-   .focus()
-   .setLink({
-
-    href:url
-
-   })
-   .run()
-
-  onClose()
-
- }
-
- return(
-
-  <div
-
-   ref={ref}
-
-   className="
-
-    absolute
-
-    bottom-14
-
-    left-3
-
-    bg-white
-
-    border
-
-    rounded-lg
-
-    shadow-lg
-
-    p-2
-
-    flex gap-2
-
-    items-center
-
-    z-50
-
-   "
-
-  >
-
-   <Link size={16}/>
-
-   <input
-
-    value={url}
-
-    onChange={e=>
-     setUrl(e.target.value)
+      if (ref.current && !ref.current.contains(target)) {
+        onClose()
+      }
     }
 
-    placeholder="Paste link…"
+    document.addEventListener('mousedown', click)
 
-    className="
+    return () => {
+      document.removeEventListener('mousedown', click)
+    }
 
-     text-sm
+  }, [onClose])
 
-     border
+  function apply() {
 
-     rounded
+    if (!url) {
+      editor.chain().focus().unsetLink().run()
+      onClose()
+      return
+    }
 
-     px-2
-     py-1
+    editor
+      .chain()
+      .focus()
+      .setLink({ href: url })
+      .run()
 
-     w-[220px]
+    onClose()
+  }
 
-    "
+  return (
+    <div
+      ref={ref}
+      className="
+        absolute bottom-14 left-3
+        bg-white border rounded-lg shadow-lg
+        p-2 flex gap-2 items-center z-50
+      "
+    >
+      <Link size={16} />
 
-   />
+      <input
+        value={url}
+        onChange={e => setUrl(e.target.value)}
+        placeholder="Paste link…"
+        className="
+          text-sm border rounded
+          px-2 py-1 w-[220px]
+        "
+      />
 
-   <button
+      <button
+        onClick={apply}
+        className="
+          text-xs px-2 py-1
+          bg-blue-500 text-white rounded
+        "
+      >
+        Apply
+      </button>
 
-    onClick={apply}
-
-    className="
-
-     text-xs
-
-     px-2
-     py-1
-
-     bg-blue-500
-
-     text-white
-
-     rounded
-
-    "
-
-   >
-
-    Apply
-
-   </button>
-
-   <button
-    onClick={onClose}
-   >
-    <X size={14}/>
-   </button>
-
-  </div>
-
- )
+      <button onClick={onClose}>
+        <X size={14} />
+      </button>
+    </div>
+  )
 }

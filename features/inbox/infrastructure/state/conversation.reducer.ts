@@ -1,69 +1,70 @@
-import { InboxConversationDetail }
-from '../types'
+import {
+  Conversation
+} from '@/features/inbox/domain/conversation/conversation.types'
 
-import { InboxMessageItem }
-from '../types'
+import {
+  Message
+} from '@/features/inbox/domain/message/message.types'
+
+/* =========================
+   MERGE MESSAGE
+========================= */
 
 export function mergeMessage(
+  conversation: Conversation,
+  message: Message
+): Conversation {
 
-  conversation:InboxConversationDetail,
+  const existingIndex =
+    conversation.messages?.findIndex(
+      m =>
+        m.id === message.id ||
+        (message.clientId && m.clientId === message.clientId)
+    ) ?? -1
 
-  message:InboxMessageItem
+  const messages = [
+    ...(conversation.messages ?? [])
+  ]
 
-):InboxConversationDetail{
-
-  return{
-
-    ...conversation,
-
-    messages:[
-
-      ...conversation.messages.filter(
-
-        m=>m.id!==message.id
-
-      ),
-
-      message
-
-    ]
-
+  if (existingIndex === -1) {
+    messages.push(message)
+  } else {
+    messages[existingIndex] = message
   }
 
+  return {
+    ...conversation,
+    messages,
+    lastMessage: message
+  }
 }
+
+/* =========================
+   UPDATE CONVERSATION
+========================= */
 
 export function updateConversation(
+  conversation: Conversation,
+  updates: Partial<Conversation>
+): Conversation {
 
-  conversation:InboxConversationDetail,
-
-  updates:Partial<InboxConversationDetail>
-
-):InboxConversationDetail{
-
-  return{
-
+  return {
     ...conversation,
-
     ...updates
-
   }
-
 }
 
+/* =========================
+   UPDATE UNREAD
+========================= */
+
 export function updateUnread(
+  conversation: Conversation,
+  unreadCount: number
+): Conversation {
 
-  conversation:InboxConversationDetail,
-
-  unreadCount:number
-
-):InboxConversationDetail{
-
-  return{
-
+  return {
     ...conversation,
-
-    unread_count:unreadCount
-
+    unreadCount
   }
-
 }

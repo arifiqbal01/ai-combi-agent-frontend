@@ -1,52 +1,99 @@
 // features/inbox/application/conversation/types/conversation.actions.ts
 
-import { Attachment }
-from '@/features/inbox/domain/attachment/attachment.types'
+import { Conversation } from '@/features/inbox/domain/conversation/conversation.types'
 
-export type SendMessageParams={
+import {
+  Message,
+  MessageSyncState
+} from '@/features/inbox/domain/message/message.types'
 
- conversationId:string
+import { Attachment } from '@/features/inbox/domain/attachment/attachment.types'
 
- body:string
+import {
+  AISuggestion
+} from '@/features/inbox/domain/ai/ai.types'
 
- subject?:string
+/* =========================
+   Participant
+========================= */
 
- clientId?:string
-
- channelAccountId?:string
-
- participants?:{
-
-  address:string
-
-  role:string
-
- }[]
-
- attachments?:Attachment[]
-
+export type MessageParticipant = {
+  address: string
+  role: 'to' | 'from' | 'cc' | 'bcc'
 }
 
-export type ReplyMessageParams={
+/* =========================
+   Send message
+========================= */
 
- conversationId:string
-
- replyToMessageId:string
-
- body:string
-
- attachments?:Attachment[]
-
- clientId?:string
-
+export type SendMessageParams = {
+  conversationId: string
+  body: string
+  subject?: string
+  clientId?: string
+  channelAccountId?: string
+  participants?: MessageParticipant[]
+  attachments?: Attachment[]
 }
 
-export type RetryMessageParams={
+/* =========================
+   Reply message
+========================= */
 
- tempId:string
-
- params:
-  | SendMessageParams
-  | ReplyMessageParams
-
+export type ReplyMessageParams = {
+  conversationId: string
+  replyToMessageId: string
+  body: string
+  attachments?: Attachment[]
+  clientId?: string
 }
+
+/* =========================
+   Retry message
+========================= */
+
+export type RetryMessageParams = {
+  tempId: string
+  params: SendMessageParams | ReplyMessageParams
+}
+
+/* =========================
+   ACTION UNION (STRICT)
+========================= */
+
+export type ConversationAction =
+  | { type: 'SEND_MESSAGE'; payload: SendMessageParams }
+  | { type: 'REPLY_MESSAGE'; payload: ReplyMessageParams }
+  | { type: 'RETRY_MESSAGE'; payload: RetryMessageParams }
+
+  | { type: 'SET_CONVERSATION'; payload: Conversation }
+
+  | { type: 'MESSAGE_ADD'; payload: Message }
+  | { type: 'MESSAGE_RECONCILE'; payload: Message }
+
+  | {
+      type: 'DELIVERY_UPDATE'
+      payload: {
+        messageId: string
+        clientId?: string
+        status: MessageSyncState // ✅ FIXED
+      }
+    }
+
+  | {
+      type: 'CONVERSATION_UPDATE'
+      payload: Partial<Conversation>
+    }
+
+  | { type: 'UNREAD_UPDATE'; payload: number }
+  | { type: 'MARK_READ_LOCAL'; payload: string }
+
+  | { type: 'AI_SUGGESTION'; payload: AISuggestion }
+  | { type: 'AI_SUGGESTION_ERROR'; payload: Error }
+
+/* =========================
+   DISPATCH TYPE (🔥 IMPORTANT)
+========================= */
+
+export type ConversationDispatch =
+  React.Dispatch<ConversationAction>

@@ -1,79 +1,53 @@
-// features/inbox/application/conversation/actions/markRead.usecase.ts
-
 import { useState } from 'react'
 
 import {
- markMessageRead
+  markMessageRead
 } from '@/features/inbox/infrastructure/api/message.api'
 
 import {
- Message
-} from '@/features/inbox/domain/message/message.types'
+  Message,
+  isInbound
+} from '@/features/inbox/domain/message'
 
 export function useMarkConversationRead(){
 
- const [loading,setLoading]=
-  useState(false)
+  const [loading,setLoading] =
+    useState(false)
 
- async function markRead(
+  async function markRead(
+    messageId:string
+  ){
+    if(!messageId) return
 
-  messageId:string
+    setLoading(true)
 
- ){
-
-  if(!messageId)
-   return
-
-  setLoading(true)
-
-  try{
-
-   await markMessageRead(
-    messageId
-   )
-
-  }
-  finally{
-
-   setLoading(false)
-
+    try{
+      await markMessageRead(messageId)
+    }
+    finally{
+      setLoading(false)
+    }
   }
 
- }
+  async function markLatestInbound(
+    messages:Message[]
+  ){
 
- async function markLatestInbound(
+    const latestInbound =
+      [...messages]
+        .reverse()
+        .find(isInbound)
 
-  messages:Message[]
+    if(!latestInbound) return
 
- ){
+    await markRead(
+      latestInbound.id
+    )
+  }
 
-  const latestInbound =
-
-   [...messages]
-   .reverse()
-   .find(
-
-    m=>m.direction==='in'
-
-   )
-
-  if(!latestInbound)
-   return
-
-  await markRead(
-   latestInbound.id
-  )
-
- }
-
- return{
-
-  markRead,
-
-  markLatestInbound,
-
-  loading
-
- }
-
+  return{
+    markRead,
+    markLatestInbound,
+    loading
+  }
 }

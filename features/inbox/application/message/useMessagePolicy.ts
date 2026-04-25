@@ -1,16 +1,24 @@
-import { resolveMessagePolicy }
-from '@/features/inbox/domain/message/message.policy'
+import {
+  resolveMessagePolicy,
+  getDefaultMessagePolicy
+} from '@/features/inbox/domain/message/message.policy'
 
-import { useConversation }
-from '../conversation/useConversation'
+import {
+  useConversation
+} from '@/features/inbox/application/conversation/view/hooks/useConversation'
 
-export function useMessagePolicy(){
+export function useMessagePolicy(
+  conversationId: string | null
+){
 
- const conversation =
-  useConversation()
+  const { data: conversation } =
+    useConversation(conversationId)
 
- return resolveMessagePolicy(
-  conversation?.channel
- )
+  if (!conversation) {
+    return getDefaultMessagePolicy()
+  }
 
+  return resolveMessagePolicy(
+    conversation.channel // ✅ FIXED
+  )
 }

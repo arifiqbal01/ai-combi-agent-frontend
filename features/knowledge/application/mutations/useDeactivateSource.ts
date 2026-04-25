@@ -1,27 +1,37 @@
-/* =========================
- application/mutations/useDeactivateSource.ts
-========================= */
+import { useQueryClient } from '@tanstack/react-query'
+import { useAppMutation } from '@/core/query/useAppMutation'
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { deactivateSource } from '@/features/knowledge/infrastructure/api/knowledge.api'
-import { KnowledgeSource } from '../domain/knowledge.types'
+
+import {
+  KnowledgeSource,
+  KnowledgeStatus,
+} from '@/features/knowledge/domain/knowledge.types'
+
+import { knowledgeKeys } from '../keys/knowledge.keys'
 
 export function useDeactivateSource() {
- const qc = useQueryClient()
+  const qc = useQueryClient()
 
- return useMutation({
-  mutationFn: (id: string) => deactivateSource(id),
+  return useAppMutation({
+    mutationFn: (id: string) => deactivateSource(id),
 
-  onSuccess: (_, sourceId) => {
-   qc.setQueryData(
-    ['knowledge', 'sources'],
-    (old: KnowledgeSource[] = []) =>
-     old.map(source =>
-      source.id === sourceId
-       ? { ...source, status: 'INACTIVE' }
-       : source
-     )
-   )
-  },
- })
+    onSuccess: async (_data, sourceId) => {
+      // ✅ Optimistic update
+      qc.setQueryData<KnowledgeSource[]>(
+        knowledgeKeys.sources(),
+        (old = []) =>
+          old.map(source =>
+            source.id === sourceId
+              ? { ...source, status: KnowledgeStatus.INACTIVE }
+              : source
+          )
+      )
+
+      // 🔒 Optional safety: ensure eventual consistency
+      await qc.invalidateQueries({
+        queryKey: knowledgeKeys.sources(),
+      })
+    },
+  })
 }
