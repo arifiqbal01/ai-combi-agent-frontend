@@ -23,15 +23,6 @@ export function AIHeader({
   confidence,
 }: Props) {
 
-
-  // ✅ LOG MUST BE HERE
-  console.log('AIHeader DEBUG', {
-    isRunning,
-    canExpand,
-    expanded,
-    progress,
-  })
-
   return (
     <div className="flex items-center gap-3 px-4 py-2">
 
@@ -82,7 +73,7 @@ export function AIHeader({
           </>
         )}
 
-        {/* 🔥 FORCE BUTTON VISIBILITY */}
+        {/* BUTTON */}
         {canExpand && (
           <div className="flex-shrink-0">
             <Button

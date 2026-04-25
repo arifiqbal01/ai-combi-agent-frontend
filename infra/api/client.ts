@@ -1,5 +1,37 @@
 'use client'
 
+/**
+ * ⚠️ IMPORTANT — DO NOT BREAK THIS
+ *
+ * This API client is BOOTSTRAP-SAFE.
+ *
+ * Key Rules:
+ *
+ * 1. NEVER block requests when tenantId is missing
+ *    - Bootstrap flow requires calling public endpoints (e.g. /auth/tenants)
+ *    - tenantId is NOT available initially
+ *
+ * 2. requireTenant = true DOES NOT mean "block request"
+ *    - It ONLY means: include tenant header IF available
+ *    - Backend is responsible for strict validation
+ *
+ * 3. Public routes MUST work without tenant:
+ *    Example:
+ *      /auth/tenants
+ *      /auth/me
+ *
+ * 4. If you reintroduce:
+ *      throw new Error('NO_TENANT')
+ *    👉 YOU WILL BREAK THE ENTIRE APP (infinite loader)
+ *
+ * 5. Header behavior must remain:
+ *    includeTenant: requireTenant && !!tenantId
+ *
+ * Bottom line:
+ * 👉 Frontend = tolerant
+ * 👉 Backend = strict
+ */
+
 import { useSessionStore } from '@/core/session/session.store'
 import { buildApiUrl } from '@/infra/api/config'
 import { buildHeaders } from '@/infra/api/headers'
@@ -41,7 +73,7 @@ async function getClerkToken(): Promise<string | null> {
 }
 
 /* ---------------------------------- */
-/* Headers (FIXED)                    */
+/* Headers                            */
 /* ---------------------------------- */
 
 async function prepareHeaders(
@@ -54,28 +86,17 @@ async function prepareHeaders(
   const token = await getClerkToken()
   const tenantId = useSessionStore.getState().tenantId
 
-  console.log('[API DEBUG]', {
-    path,
-    requireAuth,
-    requireTenant,
-    hasToken: !!token,
-    tenantId,
-  })
-
   // 🔐 AUTH (strict)
   if (requireAuth && !token) {
-    console.error('[API BLOCKED] Missing token →', path)
     throw unauthorizedError()
   }
 
   // ⚠️ TENANT (NON-BLOCKING → critical for bootstrap)
   if (requireTenant && !tenantId) {
-    console.warn('[API WARNING] Missing tenant →', path)
-
     return buildHeaders({
       token,
       tenantId: undefined,
-      includeTenant: false, // 🚨 ensures PUBLIC behavior
+      includeTenant: false,
     })
   }
 
@@ -144,7 +165,7 @@ export const apiClient = {
         buildApiUrl(path),
         {
           method: 'GET',
-          headers: await prepareHeaders(path, options), // ✅ FIXED
+          headers: await prepareHeaders(path, options),
         },
         options?.timeoutMs
       )
@@ -168,7 +189,7 @@ export const apiClient = {
         buildApiUrl(path),
         {
           method: 'POST',
-          headers: await prepareHeaders(path, options), // ✅ FIXED
+          headers: await prepareHeaders(path, options),
           body: JSON.stringify(body),
         },
         options?.timeoutMs
