@@ -114,7 +114,7 @@ export function ChannelActions({ channel }: { channel: Channel }) {
           <TooltipTrigger asChild>
             <span className="shrink-0">
               <Button
-                size="xs"
+                size="sm"
                 variant="ghost"
                 className="h-7"
                 onClick={() => sync.mutate(channel.id)}
@@ -140,7 +140,7 @@ export function ChannelActions({ channel }: { channel: Channel }) {
           <TooltipTrigger asChild>
             <span className="shrink-0">
               <Button
-                size="xs"
+                size="sm"
                 variant="ghost"
                 className="h-7"
                 onClick={() => test.mutate(channel.id)}

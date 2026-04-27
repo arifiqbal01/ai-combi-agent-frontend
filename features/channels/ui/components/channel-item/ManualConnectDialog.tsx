@@ -36,15 +36,17 @@ export function ManualConnectDialog({
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  // ✅ Gmail defaults
   const [imapHost, setImapHost] = useState('imap.gmail.com')
   const [imapPort, setImapPort] = useState('993')
 
   const [smtpHost, setSmtpHost] = useState('smtp.gmail.com')
-  const [smtpPort, setSmtpPort] = useState('587') // ✅ FIXED
-  const [smtpEncryption, setSmtpEncryption] = useState('tls') // ✅ FIXED
+  const [smtpPort, setSmtpPort] = useState('587')
+  const [smtpEncryption, setSmtpEncryption] = useState('tls')
 
-  // 🔥 reset form
+  // ✅ prevent auto-detect overriding user edits
+  const [autoFilled, setAutoFilled] = useState(false)
+
+  /* ---------------- RESET ---------------- */
   useEffect(() => {
     if (!open) {
       setUsername('')
@@ -52,39 +54,39 @@ export function ManualConnectDialog({
       setImapHost('imap.gmail.com')
       setImapPort('993')
       setSmtpHost('smtp.gmail.com')
-      setSmtpPort('587') // ✅ FIXED
-      setSmtpEncryption('tls') // ✅ FIXED
+      setSmtpPort('587')
+      setSmtpEncryption('tls')
+      setAutoFilled(false)
     }
   }, [open])
 
-  // 🔥 auto-detect provider (simple but powerful)
+  /* ---------------- AUTO DETECT ---------------- */
   useEffect(() => {
-    if (!username) return
+    if (!username || autoFilled) return
 
     const domain = username.split('@')[1]?.toLowerCase()
-
     if (!domain) return
 
-    // Gmail
     if (domain.includes('gmail.com')) {
       setImapHost('imap.gmail.com')
       setImapPort('993')
       setSmtpHost('smtp.gmail.com')
       setSmtpPort('587')
       setSmtpEncryption('tls')
+      setAutoFilled(true)
     }
 
-    // Outlook
     if (domain.includes('outlook.com') || domain.includes('hotmail.com')) {
       setImapHost('outlook.office365.com')
       setImapPort('993')
       setSmtpHost('smtp.office365.com')
       setSmtpPort('587')
       setSmtpEncryption('tls')
+      setAutoFilled(true)
     }
+  }, [username, autoFilled])
 
-  }, [username])
-
+  /* ---------------- SUBMIT ---------------- */
   const handleSubmit = () => {
     if (!channelId) return
 
@@ -117,24 +119,29 @@ export function ManualConnectDialog({
             imap_port: Number(imapPort),
             smtp_host: smtpHost,
             smtp_port: Number(smtpPort),
-            smtp_encryption: smtpEncryption || 'tls', // ✅ safety fallback
+            smtp_encryption: smtpEncryption,
           },
         },
       },
       {
         onSuccess: (res) => {
-          if (res.status === 'connected') {
-            toast.success('Channel connected')
+          // 🔥 only UI concern → close dialog when actually connected
+
+          const isConnected =
+            res.status === 'connected' ||
+            (res.status === 'valid' &&
+              'connected' in res &&
+              res.connected === true)
+
+          if (isConnected) {
             onOpenChange(false)
           }
-        },
-        onError: () => {
-          toast.error('Connection failed. Check credentials or settings.')
         },
       }
     )
   }
 
+  /* ---------------- UI ---------------- */
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md w-full p-6 rounded-xl relative">
@@ -170,27 +177,42 @@ export function ManualConnectDialog({
 
           <Stack gap="xs">
             <Text size="sm">IMAP Host</Text>
-            <Input value={imapHost} onChange={(e) => setImapHost(e.target.value)} />
+            <Input
+              value={imapHost}
+              onChange={(e) => setImapHost(e.target.value)}
+            />
           </Stack>
 
           <Stack gap="xs">
             <Text size="sm">IMAP Port</Text>
-            <Input value={imapPort} onChange={(e) => setImapPort(e.target.value)} />
+            <Input
+              value={imapPort}
+              onChange={(e) => setImapPort(e.target.value)}
+            />
           </Stack>
 
           <Stack gap="xs">
             <Text size="sm">SMTP Host</Text>
-            <Input value={smtpHost} onChange={(e) => setSmtpHost(e.target.value)} />
+            <Input
+              value={smtpHost}
+              onChange={(e) => setSmtpHost(e.target.value)}
+            />
           </Stack>
 
           <Stack gap="xs">
             <Text size="sm">SMTP Port</Text>
-            <Input value={smtpPort} onChange={(e) => setSmtpPort(e.target.value)} />
+            <Input
+              value={smtpPort}
+              onChange={(e) => setSmtpPort(e.target.value)}
+            />
           </Stack>
 
           <Stack gap="xs">
             <Text size="sm">Encryption</Text>
-            <Select value={smtpEncryption} onValueChange={setSmtpEncryption}>
+            <Select
+              value={smtpEncryption}
+              onValueChange={setSmtpEncryption}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

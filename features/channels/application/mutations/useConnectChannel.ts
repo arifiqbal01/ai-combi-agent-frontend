@@ -10,12 +10,21 @@ import {
 
 import { toast } from '@/ui'
 
+type ConnectVariables = {
+  id: string
+  body?: ConnectRequestDTO
+}
+
 export function useConnectChannel() {
   const queryClient = useQueryClient()
 
-  return useAppMutation({
-    mutationFn: ({ id, body }) =>
-      channelApi.connect(id, body),
+  return useAppMutation<
+    ConnectResponseDTO, // TData
+    unknown,            // TError ✅ MUST EXIST
+    ConnectVariables    // TVariables ✅ NOW CORRECT
+  >({
+    mutationFn: (variables) =>
+      channelApi.connect(variables.id, variables.body),
 
     onSuccess: async (data) => {
 
@@ -26,12 +35,17 @@ export function useConnectChannel() {
         return
       }
 
-      if (data.status === 'manual_required') {
-        return
-      }
+      if (data.status === 'manual_required') return
 
-      if (data.status === 'connected') {
-        toast.success('Channel connected') // ✅ HERE
+      const isConnected =
+        data.status === 'connected' ||
+        (data.status === 'valid' &&
+          'connected' in data &&
+          data.connected)
+
+      if (isConnected) {
+        toast.success('Channel connected')
+
         await queryClient.invalidateQueries({
           queryKey: channelKeys.lists(),
         })
@@ -39,16 +53,12 @@ export function useConnectChannel() {
       }
 
       if (data.status === 'valid') {
-        toast.success('Credentials valid') // ✅ HERE
-        await queryClient.invalidateQueries({
-          queryKey: channelKeys.lists(),
-        })
+        toast.success('Credentials valid')
         return
       }
 
       if (data.status === 'invalid') {
-        toast.error('Invalid credentials or configuration') // ✅ HERE
-        return
+        toast.error('Invalid credentials or configuration')
       }
     },
 
