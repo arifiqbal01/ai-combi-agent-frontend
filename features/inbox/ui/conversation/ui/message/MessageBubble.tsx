@@ -5,11 +5,13 @@ import { MessageVariant } from '@/features/inbox/domain/message'
 
 type Props = {
   variant: MessageVariant
+  grouped?: boolean
   children: React.ReactNode
 }
 
 export function MessageBubble({
   variant,
+  grouped = false,
   children
 }: Props) {
 
@@ -33,11 +35,11 @@ export function MessageBubble({
 
         'break-words [overflow-wrap:anywhere]',
 
-        // ✅ FIX: consistent radius
-        'rounded-2xl',
+        // 🔥 smarter radius (grouping)
+        !grouped && 'rounded-2xl',
+        grouped && 'rounded-xl',
 
         'border',
-
         'transition-colors',
 
         /* variants */
