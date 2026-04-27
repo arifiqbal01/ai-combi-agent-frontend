@@ -8,22 +8,17 @@ import { ConversationView } from '../conversation'
 import { AppPanel } from '@/ui/layout/AppPanel'
 
 export function InboxLayout() {
-
-  const {
-    selectedConversationId
-  } = useInboxContext()
+  const { selectedConversationId } = useInboxContext()
 
   return (
-
     <div className="
-      h-[calc(100vh-56px)]
+      h-[calc(100dvh-56px)]
       w-full
       flex flex-col
       overflow-hidden
       bg-bg-app-soft
     ">
 
-      {/* 🔥 REMOVE PADDING ON MOBILE */}
       <div className="
         flex-1 min-h-0 w-full
         px-0 py-0
@@ -34,7 +29,6 @@ export function InboxLayout() {
         <div className="h-full min-h-0 md:hidden">
 
           {!selectedConversationId ? (
-
             <div className="
               h-full
               overflow-y-auto
@@ -42,24 +36,19 @@ export function InboxLayout() {
             ">
               <ConversationList />
             </div>
-
           ) : (
-
             <div className="
               h-full
               flex
               flex-col
               bg-bg-surface
             ">
-
               <div className="flex-1 min-h-0">
                 <ConversationView
                   conversationId={selectedConversationId}
                 />
               </div>
-
             </div>
-
           )}
 
         </div>
@@ -85,7 +74,6 @@ export function InboxLayout() {
         </div>
 
       </div>
-
     </div>
   )
 }

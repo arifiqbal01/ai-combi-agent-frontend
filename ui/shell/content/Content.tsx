@@ -13,9 +13,10 @@ export default function Content({
   return (
     <main
       className={clsx(
-        // 🔥 CRITICAL FIXES
         'flex flex-col',
         'flex-1 min-h-0 min-w-0',
+
+        // ✅ FIX: lock page, no scrolling here
         'overflow-hidden',
 
         'bg-[rgb(var(--bg-surface-neutral))]',
