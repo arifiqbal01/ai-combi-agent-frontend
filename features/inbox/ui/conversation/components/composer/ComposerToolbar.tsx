@@ -132,7 +132,7 @@ export function ComposerToolbar({ editor }: Props) {
       {/* SCROLLABLE TOOLBAR */}
       <div className="
         flex items-center gap-1
-        overflow-x-auto
+        overflow-x-auto touch-pan-x
         scrollbar-none
         px-1
       ">
