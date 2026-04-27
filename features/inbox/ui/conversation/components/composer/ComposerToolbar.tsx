@@ -50,20 +50,11 @@ export function ComposerToolbar({ editor }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const popRef = useRef<HTMLDivElement | null>(null)
 
-  /* REACTIVE STATE */
-
   useEffect(() => {
     if (!editor) return
-
-    const update = () => {
-      forceUpdate(v => v + 1)
-    }
-
+    const update = () => forceUpdate(v => v + 1)
     editor.onUpdate(update)
-
   }, [editor])
-
-  /* autofocus */
 
   useEffect(() => {
     if (!showLink) return
@@ -76,16 +67,11 @@ export function ComposerToolbar({ editor }: Props) {
       const link = editor.getLink()
       if (link) setUrl(link)
     }
-
   }, [showLink, editor])
 
-  /* outside click */
-
   useEffect(() => {
-
     function click(e: MouseEvent) {
       const target = e.target as Node
-
       if (popRef.current && !popRef.current.contains(target)) {
         setShowLink(false)
       }
@@ -98,14 +84,16 @@ export function ComposerToolbar({ editor }: Props) {
     return () => {
       document.removeEventListener('mousedown', click)
     }
-
   }, [showLink])
 
   if (!editor) return null
 
   function btn(active: boolean) {
     return clsx(
-      'w-8 h-8 flex items-center justify-center rounded-md transition',
+      // 🔥 smaller on mobile
+      'flex items-center justify-center rounded-md transition',
+      'w-7 h-7 sm:w-8 sm:h-8',
+
       active
         ? 'bg-gray-200 text-black'
         : 'text-gray-600 hover:bg-gray-100'
@@ -114,161 +102,113 @@ export function ComposerToolbar({ editor }: Props) {
 
   function normalizeUrl(value: string) {
     if (!value) return ''
-
     if (
       value.startsWith('http://') ||
       value.startsWith('https://') ||
       value.startsWith('mailto:') ||
       value.startsWith('tel:')
-    ) {
-      return value
-    }
+    ) return value
 
     return 'https://' + value
   }
 
   function applyLink() {
-
     if (!url) {
       removeLink(editor)
       setShowLink(false)
-      editor?.focus()
+      editor.focus()
       return
     }
 
     setLink(editor, normalizeUrl(url))
     setShowLink(false)
-    editor?.focus()
+    editor.focus()
   }
 
   return (
-    <div className="relative flex items-center gap-1">
+    <div className="relative w-full">
 
-      {/* TEXT */}
-      <div className="flex items-center gap-1">
+      {/* 🔥 SCROLLABLE TOOLBAR */}
+      <div className="
+        flex items-center gap-1
+        overflow-x-auto
+        scrollbar-none
+        px-1
+      ">
 
-        <button
-          title="Bold (Ctrl+B)"
-          className={btn(isBold(editor))}
-          onClick={() => {
-            toggleBold(editor)
-            editor.focus()
-          }}
-        >
-          <Bold size={15} />
-        </button>
+        {/* TEXT */}
+        <div className="flex items-center gap-1 shrink-0">
+          <button className={btn(isBold(editor))} onClick={() => { toggleBold(editor); editor.focus() }}>
+            <Bold size={14} />
+          </button>
 
-        <button
-          title="Italic (Ctrl+I)"
-          className={btn(isItalic(editor))}
-          onClick={() => {
-            toggleItalic(editor)
-            editor.focus()
-          }}
-        >
-          <Italic size={15} />
-        </button>
+          <button className={btn(isItalic(editor))} onClick={() => { toggleItalic(editor); editor.focus() }}>
+            <Italic size={14} />
+          </button>
 
-        <button
-          title="Underline (Ctrl+U)"
-          className={btn(isUnderline(editor))}
-          onClick={() => {
-            toggleUnderline(editor)
-            editor.focus()
-          }}
-        >
-          <Underline size={15} />
-        </button>
+          <button className={btn(isUnderline(editor))} onClick={() => { toggleUnderline(editor); editor.focus() }}>
+            <Underline size={14} />
+          </button>
+        </div>
 
-      </div>
+        <div className="mx-1 w-px h-4 bg-gray-200 shrink-0" />
 
-      <div className="mx-1 w-px h-5 bg-gray-200" />
+        {/* LIST */}
+        <div className="flex items-center gap-1 shrink-0">
+          <button className={btn(isBulletList(editor))} onClick={() => { toggleBulletList(editor); editor.focus() }}>
+            <List size={14} />
+          </button>
 
-      {/* LIST */}
-      <div className="flex items-center gap-1">
+          <button className={btn(isOrderedList(editor))} onClick={() => { toggleOrderedList(editor); editor.focus() }}>
+            <ListOrdered size={14} />
+          </button>
+        </div>
 
-        <button
-          title="Bullet list"
-          className={btn(isBulletList(editor))}
-          onClick={() => {
-            toggleBulletList(editor)
-            editor.focus()
-          }}
-        >
-          <List size={15} />
-        </button>
+        <div className="mx-1 w-px h-4 bg-gray-200 shrink-0" />
 
-        <button
-          title="Numbered list"
-          className={btn(isOrderedList(editor))}
-          onClick={() => {
-            toggleOrderedList(editor)
-            editor.focus()
-          }}
-        >
-          <ListOrdered size={15} />
-        </button>
+        {/* LINK */}
+        <div className="flex items-center gap-1 shrink-0">
+          <button className={btn(isLinkActive(editor))} onClick={() => setShowLink(v => !v)}>
+            <LinkIcon size={14} />
+          </button>
+        </div>
 
-      </div>
+        <div className="mx-1 w-px h-4 bg-gray-200 shrink-0" />
 
-      <div className="mx-1 w-px h-5 bg-gray-200" />
+        {/* CODE */}
+        <div className="flex items-center gap-1 shrink-0">
+          <button className={btn(isCode(editor))} onClick={() => { toggleCode(editor); editor.focus() }}>
+            <Code size={14} />
+          </button>
+        </div>
 
-      {/* LINK */}
-      <div className="flex items-center gap-1">
+        <div className="mx-1 w-px h-4 bg-gray-200 shrink-0" />
 
-        <button
-          title="Insert link"
-          className={btn(isLinkActive(editor))}
-          onClick={() => setShowLink(v => !v)}
-        >
-          <LinkIcon size={15} />
-        </button>
+        {/* SHORTCUTS */}
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            className={btn(showShortcuts)}
+            onClick={() => setShowShortcuts(v => !v)}
+          >
+            <Keyboard size={14} />
+          </button>
+        </div>
 
       </div>
 
-      <div className="mx-1 w-px h-5 bg-gray-200" />
-
-      {/* CODE */}
-      <div className="flex items-center gap-1">
-
-        <button
-          title="Inline code"
-          className={btn(isCode(editor))}
-          onClick={() => {
-            toggleCode(editor)
-            editor.focus()
-          }}
-        >
-          <Code size={15} />
-        </button>
-
-      </div>
-
-      <div className="mx-1 w-px h-5 bg-gray-200" />
-
-      {/* SHORTCUTS */}
-      <div className="flex items-center gap-1">
-
-        <button
-          title="Keyboard shortcuts (Ctrl+/)"
-          className={clsx(
-            'w-8 h-8 flex items-center justify-center rounded-md transition',
-            showShortcuts
-              ? 'bg-gray-200 text-black'
-              : 'text-gray-600 hover:bg-gray-100'
-          )}
-          onClick={() => setShowShortcuts(v => !v)}
-        >
-          <Keyboard size={15} />
-        </button>
-
-      </div>
-
-      {/* LINK POPOVER */}
+      {/* 🔥 RESPONSIVE LINK POPOVER */}
       {showLink && (
         <div
           ref={popRef}
-          className="absolute top-11 left-0 bg-white border rounded-lg shadow-xl p-2 flex gap-2 items-center z-50"
+          className="
+            absolute z-50 mt-2
+            left-0 right-0 sm:left-0 sm:right-auto
+
+            bg-white border rounded-lg shadow-xl
+            p-2 flex gap-2 items-center
+
+            w-full sm:w-auto
+          "
         >
 
           <input
@@ -276,30 +216,28 @@ export function ComposerToolbar({ editor }: Props) {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={(e) => {
-
               if (e.key === 'Enter') {
                 e.preventDefault()
                 applyLink()
               }
-
-              if (e.key === 'Escape') {
-                setShowLink(false)
-              }
-
+              if (e.key === 'Escape') setShowLink(false)
             }}
             placeholder="Paste link…"
-            className="text-sm border rounded-md px-2 py-1 w-[240px] focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="
+              text-sm border rounded-md px-2 py-1
+              w-full sm:w-[240px]
+              focus:outline-none focus:ring-1 focus:ring-blue-500
+            "
           />
 
           <button
             onClick={applyLink}
-            className="text-xs px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            className="text-xs px-2 py-1 bg-blue-500 text-white rounded-md"
           >
             Apply
           </button>
 
           <button
-            title="Remove link"
             onClick={() => {
               removeLink(editor)
               setShowLink(false)

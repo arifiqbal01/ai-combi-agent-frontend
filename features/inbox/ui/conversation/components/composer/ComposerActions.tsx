@@ -1,118 +1,111 @@
 'use client'
 
 import {
- Send,
- Smile,
- Paperclip,
- Maximize2
+  Send,
+  Smile,
+  Paperclip,
+  Maximize2
 } from 'lucide-react'
 
-type Props={
-
- sending:boolean
-
- disabled:boolean
-
- onSend:()=>void
-
- onFiles:(f:File[])=>void
-
- onEmoji:()=>void
-
- onExpand:()=>void
-
+type Props = {
+  sending: boolean
+  disabled: boolean
+  onSend: () => void
+  onFiles: (f: File[]) => void
+  onEmoji: () => void
+  onExpand: () => void
 }
 
 export function ComposerActions({
+  sending,
+  disabled,
+  onSend,
+  onFiles,
+  onEmoji,
+  onExpand
+}: Props) {
 
- sending,
- disabled,
- onSend,
- onFiles,
- onEmoji,
- onExpand
+  return (
+    <div className="
+      flex items-center w-full
+      gap-2
+    ">
 
-}:Props){
+      {/* LEFT ACTIONS */}
+      <div className="flex items-center gap-1 sm:gap-2">
 
- return(
+        <button
+          onClick={onEmoji}
+          className="
+            flex items-center justify-center
+            w-7 h-7 sm:w-9 sm:h-9
+            rounded-md
+            hover:bg-gray-100
+          "
+        >
+          <Smile size={16} className="sm:w-[18px] sm:h-[18px]" />
+        </button>
 
-  <div className="flex items-center w-full">
+        <label
+          className="
+            flex items-center justify-center
+            w-7 h-7 sm:w-9 sm:h-9
+            rounded-md
+            hover:bg-gray-100
+            cursor-pointer
+          "
+        >
+          <Paperclip size={16} className="sm:w-[18px] sm:h-[18px]" />
 
-   <div className="flex gap-2">
+          <input
+            type="file"
+            multiple
+            hidden
+            onChange={(e) => {
+              if (!e.target.files) return
+              onFiles(Array.from(e.target.files))
+            }}
+          />
+        </label>
 
-    <button
-     onClick={onEmoji}
-     className="p-1.5 hover:bg-gray-100 rounded"
-    >
-     <Smile size={18}/>
-    </button>
+        <button
+          onClick={onExpand}
+          className="
+            flex items-center justify-center
+            w-7 h-7 sm:w-9 sm:h-9
+            rounded-md
+            hover:bg-gray-100
+          "
+        >
+          <Maximize2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+        </button>
 
-    <label className="p-1.5 hover:bg-gray-100 rounded cursor-pointer">
+      </div>
 
-     <Paperclip size={18}/>
+      {/* SEND BUTTON */}
+      <div className="ml-auto flex items-center">
 
-     <input
-      type="file"
-      multiple
-      hidden
-      onChange={(e)=>{
+        <button
+          disabled={disabled || sending}
+          onClick={onSend}
+          className="
+            flex items-center justify-center
 
-       if(!e.target.files) return
+            w-8 h-8 sm:w-10 sm:h-10
 
-       onFiles(
+            rounded-md
 
-        Array.from(e.target.files)
+            bg-blue-500 text-white
+            disabled:opacity-40
 
-       )
+            transition
+          "
+        >
+          <Send size={15} className="sm:w-[16px] sm:h-[16px]" />
+        </button>
 
-      }}
-     />
+      </div>
 
-    </label>
-
-    <button
-     onClick={onExpand}
-     className="p-1.5 hover:bg-gray-100 rounded"
-    >
-     <Maximize2 size={18}/>
-    </button>
-
-   </div>
-
-   <div className="ml-auto">
-
-    <button
-
-     disabled={disabled || sending}
-
-     onClick={onSend}
-
-     className="
-
-      w-9 h-9
-
-      flex
-      items-center
-      justify-center
-
-      rounded-md
-
-      bg-blue-500
-      text-white
-
-      disabled:opacity-40
-
-     "
-
-    >
-
-     <Send size={16}/>
-
-    </button>
-
-   </div>
-
-  </div>
-
- )
+    </div>
+  )
 }

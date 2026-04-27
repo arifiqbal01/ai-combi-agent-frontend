@@ -62,7 +62,7 @@ export function normalizeDeliveryStatus(
       return DeliveryStatus.FAILED
 
     default:
-      return DeliveryStatus.SENT
+      return DeliveryStatus.PENDING // ✅ safer
   }
 }
 
