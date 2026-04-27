@@ -88,12 +88,13 @@ export function ComposerToolbar({ editor }: Props) {
 
   if (!editor) return null
 
+  // ✅ non-null alias (fixes TS issue cleanly)
+  const ed = editor
+
   function btn(active: boolean) {
     return clsx(
-      // 🔥 smaller on mobile
       'flex items-center justify-center rounded-md transition',
       'w-7 h-7 sm:w-8 sm:h-8',
-
       active
         ? 'bg-gray-200 text-black'
         : 'text-gray-600 hover:bg-gray-100'
@@ -114,21 +115,21 @@ export function ComposerToolbar({ editor }: Props) {
 
   function applyLink() {
     if (!url) {
-      removeLink(editor)
+      removeLink(ed)
       setShowLink(false)
-      editor.focus()
+      ed.focus()
       return
     }
 
-    setLink(editor, normalizeUrl(url))
+    setLink(ed, normalizeUrl(url))
     setShowLink(false)
-    editor.focus()
+    ed.focus()
   }
 
   return (
     <div className="relative w-full">
 
-      {/* 🔥 SCROLLABLE TOOLBAR */}
+      {/* SCROLLABLE TOOLBAR */}
       <div className="
         flex items-center gap-1
         overflow-x-auto
@@ -138,15 +139,15 @@ export function ComposerToolbar({ editor }: Props) {
 
         {/* TEXT */}
         <div className="flex items-center gap-1 shrink-0">
-          <button className={btn(isBold(editor))} onClick={() => { toggleBold(editor); editor.focus() }}>
+          <button className={btn(isBold(ed))} onClick={() => { toggleBold(ed); ed.focus() }}>
             <Bold size={14} />
           </button>
 
-          <button className={btn(isItalic(editor))} onClick={() => { toggleItalic(editor); editor.focus() }}>
+          <button className={btn(isItalic(ed))} onClick={() => { toggleItalic(ed); ed.focus() }}>
             <Italic size={14} />
           </button>
 
-          <button className={btn(isUnderline(editor))} onClick={() => { toggleUnderline(editor); editor.focus() }}>
+          <button className={btn(isUnderline(ed))} onClick={() => { toggleUnderline(ed); ed.focus() }}>
             <Underline size={14} />
           </button>
         </div>
@@ -155,11 +156,11 @@ export function ComposerToolbar({ editor }: Props) {
 
         {/* LIST */}
         <div className="flex items-center gap-1 shrink-0">
-          <button className={btn(isBulletList(editor))} onClick={() => { toggleBulletList(editor); editor.focus() }}>
+          <button className={btn(isBulletList(ed))} onClick={() => { toggleBulletList(ed); ed.focus() }}>
             <List size={14} />
           </button>
 
-          <button className={btn(isOrderedList(editor))} onClick={() => { toggleOrderedList(editor); editor.focus() }}>
+          <button className={btn(isOrderedList(ed))} onClick={() => { toggleOrderedList(ed); ed.focus() }}>
             <ListOrdered size={14} />
           </button>
         </div>
@@ -168,7 +169,7 @@ export function ComposerToolbar({ editor }: Props) {
 
         {/* LINK */}
         <div className="flex items-center gap-1 shrink-0">
-          <button className={btn(isLinkActive(editor))} onClick={() => setShowLink(v => !v)}>
+          <button className={btn(isLinkActive(ed))} onClick={() => setShowLink(v => !v)}>
             <LinkIcon size={14} />
           </button>
         </div>
@@ -177,7 +178,7 @@ export function ComposerToolbar({ editor }: Props) {
 
         {/* CODE */}
         <div className="flex items-center gap-1 shrink-0">
-          <button className={btn(isCode(editor))} onClick={() => { toggleCode(editor); editor.focus() }}>
+          <button className={btn(isCode(ed))} onClick={() => { toggleCode(ed); ed.focus() }}>
             <Code size={14} />
           </button>
         </div>
@@ -196,17 +197,15 @@ export function ComposerToolbar({ editor }: Props) {
 
       </div>
 
-      {/* 🔥 RESPONSIVE LINK POPOVER */}
+      {/* LINK POPOVER */}
       {showLink && (
         <div
           ref={popRef}
           className="
             absolute z-50 mt-2
             left-0 right-0 sm:left-0 sm:right-auto
-
             bg-white border rounded-lg shadow-xl
             p-2 flex gap-2 items-center
-
             w-full sm:w-auto
           "
         >
@@ -239,9 +238,9 @@ export function ComposerToolbar({ editor }: Props) {
 
           <button
             onClick={() => {
-              removeLink(editor)
+              removeLink(ed)
               setShowLink(false)
-              editor.focus()
+              ed.focus()
             }}
             className="p-1 hover:bg-gray-100 rounded"
           >
