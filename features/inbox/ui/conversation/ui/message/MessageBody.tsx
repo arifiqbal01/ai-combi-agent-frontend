@@ -6,133 +6,87 @@ type Props = {
   html?: string
 }
 
-const PREVIEW_HEIGHT = 240
-
 export function MessageBody({ html }: Props) {
 
   const [expanded, setExpanded] = useState(false)
   const [isOverflow, setIsOverflow] = useState(false)
-  const [measured, setMeasured] = useState(false)
 
-  const contentRef = useRef<HTMLDivElement | null>(null)
-
-  /* =========================
-     SANITIZE + NORMALIZE
-  ========================= */
+  const ref = useRef<HTMLDivElement | null>(null)
 
   const safeHtml = useMemo(() => {
-
     if (!html) return ''
-
     return html.replace(
       /<a(?![^>]*target=)/gi,
       '<a target="_blank" rel="noopener noreferrer" '
     )
-
   }, [html])
 
-  /* =========================
-     OVERFLOW DETECTION
-  ========================= */
-
   useEffect(() => {
-
-    const el = contentRef.current
+    const el = ref.current
     if (!el) return
 
-    const needsCollapse =
-      el.scrollHeight > PREVIEW_HEIGHT + 20
+    // check overflow AFTER render
+    const isTooLong = el.scrollHeight > el.clientHeight + 10
+    setIsOverflow(isTooLong)
 
-    setIsOverflow(needsCollapse)
-    setMeasured(true)
-
-  }, [safeHtml])
-
-  /* =========================
-     EMPTY STATE
-  ========================= */
+  }, [safeHtml, expanded])
 
   if (!safeHtml) return null
 
-  /* =========================
-     RENDER
-  ========================= */
-
   return (
-    <div className="text-[14px] leading-[22px] w-full min-w-0">
+    <div className="text-[14px] leading-[20px]">
 
-      <div className="relative">
+      <div
+        ref={ref}
+        className={`
+          break-words
 
-        <div
-          ref={contentRef}
-          className={`
-            w-full min-w-0 max-w-full
-            break-words
+          [&_img]:max-w-full
+          [&_img]:h-auto
 
-            transition-[max-height]
-            duration-200 ease-out
+          [&_a]:text-[rgb(var(--state-info))]
+          [&_a]:underline
+          [&_a]:break-all
 
-            ${!measured ? 'opacity-0' : 'opacity-100'}
+          [&_p]:my-2
 
-            [&_img]:max-w-full
-            [&_img]:h-auto
-
-            [&_table]:max-w-full
-            [&_table]:block
-            [&_table]:overflow-x-auto
-
-            [&_a]:text-[rgb(var(--state-info))]
-            [&_a]:underline
-            [&_a]:break-all
-
-            [&_p]:my-2
-
-            ${
-              measured && !expanded && isOverflow
-                ? 'overflow-hidden'
-                : ''
-            }
-          `}
-          style={
-            measured && !expanded && isOverflow
-              ? { maxHeight: PREVIEW_HEIGHT }
-              : undefined
+          ${
+            !expanded
+              ? 'line-clamp-6 overflow-hidden'
+              : ''
           }
-          dangerouslySetInnerHTML={{
-            __html: safeHtml
-          }}
-        />
+        `}
+        dangerouslySetInnerHTML={{ __html: safeHtml }}
+      />
 
-        {/* FADE OVERLAY */}
-        {measured && !expanded && isOverflow && (
-          <div
-            className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
-            style={{
-              background:
-                'linear-gradient(to top, rgb(var(--bg-surface)), transparent)'
-            }}
-          />
-        )}
-
-      </div>
-
-      {/* TOGGLE */}
-      {isOverflow && (
-        <button
-          onClick={() => setExpanded(v => !v)}
-          aria-expanded={expanded}
+      {/* ✅ INLINE READ MORE */}
+      {!expanded && isOverflow && (
+        <span
+          onClick={() => setExpanded(true)}
           className="
-            mt-2 text-xs font-medium
+            text-[13px]
             text-[rgb(var(--state-info))]
-            hover:opacity-80
-            focus-visible:outline-none
-            focus-visible:ring-2
-            focus-visible:ring-[rgb(var(--state-info))]
-            rounded
+            cursor-pointer
+            font-medium
           "
         >
-          {expanded ? 'Show less' : 'Show full email'}
-        </button>
+          Read more
+        </span>
+      )}
+
+      {/* optional collapse */}
+      {expanded && (
+        <span
+          onClick={() => setExpanded(false)}
+          className="
+            ml-2
+            text-[12px]
+            text-gray-500
+            cursor-pointer
+          "
+        >
+          Show less
+        </span>
       )}
 
     </div>

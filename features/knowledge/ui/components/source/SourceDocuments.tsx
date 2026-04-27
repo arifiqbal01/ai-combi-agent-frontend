@@ -28,22 +28,25 @@ export function SourceDocuments({
     : []
 
   return (
-    <Stack gap="sm">
+    <Stack gap="xs" className="mt-1">
 
+      {/* LOADING */}
       {isLoading && (
-        <Text size="sm" tone="muted">
+        <Text size="xs" tone="muted" className="px-2 py-1">
           Loading...
         </Text>
       )}
 
+      {/* EMPTY */}
       {!isLoading && sortedDocs.length === 0 && (
-        <Text size="sm" tone="muted">
+        <Text size="xs" tone="muted" className="px-2 py-1">
           No items yet
         </Text>
       )}
 
+      {/* LIST */}
       {!isLoading && sortedDocs.length > 0 && (
-        <Stack gap="xs" className="mt-2 border-t pt-2">
+        <div className="mt-1 border-t border-border-subtle">
 
           {sortedDocs.map(doc => (
             <DocumentItem
@@ -54,8 +57,9 @@ export function SourceDocuments({
             />
           ))}
 
-        </Stack>
+        </div>
       )}
+
     </Stack>
   )
 }

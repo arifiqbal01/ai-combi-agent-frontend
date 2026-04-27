@@ -9,8 +9,12 @@ type Item = {
 
 export default function SidebarSection({
   items,
+  variant = 'rail',
+  onItemClick,
 }: {
   items: Item[]
+  variant?: 'rail' | 'drawer'
+  onItemClick?: () => void
 }) {
   return (
     <Stack gap="xs">
@@ -18,6 +22,8 @@ export default function SidebarSection({
         <NavItem
           key={item.href}
           {...item}
+          variant={variant}
+          onClick={onItemClick} // ✅ PASS DOWN
         />
       ))}
     </Stack>

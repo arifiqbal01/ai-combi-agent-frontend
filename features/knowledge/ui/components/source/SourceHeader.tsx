@@ -25,44 +25,36 @@ export function SourceHeader({
   onAdd: () => void
 }) {
   return (
-    <Inline className="justify-between items-center">
+    <Inline className="justify-between items-center gap-2">
 
-      {/* LEFT */}
-      <div
-        onClick={onToggle}
-        className="flex-1 cursor-pointer"
-      >
-        <Stack gap="xs">
-          <Text weight="semibold">
-            {LABELS[source.type]}
-          </Text>
+  <div
+    onClick={onToggle}
+    className="flex-1 min-w-0 cursor-pointer"
+  >
+    <Stack gap="xs">
+      <Text weight="semibold" className="truncate">
+        {LABELS[source.type]}
+      </Text>
 
-          <Inline gap="xs" className="items-center">
-            <Text size="sm" tone="muted">
-              {source.documentCount} items
-            </Text>
+      <Text size="xs" tone="muted">
+        {source.documentCount} items
+        {source.status === KnowledgeStatus.PROCESSING && ' • Updating...'}
+      </Text>
+    </Stack>
+  </div>
 
-            {source.status === KnowledgeStatus.PROCESSING && (
-              <Text size="xs" tone="muted">
-                • Updating...
-              </Text>
-            )}
-          </Inline>
-        </Stack>
-      </div>
+  <Button
+    size="sm"
+    variant="secondary"
+    className="h-8 text-xs shrink-0"
+    onClick={(e) => {
+      e.stopPropagation()
+      onAdd()
+    }}
+  >
+    Add
+  </Button>
 
-      {/* RIGHT */}
-      <Button
-        size="sm"
-        variant="secondary"
-        onClick={(e) => {
-          e.stopPropagation()
-          onAdd()
-        }}
-      >
-        Add
-      </Button>
-
-    </Inline>
+</Inline>
   )
 }

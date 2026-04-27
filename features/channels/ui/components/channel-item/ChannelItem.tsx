@@ -1,7 +1,7 @@
 'use client'
 
 import { Channel } from '../../../domain/channel.types'
-import { Surface, Stack } from '@/ui'
+import { Stack } from '@/ui'
 
 import { ChannelHeader } from './ChannelHeader'
 import { ChannelMeta } from './ChannelMeta'
@@ -9,22 +9,23 @@ import { ChannelActions } from './ChannelActions'
 
 export function ChannelItem({ channel }: { channel: Channel }) {
   return (
-    <Surface
-      variant="elevated"
-      className="p-4 rounded-lg transition-all hover:shadow-md"
+    <div
+      className="
+        px-4 py-3
+        bg-surface
+        border border-border-subtle
+        rounded-xl
+
+        transition
+        hover:border-border-default
+        hover:bg-surface-hover
+      "
     >
-      <Stack gap="md">
-
-        {/* HEADER */}
+      <Stack gap="sm">
         <ChannelHeader channel={channel} />
-
-        {/* META */}
         <ChannelMeta channel={channel} />
-
-        {/* ACTIONS */}
         <ChannelActions channel={channel} />
-
       </Stack>
-    </Surface>
+    </div>
   )
 }

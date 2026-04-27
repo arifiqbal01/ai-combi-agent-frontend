@@ -44,18 +44,22 @@ export function DialogContent({
       />
 
       <DialogPrimitive.Content
-        className="fixed inset-0 z-50 flex items-center justify-center"
-        {...props}
+      className="
+        fixed inset-0 z-50
+        flex items-center justify-center
+        px-3
+      "
+      {...props}
+    >
+      <div
+        className={clsx(
+          'w-full max-w-lg rounded-xl border bg-white p-4 shadow-xl',
+          className
+        )}
       >
-        <div
-          className={clsx(
-            'w-full max-w-lg rounded-lg border bg-white p-4 shadow-lg',
-            className
-          )}
-        >
-          {children}
-        </div>
-      </DialogPrimitive.Content>
+        {children}
+      </div>
+    </DialogPrimitive.Content>
 
     </DialogPrimitive.Portal>
   )

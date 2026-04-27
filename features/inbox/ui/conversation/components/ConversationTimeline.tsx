@@ -12,62 +12,43 @@ import {
  useMemo
 } from 'react'
 
-type Props={
-
- timeline:any[]
-
- onScrollStateChange?:
- (scrolled:boolean)=>void
-
+type Props = {
+ timeline: any[]
+ onScrollStateChange?: (scrolled: boolean) => void
 }
 
 export function ConversationTimeline({
-
  timeline,
  onScrollStateChange
+}: Props) {
 
-}:Props){
-
- const messageCount=
- useMemo(()=>{
-
+ const messageCount = useMemo(() => {
   return timeline.reduce(
-
-   (acc,g)=>acc+g.messages.length,
-
+   (acc, g) => acc + g.messages.length,
    0
-
   )
-
- },[timeline])
+ }, [timeline])
 
  const {
-
   ref,
   atBottom,
   scrollToBottom
+ } = useAutoScroll(messageCount)
 
- }=useAutoScroll(messageCount)
+ function handleScroll() {
 
- function handleScroll(){
+  const el = ref.current
+  if (!el) return
 
-  const el=ref.current
-
-  if(!el) return
-
-  const scrolled=
-
+  const scrolled =
    el.scrollTop <
    el.scrollHeight -
    el.clientHeight - 20
 
-  onScrollStateChange?.(
-   scrolled
-  )
-
+  onScrollStateChange?.(scrolled)
  }
 
- return(
+ return (
 
   <div className="
    relative
@@ -76,69 +57,66 @@ export function ConversationTimeline({
   ">
 
    <div
-
     ref={ref}
-
     onScroll={handleScroll}
-
     className="
      h-full
      overflow-y-auto
-     px-4
-     py-3
-     space-y-4
-    "
+     overscroll-contain
 
+     px-3 sm:px-4
+     py-4 sm:py-5
+
+     space-y-5
+    "
    >
 
-    {timeline.map(group=>(
+    {timeline.map(group => (
 
      <TimelineGroup
-
       key={group.id}
-
       group={group}
-
      />
 
     ))}
 
-    <div className="h-2"/>
+    {/* bottom breathing space */}
+    <div className="h-2" />
 
    </div>
 
    {!atBottom && (
 
     <button
-
      onClick={scrollToBottom}
-
      className="
       absolute
       bottom-5
-      right-6
+      right-5
+
       h-9
       px-3
+
       rounded-lg
       bg-blue-500
       text-white
       text-xs
+
       shadow-lg
+
       flex
       items-center
       gap-2
-      hover:bg-blue-600
+
+      active:scale-95
+      transition
      "
-
     >
-
      ↓ Latest
-
     </button>
 
    )}
 
   </div>
-
  )
 }

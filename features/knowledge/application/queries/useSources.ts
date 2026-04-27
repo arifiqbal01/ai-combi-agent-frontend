@@ -1,6 +1,6 @@
 import { useAppQuery } from '@/core/query/useAppQuery'
 
-import { listSources } from '@/features/knowledge/infrastructure/api/knowledge.api'
+import { knowledgeApi } from '@/features/knowledge/infrastructure/api/knowledge.api'
 import { mapSourceDTO } from '@/features/knowledge/infrastructure/mappers/knowledge.mapper'
 import { knowledgeKeys } from '../keys/knowledge.keys'
 
@@ -14,7 +14,7 @@ export function useSources() {
     queryKey: knowledgeKeys.sources(),
 
     queryFn: async () => {
-      const res = await listSources()
+      const res = await knowledgeApi.listSources() // ✅ FIXED
 
       return res
         .map(mapSourceDTO)
@@ -23,11 +23,9 @@ export function useSources() {
         )
     },
 
-    // ✅ CACHE (sources are stable)
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
 
-    // ✅ UX
     placeholderData: (prev) => prev,
   })
 }

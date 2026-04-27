@@ -24,6 +24,7 @@ export function AISection({
   onInsert,
   onRegenerate,
 }: Props) {
+
   const [expanded, setExpanded] = useState(false)
 
   const isRunning = aiState === 'RUNNING'
@@ -58,14 +59,24 @@ export function AISection({
   })()
 
   return (
-    <div className="w-full px-6 py-3">
+
+    <div className="
+      w-full
+      px-3 sm:px-6
+      py-2 sm:py-3
+    ">
+
       <div className="
         max-w-[920px]
         mx-auto
+
         rounded-xl
         border border-ai-border/60
         bg-ai-surface/80
+
         shadow-sm
+
+        overflow-hidden
       ">
 
         <AIHeader
@@ -87,6 +98,8 @@ export function AISection({
         )}
 
       </div>
+
     </div>
+
   )
 }

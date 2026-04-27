@@ -1,18 +1,18 @@
 'use client'
 
-import { Surface, Inline, Text, Button, Icon } from '@/ui'
+import { Text } from '@/ui'
 import { useArchiveDocument } from '@/features/knowledge/application/mutations/useArchiveDocument'
 import { KnowledgeDocument } from '@/features/knowledge/domain/knowledge.types'
 import { Trash2 } from 'lucide-react'
 
 function extractTitle(content: string) {
   const firstLine = content.split('\n')[0]?.trim()
-  return firstLine || 'Untitled'
+  return firstLine ? firstLine.slice(0, 60) : 'Untitled'
 }
 
 function extractPreview(content: string) {
   const lines = content.split('\n').slice(1).join(' ').trim()
-  return lines
+  return lines.slice(0, 100)
 }
 
 export function DocumentItem({
@@ -31,50 +31,61 @@ export function DocumentItem({
   const preview = extractPreview(baseContent)
 
   return (
-    <Surface className="px-3 py-2 group hover:bg-muted/40 transition rounded-md">
-      <Inline className="justify-between items-start gap-2">
-
+    <div
+      className="
+        px-3 py-2.5
+        border-b border-border-subtle
+        last:border-0
+        hover:bg-surface-hover
+        transition
+      "
+    >
+      <div
+        className="flex items-start gap-2 cursor-pointer"
+        onClick={() => onOpen(doc.id)}
+      >
         {/* TEXT */}
-        <div
-          className="cursor-pointer flex-1 min-w-0"
-          onClick={() => onOpen(doc.id)}
-        >
-          <Text size="sm" weight="medium" className="line-clamp-1">
-            {title}
-          </Text>
+        <div className="flex-1 min-w-0">
 
+          {/* TITLE ROW */}
+          <div className="flex items-center justify-between gap-2">
+            <Text size="sm" weight="medium" className="truncate">
+              {title}
+            </Text>
+
+            {/* DELETE */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                if (!confirm('Delete this item?')) return
+
+                archive.mutate({
+                  sourceId,
+                  documentId: doc.id,
+                })
+              }}
+              className="
+                text-muted hover:text-red-500
+                transition-colors
+                shrink-0
+              "
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+
+          {/* PREVIEW */}
           {preview && (
-            <Text size="xs" tone="muted" className="line-clamp-1 mt-0.5">
+            <Text
+              size="xs"
+              tone="muted"
+              className="truncate mt-0.5"
+            >
               {preview}
             </Text>
           )}
         </div>
-
-        {/* DELETE */}
-        <div className="opacity-30 group-hover:opacity-100 transition shrink-0">
-          <Button
-            size="sm" // ✅ fixed
-            variant="ghost"
-            loading={archive.isPending}
-            className="text-red-500 hover:text-red-600"
-            onClick={(e) => {
-              e.stopPropagation()
-
-              if (!confirm('Delete this item?')) return
-
-              archive.mutate({
-                sourceId,
-                documentId: doc.id,
-              })
-            }}
-          >
-            <Icon size="sm">
-              <Trash2 />
-            </Icon>
-          </Button>
-        </div>
-
-      </Inline>
-    </Surface>
+      </div>
+    </div>
   )
 }

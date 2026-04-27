@@ -20,109 +20,103 @@ import {
   ConversationAISection
 } from './components'
 
-import {
-  ConversationEmpty
-} from './ui/ConversationEmpty'
-
-import {
-  ConversationLoading
-} from './ui/ConversationLoading'
+import { ConversationEmpty } from './ui/ConversationEmpty'
+import { ConversationLoading } from './ui/ConversationLoading'
 
 import { Attachment } from '@/features/inbox/domain/attachment/attachment.types'
+
+import { useInboxContext } from '@/features/inbox/ui/context/inbox-context'
+
+import { Icon } from '@/ui'
+import { ChevronLeft } from 'lucide-react'
 
 type Props = {
   conversationId: string | null
 }
 
-export function ConversationView({
-  conversationId
-}: Props) {
+export function ConversationView({ conversationId }: Props) {
 
-  const controller =
-    useConversationController({
-      conversationId
-    })
+  const controller = useConversationController({
+    conversationId
+  })
 
-  const ai =
-    useConversationAIController({
-      state: controller.state
-    })
+  const ai = useConversationAIController({
+    state: controller.state
+  })
 
-  const policy =
-    useMessagePolicy(conversationId)
+  const policy = useMessagePolicy(conversationId)
 
-  if (!conversationId) {
-    return <ConversationEmpty />
-  }
+  const { clearSelection } = useInboxContext()
 
-  if (controller.loading) {
-    return <ConversationLoading />
-  }
-
-  if (!controller.conversation) {
-    return <ConversationEmpty />
-  }
+  if (!conversationId) return <ConversationEmpty />
+  if (controller.loading) return <ConversationLoading />
+  if (!controller.conversation) return <ConversationEmpty />
 
   return (
-    <ConversationLayout
 
-      header={
-        <ConversationHeader
-          conversation={controller.conversation}
-        />
-      }
+    <div className="
+      relative
+      h-full
+      min-h-0
+    ">
 
-      timeline={
-        <ConversationTimeline
-          timeline={controller.timeline}
-          onScrollStateChange={controller.setScrolled}
-        />
-      }
+      <ConversationLayout
 
-      aiSection={
-        <ConversationAISection
-          aiState={ai.aiState}
-          suggestion={ai.suggestion?.content}
-          confidence={ai.suggestion?.confidencePercent}
-          ui={ai.ui}
+        header={
+          <ConversationHeader
+            conversation={controller.conversation}
+          />
+        }
 
-          onInsert={() => {
-            if (!ai.suggestion) return
-            if (!controller.lastInboundMessageId) return
+        timeline={
+          <ConversationTimeline
+            timeline={controller.timeline}
+            onScrollStateChange={controller.setScrolled}
+          />
+        }
 
-            controller.replyMessage({
-              body: ai.suggestion.content,
-              attachments: [],
-              replyToMessageId: controller.lastInboundMessageId
-            })
-          }}
-        />
-      }
+        aiSection={
+          <ConversationAISection
+            aiState={ai.aiState}
+            suggestion={ai.suggestion?.content}
+            confidence={ai.suggestion?.confidencePercent}
+            ui={ai.ui}
 
-      composer={
-        <ConversationComposer
+            onInsert={() => {
+              if (!ai.suggestion) return
+              if (!controller.lastInboundMessageId) return
 
-          policy={policy}
+              controller.replyMessage({
+                body: ai.suggestion.content,
+                attachments: [],
+                replyToMessageId: controller.lastInboundMessageId
+              })
+            }}
+          />
+        }
 
-          context={{
-            conversationId,
-            channel: controller.conversation.channel
-          }}
+        composer={
+          <ConversationComposer
+            policy={policy}
+            context={{
+              conversationId,
+              channel: controller.conversation.channel
+            }}
+            sending={controller.sending}
+            onSend={(params) => {
+              if (!controller.lastInboundMessageId) return
 
-          sending={controller.sending}
+              controller.replyMessage({
+                body: params.body,
+                attachments: (params.attachments ?? []) as Attachment[],
+                replyToMessageId: controller.lastInboundMessageId
+              })
+            }}
+          />
+        }
 
-          onSend={(params) => {
-            if (!controller.lastInboundMessageId) return
+      />
 
-            controller.replyMessage({
-              body: params.body,
-              attachments: (params.attachments ?? []) as Attachment[],
-              replyToMessageId: controller.lastInboundMessageId
-            })
-          }}
-        />
-      }
-
-    />
+    </div>
   )
 }

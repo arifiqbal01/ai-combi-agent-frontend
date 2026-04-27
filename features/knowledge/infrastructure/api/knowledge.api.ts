@@ -3,100 +3,112 @@ import { apiClient } from '@/infra/api/client'
 import {
   SourceDTO,
   DocumentDTO,
-  DocumentDetailDTO
+  DocumentDetailDTO,
 } from '../dto/knowledge.dto'
 
+// 🔥 Base WITHOUT trailing slash
 const BASE = '/knowledge'
 
-/* =========================
- sources
-========================= */
+// 🔥 Base resource (matches backend router prefix="/base")
+const BASE_RESOURCE = `${BASE}/base`
 
-export function listSources(): Promise<SourceDTO[]> {
-  return apiClient.get<SourceDTO[]>(
-    `${BASE}/sources/`
+// 🔥 Same helper as channels
+function joinUrl(...parts: string[]) {
+  return (
+    '/' +
+    parts
+      .map(p => p.replace(/^\/|\/$/g, ''))
+      .join('/')
   )
 }
 
-export function addSource(
-  sourceType: string
-): Promise<SourceDTO> {
+export const knowledgeApi = {
+  /* =========================
+     KNOWLEDGE BASE
+  ========================= */
 
-  return apiClient.post<SourceDTO>(
-    `${BASE}/sources/`,
-    { source_type: sourceType }
-  )
-}
+  // ✅ backend expects: POST /knowledge/base/
+  createBase() {
+    return apiClient.post<{ id: string }>(
+      `${BASE_RESOURCE}/`,
+      undefined as unknown as void
+    )
+  },
 
-export function activateSource(
-  id: string
-): Promise<void> {
+  /* =========================
+     SOURCES
+  ========================= */
 
-  return apiClient.post<void>(
-    `${BASE}/sources/${id}/activate/`
-  )
-}
+  // ✅ backend expects trailing slash
+  listSources() {
+    return apiClient.get<SourceDTO[]>(
+      `${BASE}/sources/`
+    )
+  },
 
-export function deactivateSource(
-  id: string
-): Promise<void> {
+  // ✅ backend expects trailing slash
+  addSource(sourceType: string) {
+    return apiClient.post<SourceDTO>(
+      `${BASE}/sources/`,
+      { source_type: sourceType }
+    )
+  },
 
-  return apiClient.post<void>(
-    `${BASE}/sources/${id}/deactivate/`
-  )
-}
+  // ❌ NO trailing slash
+  activateSource(id: string) {
+    return apiClient.post<void>(
+      joinUrl(BASE, 'sources', id, 'activate'),
+      undefined as unknown as void
+    )
+  },
 
-export function archiveSource(
-  id: string
-): Promise<void> {
+  // ❌ NO trailing slash
+  deactivateSource(id: string) {
+    return apiClient.post<void>(
+      joinUrl(BASE, 'sources', id, 'deactivate'),
+      undefined as unknown as void
+    )
+  },
 
-  return apiClient.post<void>(
-    `${BASE}/sources/${id}/archive`,
-    {}
-  )
-}
+  // ❌ NO trailing slash
+  archiveSource(id: string) {
+    return apiClient.post<void>(
+      joinUrl(BASE, 'sources', id, 'archive'),
+      undefined as unknown as void
+    )
+  },
 
-/* =========================
- documents
-========================= */
+  /* =========================
+     DOCUMENTS
+  ========================= */
 
-export function listDocuments(
-  sourceId: string
-): Promise<DocumentDTO[]> {
+  // ✅ backend expects trailing slash
+  listDocuments(sourceId: string) {
+    return apiClient.get<DocumentDTO[]>(
+      `${BASE}/documents/${sourceId}/`
+    )
+  },
 
-  return apiClient.get<DocumentDTO[]>(
-    `${BASE}/documents/${sourceId}/`
-  )
-}
+  // ✅ backend expects trailing slash
+  getDocument(sourceId: string, documentId: string) {
+    return apiClient.get<DocumentDetailDTO>(
+      `${BASE}/documents/${sourceId}/${documentId}/`
+    )
+  },
 
-export function getDocument(
-  sourceId: string,
-  documentId: string
-): Promise<DocumentDetailDTO> {
+  // ❌ NO trailing slash
+  archiveDocument(sourceId: string, documentId: string) {
+    return apiClient.post<void>(
+      joinUrl(BASE, 'documents', sourceId, documentId, 'archive'),
+      undefined as unknown as void
+    )
+  },
 
-  return apiClient.get<DocumentDetailDTO>(
-    `${BASE}/documents/${sourceId}/${documentId}/`
-  )
-}
-
-export function archiveDocument(
-  sourceId: string,
-  documentId: string
-): Promise<void> {
-
-  return apiClient.post<void>(
-    `${BASE}/documents/${sourceId}/${documentId}/archive`,
-    {}
-  )
-}
-
-export function uploadDocument(
-  sourceId: string,
-  content: string
-): Promise<DocumentDetailDTO> {
-
-  return apiClient.post<DocumentDetailDTO>(
-    `${BASE}/documents/${sourceId}/`,
-    { content }
-  )
+  // ✅ backend expects trailing slash
+  uploadDocument(sourceId: string, content: string) {
+    return apiClient.post<DocumentDetailDTO>(
+      `${BASE}/documents/${sourceId}/`,
+      { content }
+    )
+  },
 }

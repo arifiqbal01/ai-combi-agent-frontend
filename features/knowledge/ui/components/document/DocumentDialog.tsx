@@ -96,11 +96,15 @@ export function DocumentDialog({
         </DialogClose>
 
         {data && (
-          <DialogHeader className="mb-4 pb-3 border-b">
-            <DialogTitle className="text-lg font-semibold leading-snug">
-              {title}
-            </DialogTitle>
-          </DialogHeader>
+         <DialogHeader className="mb-4 pb-3 border-b">
+          <DialogTitle className="text-lg font-semibold leading-snug">
+            {isLoading
+              ? 'Loading...'
+              : data
+              ? title
+              : 'Document'}
+          </DialogTitle>
+        </DialogHeader>
         )}
 
         <div className="max-h-[65vh] overflow-y-auto pr-1">

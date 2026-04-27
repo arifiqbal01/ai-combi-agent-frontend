@@ -6,46 +6,53 @@ import { MessageVariant } from '@/features/inbox/domain/message'
 type Props = {
   variant: MessageVariant
   children: React.ReactNode
-  grouped?: boolean
 }
 
 export function MessageBubble({
   variant,
-  children,
-  grouped
+  children
 }: Props) {
+
+  const isAgent = variant === MessageVariant.AGENT
+  const isCustomer = variant === MessageVariant.CUSTOMER
+  const isAI = variant === MessageVariant.AI
+  const isSystem = variant === MessageVariant.SYSTEM
 
   return (
     <div
       className={clsx(
+
         'relative',
-        'px-4 py-3',
-        'text-[14px]',
-        'leading-[22px]',
+
+        'px-3 py-2 sm:px-4 sm:py-2.5',
+
+        'text-[14px] leading-[20px]',
         'text-[rgb(var(--text-primary))]',
-        'w-fit max-w-full min-w-[140px]',
-        'overflow-hidden break-words [overflow-wrap:anywhere]',
-        'rounded-lg border',
+
+        'w-full',
+
+        'break-words [overflow-wrap:anywhere]',
+
+        // ✅ FIX: consistent radius
+        'rounded-2xl',
+
+        'border',
+
         'transition-colors',
 
-        /* VARIANTS */
+        /* variants */
 
-        variant === MessageVariant.AGENT &&
-          'bg-[rgb(var(--brand)/0.08)] border-[rgb(var(--brand)/0.15)]',
+        isAgent &&
+          'bg-[rgb(var(--brand)/0.15)] border-transparent',
 
-        variant === MessageVariant.CUSTOMER &&
+        isCustomer &&
           'bg-[rgb(var(--bg-surface))] border-[rgb(var(--border-subtle))]',
 
-        variant === MessageVariant.AI &&
-          'bg-purple-50 border-purple-200 ring-1 ring-purple-200',
+        isAI &&
+          'bg-purple-50 border-purple-200',
 
-        variant === MessageVariant.SYSTEM &&
-          'text-xs text-[rgb(var(--text-secondary))] bg-transparent border-none text-center',
-
-        /* GROUPING */
-
-        grouped && variant === MessageVariant.AGENT && 'rounded-tr-sm',
-        grouped && variant === MessageVariant.CUSTOMER && 'rounded-tl-sm'
+        isSystem &&
+          'text-xs text-[rgb(var(--text-secondary))] bg-transparent border-none text-center px-0 py-1'
       )}
     >
       {children}

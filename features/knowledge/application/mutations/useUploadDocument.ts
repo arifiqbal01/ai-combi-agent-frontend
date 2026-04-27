@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useAppMutation } from '@/core/query/useAppMutation'
 
-import { uploadDocument } from '@/features/knowledge/infrastructure/api/knowledge.api'
+import { knowledgeApi } from '@/features/knowledge/infrastructure/api/knowledge.api'
 import { knowledgeKeys } from '@/features/knowledge/application/keys/knowledge.keys'
 
 type UploadPayload = {
@@ -14,16 +14,14 @@ export function useUploadDocument() {
 
   return useAppMutation({
     mutationFn: async ({ sourceId, content }: UploadPayload) => {
-      return await uploadDocument(sourceId, content)
+      return await knowledgeApi.uploadDocument(sourceId, content) // ✅ FIXED
     },
 
     onSuccess: async (_data, { sourceId }) => {
-      // ✅ invalidate documents of this source
       await qc.invalidateQueries({
         queryKey: knowledgeKeys.documents(sourceId),
       })
 
-      // ✅ refresh sources list (status/count might change)
       await qc.invalidateQueries({
         queryKey: knowledgeKeys.sources(),
       })

@@ -35,7 +35,6 @@ export function ConversationListItem({
 
   const isUnread = item.unreadCount > 0
 
-  // ✅ Use raw backend value (no normalization)
   const sender = item.name || 'Unknown'
 
   const message =
@@ -46,9 +45,9 @@ export function ConversationListItem({
     <div
       onClick={onClick}
       className={cn(
-        'px-3 py-2 border-b border-border-subtle cursor-pointer transition-colors',
-        'hover:bg-bg-muted',
-        active && 'bg-bg-surface-soft'
+        'px-3 py-3 border-b border-border-subtle cursor-pointer transition-colors',
+        'hover:bg-bg-muted active:scale-[0.99]',
+        active && 'bg-bg-surface-soft border-l-2 border-[rgb(var(--brand))]'
       )}
     >
 
@@ -65,7 +64,12 @@ export function ConversationListItem({
         <div className="flex-1 min-w-0">
 
           {/* TOP ROW */}
-          <div className="flex justify-between items-center gap-2">
+          <div className="
+            flex
+            justify-between
+            items-center
+            gap-2
+          ">
 
             <Text
               size="sm"
@@ -75,14 +79,24 @@ export function ConversationListItem({
               {sender}
             </Text>
 
-            <Text size="xs" tone="muted" className="shrink-0">
+            <Text
+              size="xs"
+              tone="muted"
+              className="shrink-0"
+            >
               {item.lastMessageAt}
             </Text>
 
           </div>
 
           {/* MESSAGE PREVIEW */}
-          <div className="flex justify-between items-center gap-2">
+          <div className="
+            flex
+            justify-between
+            items-center
+            gap-2
+            mt-0.5
+          ">
 
             <Text
               size="xs"
@@ -97,9 +111,22 @@ export function ConversationListItem({
 
             {isUnread && (
               <span className="
-                text-[11px]
+                min-w-[18px]
+                h-[18px]
+                px-1
+
+                flex
+                items-center
+                justify-center
+
+                rounded-full
+
+                text-[10px]
                 font-semibold
-                text-[rgb(var(--brand))]
+
+                bg-[rgb(var(--brand))]
+                text-white
+
                 shrink-0
               ">
                 {item.unreadCount}
@@ -113,5 +140,6 @@ export function ConversationListItem({
       </Inline>
 
     </div>
+
   )
 }

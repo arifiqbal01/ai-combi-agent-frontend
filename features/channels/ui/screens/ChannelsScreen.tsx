@@ -1,4 +1,5 @@
 'use client'
+
 import {
   PageLayout,
   PageHeader,
@@ -14,7 +15,6 @@ import { CreateChannelDialog } from '../components/CreateChannelDialog'
 
 export function ChannelsScreen() {
   const { data, isLoading } = useChannels()
-
   const channels = data ?? []
 
   return (
@@ -25,25 +25,24 @@ export function ChannelsScreen() {
         description="Manage your connected communication channels"
         actions={
           <PageActions>
-            <CreateChannelDialog />
-          </PageActions>
+              <CreateChannelDialog />
+            </PageActions>
         }
       />
 
       <PageSection>
 
-        {/* LOADING */}
         {isLoading && <LoadingState />}
 
-        {/* EMPTY */}
         {!isLoading && channels.length === 0 && (
-          <EmptyState
-            title="No channels yet"
-            description="Connect your first channel to start receiving messages"
-          />
+          <div className="flex items-center justify-center h-full">
+            <EmptyState
+              title="No channels yet"
+              description="Connect your first channel to start receiving messages"
+            />
+          </div>
         )}
 
-        {/* DATA */}
         {!isLoading && channels.length > 0 && (
           <ChannelList channels={channels} />
         )}

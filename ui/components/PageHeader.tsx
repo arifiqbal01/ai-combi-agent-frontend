@@ -15,27 +15,34 @@ export function PageHeader({
   actions,
 }: Props) {
   return (
-    <Inline
-      className="border-b border-border-subtle px-6 py-4"
-      align="center"
+    <div
+      className="
+        shrink-0
+        border-b border-border-subtle
+        px-3 md:px-6
+        py-2 md:py-4
+      "
     >
-      <Stack className="flex-1">
-        <Text size="lg" weight="semibold">
+      {/* 🔥 TOP ROW: TITLE + ACTION (ALWAYS INLINE) */}
+      <Inline className="items-center justify-between gap-2">
+
+        <Text size="lg" weight="semibold" className="truncate">
           {title}
         </Text>
 
-        {description && (
-          <Text size="sm" tone="muted">
-            {description}
-          </Text>
+        {actions && (
+          <div className="shrink-0">
+            {actions}
+          </div>
         )}
-      </Stack>
+      </Inline>
 
-      {actions && (
-        <Inline gap="sm">
-          {actions}
-        </Inline>
+      {/* 🔥 DESCRIPTION BELOW */}
+      {description && (
+        <Text size="xs" tone="muted" className="mt-1 truncate">
+          {description}
+        </Text>
       )}
-    </Inline>
+    </div>
   )
 }

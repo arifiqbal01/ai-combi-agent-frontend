@@ -1,4 +1,4 @@
-import { Inbox, Settings, Plug, Users } from 'lucide-react'
+import { Inbox, Plug, Users, BookOpen } from 'lucide-react'
 
 export const NAV_SECTIONS = [
   {
@@ -9,6 +9,11 @@ export const NAV_SECTIONS = [
         icon: Inbox,
       },
       {
+        href: '/knowledge',
+        label: 'Knowledge',
+        icon: BookOpen,
+      },
+      {
         href: '/channels',
         label: 'Channels',
         icon: Plug,
@@ -17,11 +22,6 @@ export const NAV_SECTIONS = [
         href: '/users',
         label: 'Users',
         icon: Users,
-      },
-      {
-        href: '/settings',
-        label: 'Settings',
-        icon: Settings,
       },
     ],
   },

@@ -16,16 +16,28 @@ export function MessageContainer({
   return (
     <div
       className={clsx(
-        'flex w-full px-6',
+        'w-full flex',
 
+        // 🔥 FIX: stable horizontal alignment
         align === 'right' && 'justify-end',
         align === 'left' && 'justify-start',
         align === 'center' && 'justify-center',
 
-        grouped ? 'mt-1' : 'mt-5'
+        // 🔥 FIX: remove side padding inconsistency
+        'px-2 md:px-4',
+
+        grouped ? 'mt-1' : 'mt-3'
       )}
     >
-      <div className="max-w-[min(680px,90vw)] w-fit min-w-0 flex flex-col">
+      {/* 🔥 FIX: CONTROL WIDTH HERE (NOT IN BUBBLE) */}
+      <div
+        className={clsx(
+          'w-full',
+          'max-w-[85%] sm:max-w-[70%] md:max-w-[60%]', // consistent column width
+          align === 'right' && 'ml-auto',
+          align === 'left' && 'mr-auto'
+        )}
+      >
         {children}
       </div>
     </div>

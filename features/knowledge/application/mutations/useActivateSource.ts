@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useAppMutation } from '@/core/query/useAppMutation'
 
-import { activateSource } from '@/features/knowledge/infrastructure/api/knowledge.api'
+import { knowledgeApi } from '@/features/knowledge/infrastructure/api/knowledge.api'
 
 import {
   KnowledgeSource,
@@ -14,7 +14,8 @@ export function useActivateSource() {
   const qc = useQueryClient()
 
   return useAppMutation({
-    mutationFn: (id: string) => activateSource(id),
+    mutationFn: (id: string) =>
+      knowledgeApi.activateSource(id), // ✅ FIXED
 
     onSuccess: (_, sourceId) => {
       qc.setQueryData<KnowledgeSource[]>(

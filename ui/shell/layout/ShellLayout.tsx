@@ -13,21 +13,21 @@ export default function ShellLayout({
   children: ReactNode
 }) {
   return (
-    <div className="h-screen w-screen overflow-hidden bg-bg-app">
+    <div className="h-screen w-full flex flex-col bg-bg-app">
 
       {/* HEADER */}
       <HeaderProvider>
-        <header className="h-14 border-b border-border-subtle bg-bg-surface">
+        <header className="h-14 md:h-14 flex-shrink-0 border-b border-border-subtle bg-bg-surface">
           <Header />
         </header>
 
         {/* BODY */}
-        <div className="flex h-[calc(100%-56px)]">
+        <div className="flex flex-1">
 
-          {/* SIDEBAR (RAIL) */}
-         <aside className="w-20 border-r border-border-subtle bg-[rgb(var(--bg-surface-neutral))]">
-              <Sidebar />
-            </aside>
+          {/* SIDEBAR (hidden on mobile) */}
+          <aside className="hidden md:block w-20 border-r border-border-subtle bg-[rgb(var(--bg-surface-neutral))]">
+            <Sidebar />
+          </aside>
 
           {/* CONTENT */}
           <Content>

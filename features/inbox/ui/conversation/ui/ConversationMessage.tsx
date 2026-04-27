@@ -5,10 +5,6 @@ import {
 } from '@/features/inbox/application/conversation/view/models/message.presentation.vm'
 
 import {
-  MessageVariant
-} from '@/features/inbox/domain/message'
-
-import {
   MessageContainer
 } from './message/MessageContainer'
 
@@ -42,9 +38,7 @@ type Props = {
   message: MessagePresentationModel
 }
 
-export function ConversationMessage({
-  message
-}: Props){
+export function ConversationMessage({ message }: Props) {
 
   const isInbound = message.direction === 'in'
 
@@ -55,80 +49,65 @@ export function ConversationMessage({
   const showAvatar =
     isInbound && !message.grouped
 
-  return(
+  return (
 
     <MessageContainer
       align={message.align}
       grouped={message.grouped}
     >
 
-      <div className="flex gap-3 items-end">
+      <div className="flex items-end gap-2 md:gap-3 w-full">
 
-        {/* AVATAR */}
-
-        {isInbound && (
-
-          showAvatar
-            ? (
-              <Avatar
-                label={message.authorName}
-                size="sm"
-              />
-            )
-            : <div className="w-7"/>
-
-        )}
+        {/* ✅ DESKTOP: ALWAYS RESERVE SPACE */}
+        <div className="hidden md:flex w-8 shrink-0">
+          {isInbound && showAvatar && (
+            <Avatar
+              label={message.authorName}
+              size="sm"
+            />
+          )}
+        </div>
 
         {/* MESSAGE */}
+        <div className="flex flex-col w-full">
 
-        <div className="flex flex-col">
-
-          <MessageHeader
-            author={{
-              name: message.authorName,
-              type: message.isAI
-                ? 'ai'
-                : 'human'
-            }}
-            variant={message.variant}
-            hidden={!message.showAuthor}
-          />
-
-          {hasContent && (
-
-            <MessageBubble
+          {/* HEADER (desktop only) */}
+          <div className="hidden md:block">
+            <MessageHeader
+              author={{
+                name: message.authorName,
+                type: message.isAI ? 'ai' : 'human'
+              }}
               variant={message.variant}
-              grouped={message.grouped}
-            >
+              hidden={!message.showAuthor}
+            />
+          </div>
 
-              {message.bodyHtml && (
-                <MessageBody html={message.bodyHtml}/>
-              )}
+                      {/* CONTENT */}
+                      {hasContent && (
+              <MessageBubble
+                variant={message.variant}
+                grouped={message.grouped}
+              >
+                {message.bodyHtml && (
+                  <MessageBody html={message.bodyHtml}/>
+                )}
 
-              {message.hasAttachments && (
-                <MessageAttachments
-                  attachments={message.attachments}
-                />
-              )}
+                {message.hasAttachments && (
+                  <MessageAttachments
+                    attachments={message.attachments}
+                  />
+                )}
+              </MessageBubble>
+            )}
 
-              {message.status && (
-                <MessageStatus
-                  state={message.status}
-                />
-              )}
-
-            </MessageBubble>
-
-          )}
-
+          {/* FOOTER */}
           {message.showStatus && (
-
             <MessageFooter
               time={message.time}
               status={message.status}
               direction={message.direction}
             />
-
           )}
 
         </div>
@@ -136,5 +115,6 @@ export function ConversationMessage({
       </div>
 
     </MessageContainer>
+
   )
 }

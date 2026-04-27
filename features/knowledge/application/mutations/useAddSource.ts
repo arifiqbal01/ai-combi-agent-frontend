@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useAppMutation } from '@/core/query/useAppMutation'
 
-import { addSource } from '@/features/knowledge/infrastructure/api/knowledge.api'
+import { knowledgeApi } from '@/features/knowledge/infrastructure/api/knowledge.api'
 import { mapSourceDTO } from '@/features/knowledge/infrastructure/mappers/knowledge.mapper'
 
 import {
@@ -11,17 +11,22 @@ import {
 
 import { knowledgeKeys } from '../keys/knowledge.keys'
 
+// ✅ add this
+import { ensureKnowledgeBase } from '@/features/knowledge/application/utils/ensureKnowledgeBase'
+
 export function useAddSource() {
   const qc = useQueryClient()
 
   return useAppMutation<KnowledgeSource, unknown, KnowledgeSourceType>({
     mutationFn: async (sourceType) => {
-      const res = await addSource(sourceType)
+      // 🔥 ensure base exists first
+      await ensureKnowledgeBase()
+
+      const res = await knowledgeApi.addSource(sourceType)
       return mapSourceDTO(res)
     },
 
     onSuccess: async (newSource) => {
-      // ✅ Optimistic insert (deduplicated)
       qc.setQueryData<KnowledgeSource[]>(
         knowledgeKeys.sources(),
         (old = []) =>
@@ -30,7 +35,6 @@ export function useAddSource() {
             : [newSource, ...old]
       )
 
-      // 🔒 Optional safety: ensure server truth (ordering/extra fields)
       await qc.invalidateQueries({
         queryKey: knowledgeKeys.sources(),
       })

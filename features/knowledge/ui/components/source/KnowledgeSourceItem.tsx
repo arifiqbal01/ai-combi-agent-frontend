@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Surface, Stack } from '@/ui'
+import { Stack } from '@/ui'
 
 import { KnowledgeSource } from '@/features/knowledge/domain/knowledge.types'
 
@@ -26,8 +26,15 @@ export function KnowledgeSourceItem({
   }, [])
 
   return (
-    <Surface className="p-4">
-      <Stack gap="sm">
+    <div
+      className="
+        px-4 py-3
+        bg-surface
+        border border-border-subtle
+        rounded-xl
+      "
+    >
+      <Stack gap="xs">
 
         <SourceHeader
           source={source}
@@ -51,6 +58,6 @@ export function KnowledgeSourceItem({
         open={!!docId}
         onClose={() => setDocId(undefined)}
       />
-    </Surface>
+    </div>
   )
 }

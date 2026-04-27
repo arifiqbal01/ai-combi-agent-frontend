@@ -49,19 +49,20 @@ export function ConversationList() {
     selectConversation
   } = useInboxContext()
 
-  /* view models */
   const list = useMemo(
     () => items.map(mapConversationToListVM),
     [items]
   )
 
-  /* auto select first */
   useEffect(() => {
     if (!mounted) return
     if (!isReady) return
     if (loading) return
     if (selectedConversationId) return
     if (!list.length) return
+
+    const isDesktop = window.matchMedia('(min-width: 768px)').matches
+    if (!isDesktop) return
 
     selectConversation(list[0].id)
 
@@ -77,25 +78,25 @@ export function ConversationList() {
   return (
     <section className="
       flex
-      h-full
       flex-col
+      h-full
+      min-h-0
       min-w-0
     ">
 
-      <ConversationListHeader
-        onRefresh={refresh}
-      />
+      <ConversationListHeader onRefresh={refresh} />
 
-      <div className="
-        flex-1
-        overflow-y-auto
-      ">
+      {/* 🔥 FORCE SCROLL HERE */}
+      <div
+        className="
+          flex-1
+          min-h-0
+          overflow-y-auto
+          overscroll-contain
+        "
+      >
 
-        {/* 🔥 HYDRATION-SAFE RENDER FLOW */}
-
-        {!mounted && (
-          <ConversationListLoading />
-        )}
+        {!mounted && <ConversationListLoading />}
 
         {mounted && (!isReady || loading) && (
           <ConversationListLoading />

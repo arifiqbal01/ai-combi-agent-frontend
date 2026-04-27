@@ -1,6 +1,6 @@
 import { useAppQuery } from '@/core/query/useAppQuery'
 
-import { getDocument } from '@/features/knowledge/infrastructure/api/knowledge.api'
+import { knowledgeApi } from '@/features/knowledge/infrastructure/api/knowledge.api'
 import { mapDocumentDetailDTO } from '@/features/knowledge/infrastructure/mappers/knowledge.mapper'
 
 import { KnowledgeDocument } from '@/features/knowledge/domain/knowledge.types'
@@ -15,7 +15,7 @@ export function useDocument(
     enabled: !!sourceId && !!documentId,
 
     queryFn: async () => {
-      const dto = await getDocument(
+      const dto = await knowledgeApi.getDocument(
         sourceId!,
         documentId!
       )

@@ -1,81 +1,94 @@
 'use client'
 
+import { useInboxContext } from '@/features/inbox/ui/context/inbox-context'
+
 import {
  Conversation
-}
-from '@/features/inbox/domain/conversation/conversation.types'
+} from '@/features/inbox/domain/conversation/conversation.types'
 
-type Props={
+import { ChevronLeft } from 'lucide-react'
 
- conversation:Conversation
-
+type Props = {
+ conversation: Conversation
 }
 
 export function ConversationHeader({
-
  conversation
+}: Props) {
 
-}:Props){
+ const { clearSelection } = useInboxContext()
 
- const email=
+ const email =
+  conversation.sender || 'Unknown'
 
- conversation.sender ||
- 'Unknown'
+ const subject =
+  conversation.subject || 'No subject'
 
- const subject=
-
- conversation.subject ||
- 'No subject'
-
- return(
+ return (
 
   <div className="
-   flex
-   items-center
-   justify-between
-   border-b
-   border-border-subtle
-   px-4
-   py-3
+    flex items-center justify-between
+    px-3 sm:px-4 py-2.5
+    border-b border-border-subtle
+    bg-bg-surface
+    gap-3
   ">
 
-   <div>
+   {/* LEFT SECTION */}
+   <div className="flex items-center gap-2 min-w-0">
 
-{/* EMAIL */}
+     {/* 🔥 BACK ARROW (INLINE, CLEAN) */}
+     <button
+       onClick={clearSelection}
+       className="
+         md:hidden
+         flex items-center justify-center
+         shrink-0
 
-    <div className="
-     text-sm
-     font-semibold
-     text-text-primary
-    ">
+         h-8 w-8
 
-     {email}
+         rounded-full
+         hover:bg-bg-muted
+         active:scale-95
+         transition
+       "
+     >
+       <ChevronLeft size={18} />
+     </button>
 
-    </div>
+     {/* TEXT */}
+     <div className="flex flex-col min-w-0">
 
-{/* SUBJECT */}
+       {/* EMAIL / NAME */}
+       <div className="
+         text-[13px]
+         font-semibold
+         text-text-primary
+         truncate
+       ">
+         {email}
+       </div>
 
-    <div className="
-     text-xs
-     text-text-muted
-     mt-0.5
-    ">
+       {/* SUBJECT / PREVIEW */}
+       <div className="
+         text-[11px]
+         text-text-muted
+         truncate
+       ">
+         {subject}
+       </div>
 
-     {subject}
-
-    </div>
+     </div>
 
    </div>
 
-{/* channel */}
-
+   {/* RIGHT SECTION (CHANNEL) */}
    <div className="
-    text-xs
-    text-text-muted
+     text-[11px]
+     text-text-muted
+     shrink-0
    ">
-
-    {conversation.channel}
-
+     {conversation.channel}
    </div>
 
   </div>

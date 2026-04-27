@@ -1,39 +1,28 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { Stack, Text, Surface } from '@/ui'
+import clsx from 'clsx'
 
 type Props = {
-  title?: string
-  description?: string
   children: ReactNode
+  className?: string
 }
 
 export function PageSection({
-  title,
-  description,
   children,
+  className,
 }: Props) {
   return (
-    <Surface variant="default" className="p-4 rounded-md">
-      <Stack gap="md">
-
-        {(title || description) && (
-          <Stack gap="xs">
-            {title && (
-              <Text weight="semibold">{title}</Text>
-            )}
-            {description && (
-              <Text size="sm" tone="muted">
-                {description}
-              </Text>
-            )}
-          </Stack>
+    <div className="flex-1 min-h-0 overflow-y-auto">
+      <div
+        className={clsx(
+          // 🔥 Removed horizontal padding on mobile
+          'py-2 md:px-6 md:py-4',
+          className
         )}
-
+      >
         {children}
-
-      </Stack>
-    </Surface>
+      </div>
+    </div>
   )
 }

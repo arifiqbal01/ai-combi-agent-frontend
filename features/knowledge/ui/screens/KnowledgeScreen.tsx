@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import {
-  Stack,
-  Inline,
+  PageLayout,
+  PageHeader,
+  PageSection,
+  PageActions,
   Text,
   Button,
 } from '@/ui'
@@ -19,11 +21,7 @@ import {
 } from '../components/state/KnowledgeStates'
 
 export function KnowledgeScreen() {
-  const {
-    data: sources = [],
-    isLoading,
-    isFetching,
-  } = useSources()
+  const { data: sources = [], isLoading, isFetching } = useSources()
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedSourceId, setSelectedSourceId] = useState<string | undefined>()
@@ -39,62 +37,56 @@ export function KnowledgeScreen() {
   }
 
   const isEmpty = !isLoading && sources.length === 0
-  const hasData = sources.length > 0
-
-  const sortedSources = [...sources].sort((a, b) => {
-    const aTime = a.updatedAt ?? a.createdAt ?? ''
-    const bTime = b.updatedAt ?? b.createdAt ?? ''
-
-    return new Date(bTime).getTime() - new Date(aTime).getTime()
-  })
 
   return (
-    <Stack gap="md" className="h-full p-4">
+    <PageLayout>
 
-      <Inline className="justify-between items-center">
-        <Text size="lg" weight="semibold">
-          Knowledge
-        </Text>
+      <PageHeader
+          title="Knowledge"
+          description="Manage your knowledge sources and documents"
+          actions={
+            <PageActions>
+              <Button onClick={openGlobal}>
+                Add Knowledge
+              </Button>
+            </PageActions>
+          }
+        />
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={openGlobal}
-        >
-          + Add
-        </Button>
-      </Inline>
+      <PageSection>
 
-      <KnowledgePresetDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        sourceId={selectedSourceId}
-      />
+        <KnowledgePresetDialog
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          sourceId={selectedSourceId}
+        />
 
-      {isLoading && <KnowledgeSkeletonList />}
+        {isLoading && <KnowledgeSkeletonList />}
 
-      {isEmpty && <KnowledgeEmptyState />}
+        {isEmpty && <KnowledgeEmptyState />}
 
-      {hasData && (
-        <Stack gap="sm">
+        {!isLoading && sources.length > 0 && (
+          <div className="space-y-3 px-2 md:px-0">
 
-          {isFetching && !isLoading && (
-            <Text size="xs" tone="muted">
-              Updating...
-            </Text>
-          )}
+            {isFetching && (
+              <Text size="xs" tone="muted">
+                Updating...
+              </Text>
+            )}
 
-          {sortedSources.map(source => (
-            <KnowledgeSourceItem
-              key={source.id}
-              source={source}
-              onAdd={openForSource}
-            />
-          ))}
+            {sources.map(source => (
+              <KnowledgeSourceItem
+                key={source.id}
+                source={source}
+                onAdd={openForSource}
+              />
+            ))}
 
-        </Stack>
-      )}
+          </div>
+        )}
 
-    </Stack>
+      </PageSection>
+
+    </PageLayout>
   )
 }

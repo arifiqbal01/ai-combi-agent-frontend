@@ -1,6 +1,6 @@
 import { useAppQuery } from '@/core/query/useAppQuery'
 
-import { listDocuments } from '@/features/knowledge/infrastructure/api/knowledge.api'
+import { knowledgeApi } from '@/features/knowledge/infrastructure/api/knowledge.api'
 import { mapDocumentDTO } from '@/features/knowledge/infrastructure/mappers/knowledge.mapper'
 
 import {
@@ -15,7 +15,7 @@ export function useDocumentsBySource(sourceId?: string) {
     enabled: !!sourceId,
 
     queryFn: async () => {
-      const res = await listDocuments(sourceId!)
+      const res = await knowledgeApi.listDocuments(sourceId!) // ✅ FIXED
 
       return res
         .map(mapDocumentDTO)
@@ -27,14 +27,11 @@ export function useDocumentsBySource(sourceId?: string) {
         )
     },
 
-    // ✅ CACHE
     staleTime: 30 * 1000,
     gcTime: 5 * 60 * 1000,
 
-    // ✅ SMOOTH UX
     placeholderData: (prev) => prev,
 
-    // ✅ CONDITIONAL POLLING
     refetchInterval: (query) => {
       const data = query.state.data as KnowledgeDocument[] | undefined
 

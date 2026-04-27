@@ -13,7 +13,11 @@ export default function Content({
   return (
     <main
       className={clsx(
-        'flex-1 min-h-0 min-w-0 overflow-hidden',
+        // 🔥 CRITICAL FIXES
+        'flex flex-col',
+        'flex-1 min-h-0 min-w-0',
+        'overflow-hidden',
+
         'bg-[rgb(var(--bg-surface-neutral))]',
         className
       )}
