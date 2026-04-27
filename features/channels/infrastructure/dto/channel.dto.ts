@@ -24,10 +24,15 @@ export type ConnectRequestDTO = {
   data?: Record<string, unknown>
 }
 
-export type ConnectResponseDTO = {
-  status: 'oauth_required' | 'manual_required' | 'connected'
-  redirect_url?: string | null
-}
+export type ConnectResponseDTO =
+  | {
+      status: 'oauth_required' | 'manual_required' | 'connected'
+      redirect_url?: string | null
+    }
+  | {
+      status: 'valid' | 'invalid'
+      connected: boolean
+    }
 
 export type SimpleStatusDTO = {
   status: string

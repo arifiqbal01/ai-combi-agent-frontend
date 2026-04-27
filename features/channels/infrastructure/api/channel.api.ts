@@ -39,18 +39,18 @@ export const channelApi = {
 
   /* 🔥 CONNECT */
   connect(accountId: string, body?: ConnectRequestDTO) {
-    return apiClient.post<
-      ConnectResponseDTO,
-      ConnectRequestDTO | undefined
-    >(
-      joinUrl(BASE, accountId, 'connect'),
-      body,
-      {
-        requireAuth: true,
-        requireTenant: true,
-      }
-    )
-  },
+  return apiClient.post<
+    ConnectResponseDTO,
+    ConnectRequestDTO | undefined
+  >(
+    joinUrl(BASE, accountId, 'connect'),
+    body,
+    {
+      requireAuth: true,
+      requireTenant: true,
+    }
+  )
+},
 
   enable(accountId: string) {
     return apiClient.post<SimpleStatusDTO, void>(
