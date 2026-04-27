@@ -36,15 +36,15 @@ export function ManualConnectDialog({
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
+  // ✅ Gmail defaults
   const [imapHost, setImapHost] = useState('imap.gmail.com')
   const [imapPort, setImapPort] = useState('993')
 
   const [smtpHost, setSmtpHost] = useState('smtp.gmail.com')
-  const [smtpPort, setSmtpPort] = useState('465')
+  const [smtpPort, setSmtpPort] = useState('587') // ✅ FIXED
+  const [smtpEncryption, setSmtpEncryption] = useState('tls') // ✅ FIXED
 
-  const [smtpEncryption, setSmtpEncryption] = useState('ssl')
-
-  // 🔥 reset form when dialog closes
+  // 🔥 reset form
   useEffect(() => {
     if (!open) {
       setUsername('')
@@ -52,16 +52,57 @@ export function ManualConnectDialog({
       setImapHost('imap.gmail.com')
       setImapPort('993')
       setSmtpHost('smtp.gmail.com')
-      setSmtpPort('465')
-      setSmtpEncryption('ssl')
+      setSmtpPort('587') // ✅ FIXED
+      setSmtpEncryption('tls') // ✅ FIXED
     }
   }, [open])
+
+  // 🔥 auto-detect provider (simple but powerful)
+  useEffect(() => {
+    if (!username) return
+
+    const domain = username.split('@')[1]?.toLowerCase()
+
+    if (!domain) return
+
+    // Gmail
+    if (domain.includes('gmail.com')) {
+      setImapHost('imap.gmail.com')
+      setImapPort('993')
+      setSmtpHost('smtp.gmail.com')
+      setSmtpPort('587')
+      setSmtpEncryption('tls')
+    }
+
+    // Outlook
+    if (domain.includes('outlook.com') || domain.includes('hotmail.com')) {
+      setImapHost('outlook.office365.com')
+      setImapPort('993')
+      setSmtpHost('smtp.office365.com')
+      setSmtpPort('587')
+      setSmtpEncryption('tls')
+    }
+
+  }, [username])
 
   const handleSubmit = () => {
     if (!channelId) return
 
-    if (!username || !password) {
+    const cleanUsername = username.trim().toLowerCase()
+    const cleanPassword = password.trim()
+
+    if (!cleanUsername || !cleanPassword) {
       toast.error('Username and password required')
+      return
+    }
+
+    if (!smtpHost || !smtpPort) {
+      toast.error('SMTP configuration required')
+      return
+    }
+
+    if (!imapHost || !imapPort) {
+      toast.error('IMAP configuration required')
       return
     }
 
@@ -70,13 +111,13 @@ export function ManualConnectDialog({
         id: channelId,
         body: {
           data: {
-            username,
-            password,
+            username: cleanUsername,
+            password: cleanPassword,
             imap_host: imapHost,
             imap_port: Number(imapPort),
             smtp_host: smtpHost,
             smtp_port: Number(smtpPort),
-            smtp_encryption: smtpEncryption,
+            smtp_encryption: smtpEncryption || 'tls', // ✅ safety fallback
           },
         },
       },
@@ -88,7 +129,7 @@ export function ManualConnectDialog({
           }
         },
         onError: () => {
-          toast.error('Connection failed')
+          toast.error('Connection failed. Check credentials or settings.')
         },
       }
     )
@@ -98,21 +139,18 @@ export function ManualConnectDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md w-full p-6 rounded-xl relative">
 
-        {/* CLOSE */}
         <DialogClose asChild>
           <button className="absolute right-5 top-5 opacity-70 hover:opacity-100">
             ✕
           </button>
         </DialogClose>
 
-        {/* HEADER */}
         <DialogHeader className="mb-4 pb-3 border-b">
           <DialogTitle>Connect Email</DialogTitle>
         </DialogHeader>
 
         <Stack gap="md">
 
-          {/* USERNAME */}
           <Stack gap="xs">
             <Text size="sm">Email / Username</Text>
             <Input
@@ -121,7 +159,6 @@ export function ManualConnectDialog({
             />
           </Stack>
 
-          {/* PASSWORD */}
           <Stack gap="xs">
             <Text size="sm">Password</Text>
             <Input
@@ -131,47 +168,29 @@ export function ManualConnectDialog({
             />
           </Stack>
 
-          {/* IMAP */}
           <Stack gap="xs">
             <Text size="sm">IMAP Host</Text>
-            <Input
-              value={imapHost}
-              onChange={(e) => setImapHost(e.target.value)}
-            />
+            <Input value={imapHost} onChange={(e) => setImapHost(e.target.value)} />
           </Stack>
 
           <Stack gap="xs">
             <Text size="sm">IMAP Port</Text>
-            <Input
-              value={imapPort}
-              onChange={(e) => setImapPort(e.target.value)}
-            />
+            <Input value={imapPort} onChange={(e) => setImapPort(e.target.value)} />
           </Stack>
 
-          {/* SMTP */}
           <Stack gap="xs">
             <Text size="sm">SMTP Host</Text>
-            <Input
-              value={smtpHost}
-              onChange={(e) => setSmtpHost(e.target.value)}
-            />
+            <Input value={smtpHost} onChange={(e) => setSmtpHost(e.target.value)} />
           </Stack>
 
           <Stack gap="xs">
             <Text size="sm">SMTP Port</Text>
-            <Input
-              value={smtpPort}
-              onChange={(e) => setSmtpPort(e.target.value)}
-            />
+            <Input value={smtpPort} onChange={(e) => setSmtpPort(e.target.value)} />
           </Stack>
 
-          {/* ENCRYPTION */}
           <Stack gap="xs">
             <Text size="sm">Encryption</Text>
-            <Select
-              value={smtpEncryption}
-              onValueChange={setSmtpEncryption}
-            >
+            <Select value={smtpEncryption} onValueChange={setSmtpEncryption}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -184,12 +203,10 @@ export function ManualConnectDialog({
             </Select>
           </Stack>
 
-          {/* HELPER */}
           <Text size="xs" tone="muted">
             For Gmail, use an App Password instead of your account password.
           </Text>
 
-          {/* ACTION */}
           <Button
             onClick={handleSubmit}
             loading={connect.isPending}
