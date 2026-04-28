@@ -50,11 +50,12 @@ export function AISection({
 
   // 🔥 Visibility logic (core improvement)
   const shouldShow =
-    isRunning ||
-    isSuggestion ||
-    isAutoReply ||
-    isError ||
-    expanded
+      isRunning ||
+      isSuggestion ||
+      isAutoReply ||
+      isError ||
+      hasSuggestion ||   // ✅ important
+      isIdle             // ✅ show collapsed state
 
   // 🔥 Completely hide when not needed
   if (!shouldShow) return null
