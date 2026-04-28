@@ -11,13 +11,21 @@ import {
 
 import { knowledgeKeys } from '../keys/knowledge.keys'
 
-// ✅ add this
+// ✅ ensure base exists
 import { ensureKnowledgeBase } from '@/features/knowledge/application/utils/ensureKnowledgeBase'
+
+// ✅ reuse existing mutation logic
+import { useActivateSource } from './useActivateSource'
 
 export function useAddSource() {
   const qc = useQueryClient()
+  const activate = useActivateSource()
 
-  return useAppMutation<KnowledgeSource, unknown, KnowledgeSourceType>({
+  return useAppMutation<
+    KnowledgeSource,
+    unknown,
+    KnowledgeSourceType
+  >({
     mutationFn: async (sourceType) => {
       // 🔥 ensure base exists first
       await ensureKnowledgeBase()
@@ -27,6 +35,9 @@ export function useAddSource() {
     },
 
     onSuccess: async (newSource) => {
+      /* -------------------------
+         Optimistic insert
+      ------------------------- */
       qc.setQueryData<KnowledgeSource[]>(
         knowledgeKeys.sources(),
         (old = []) =>
@@ -35,6 +46,18 @@ export function useAddSource() {
             : [newSource, ...old]
       )
 
+      /* -------------------------
+         🔥 AUTO ACTIVATE
+      ------------------------- */
+      try {
+        await activate.mutateAsync(newSource.id)
+      } catch {
+        // fail silently (backend still source of truth)
+      }
+
+      /* -------------------------
+         Sync with backend
+      ------------------------- */
       await qc.invalidateQueries({
         queryKey: knowledgeKeys.sources(),
       })
