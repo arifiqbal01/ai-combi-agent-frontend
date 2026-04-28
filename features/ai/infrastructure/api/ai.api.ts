@@ -63,10 +63,10 @@ export const aiApi = {
   },
 
   /* -----------------------------
-     UPDATE CONFIG
+     UPDATE CONFIG (FIXED ✅)
   ----------------------------- */
   updateConfig(agentId: string, body: UpdateAgentConfigDTO) {
-    return apiClient.post<
+    return apiClient.patch<
       UpdateAgentConfigResponseDTO,
       UpdateAgentConfigDTO
     >(

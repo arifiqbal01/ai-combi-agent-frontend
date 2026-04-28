@@ -203,4 +203,30 @@ export const apiClient = {
       throw err
     }
   },
+
+  // ✅ FIXED: now inside object
+  patch: async <T, B = unknown>(
+    path: string,
+    body?: B,
+    options?: RequestOptions
+  ): Promise<T> => {
+    try {
+      const res = await fetchWithTimeout(
+        buildApiUrl(path),
+        {
+          method: 'PATCH',
+          headers: await prepareHeaders(path, options),
+          body: body ? JSON.stringify(body) : undefined,
+        },
+        options?.timeoutMs
+      )
+
+      return await handleResponse<T>(res)
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        throw networkError()
+      }
+      throw err
+    }
+  },
 }
