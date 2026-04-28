@@ -1,4 +1,10 @@
-import { Inbox, Plug, Users, BookOpen } from 'lucide-react'
+import {
+  Inbox,
+  Plug,
+  Users,
+  BookOpen,
+  Bot,
+} from 'lucide-react'
 
 export const NAV_SECTIONS = [
   {
@@ -7,6 +13,11 @@ export const NAV_SECTIONS = [
         href: '/inbox',
         label: 'Inbox',
         icon: Inbox,
+      },
+      {
+        href: '/ai',
+        label: 'AI Assistant',
+        icon: Bot,
       },
       {
         href: '/knowledge',
