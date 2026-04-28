@@ -33,10 +33,6 @@ export function AIExpanded({
           <Button size="sm" onClick={onInsert}>
             Insert
           </Button>
-
-          <Button size="sm" variant="ghost" onClick={onRegenerate}>
-            Improve
-          </Button>
         </Inline>
 
       </Stack>

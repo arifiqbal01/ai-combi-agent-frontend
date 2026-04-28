@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useComposer } from '@/features/inbox/application/composer'
 
 import {
@@ -22,16 +23,38 @@ type Props = {
   sending: boolean
   policy: unknown
   context: unknown
+
+  /* 🔥 NEW: expose composer API */
+  onReady?: (api: {
+    setContent: (html: string) => void
+  }) => void
 }
 
 export function ConversationComposer({
   onSend,
   sending,
   policy,
-  context
+  context,
+  onReady
 }: Props) {
 
   const composer = useComposer(policy, context)
+
+  /* =========================
+     🔥 EXPOSE API TO PARENT
+  ========================= */
+
+  useEffect(() => {
+    if (!composer.state.editor) return
+
+    onReady?.({
+      setContent: composer.actions.setContent
+    })
+  }, [composer.state.editor])
+
+  /* =========================
+     SEND
+  ========================= */
 
   function handleSend() {
 
@@ -46,6 +69,10 @@ export function ConversationComposer({
 
     composer.actions.clear()
   }
+
+  /* =========================
+     RENDER
+  ========================= */
 
   return (
 

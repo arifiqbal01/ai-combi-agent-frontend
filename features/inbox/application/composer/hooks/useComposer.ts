@@ -1,267 +1,257 @@
 // features/inbox/application/composer/hooks/useComposer.ts
 
-import { useState,useEffect }
-from 'react'
+import { useState, useEffect } from 'react'
 
 import {
- createComposerState
-}
-from '../state/composer.state'
+  createComposerState
+} from '../state/composer.state'
 
 import {
- insertEmoji
-}
-from '../actions/composer.editor'
+  insertEmoji
+} from '../actions/composer.editor'
 
 import {
- toggleEmoji,
- toggleExpand
-}
-from '../actions/composer.ui'
+  toggleEmoji,
+  toggleExpand
+} from '../actions/composer.ui'
 
 import {
- ComposerState
-}
-from '../composer.types'
+  ComposerState
+} from '../composer.types'
 
 import {
- Attachment
-}
-from '@/features/inbox/domain/attachment/attachment.types'
+  Attachment
+} from '@/features/inbox/domain/attachment/attachment.types'
 
 import {
- useUploadAttachment
-}
-from '@/features/inbox/application/attachment/uploadAttachment.usecase'
+  useUploadAttachment
+} from '@/features/inbox/application/attachment/uploadAttachment.usecase'
 
 export function useComposer(
+  policy: any,
+  context: any
+) {
 
- policy:any,
+  const [state, setState] =
+    useState<ComposerState>(
+      createComposerState(
+        policy,
+        context
+      )
+    )
 
- context:any
+  const uploader =
+    useUploadAttachment(policy)
 
-){
+  /* =========================
+     FORCE REACTIVITY
+  ========================= */
 
- const [state,setState]=
- useState<ComposerState>(
-  createComposerState(
-   policy,
-   context
-  )
- )
+  useEffect(() => {
 
- const uploader =
-  useUploadAttachment(policy)
+    if (!state.editor) return
 
- /* FORCE REACTIVITY */
+    const update = () => {
+      setState(prev => ({
+        ...prev
+      }))
+    }
 
- useEffect(()=>{
+    state.editor.onUpdate(update)
 
-  if(!state.editor) return
+  }, [state.editor])
 
-  const update=()=>{
+  function setEditor(editor: any) {
 
-   setState(prev=>({
-    ...prev
-   }))
+    setState(prev => ({
+      ...prev,
+      editor
+    }))
 
   }
 
-  state.editor.onUpdate(update)
+  /* =========================
+     🔥 NEW: SET CONTENT (AI INSERT)
+  ========================= */
 
- },[state.editor])
+  function setContent(html: string) {
 
- function setEditor(editor:any){
+  if (!state.editor) return
 
-  setState(prev=>({
+  console.log('EDITOR:', state.editor)
+  console.log('HAS replaceContent:', typeof state.editor.replaceContent)
 
-   ...prev,
+  state.editor.replaceContent(html)
+}
 
-   editor
+  /* =========================
+     ATTACHMENTS
+  ========================= */
 
-  }))
+  async function attach(
+    files: File[]
+  ) {
 
- }
+    const uploaded =
+      await uploader.uploadFiles(
+        files,
+        state.attachments.length
+      )
 
- /* FIXED — upload first then attach */
+    if (!uploaded.length)
+      return
 
- async function attach(
+    setState(prev => ({
+      ...prev,
+      attachments: [
+        ...prev.attachments,
+        ...uploaded
+      ]
+    }))
 
-  files:File[]
+  }
 
- ){
+  function removeAttachment(
+    id: string
+  ) {
 
-  const uploaded =
-   await uploader.uploadFiles(
+    setState(prev => ({
+      ...prev,
+      attachments:
+        prev.attachments.filter(
+          a => a.id !== id
+        )
+    }))
 
-    files,
+  }
 
-    state.attachments.length
+  /* =========================
+     CLEAR
+  ========================= */
 
-   )
+  function clear() {
 
-  if(!uploaded.length)
-   return
+    state.editor?.clear()
 
-  setState(prev=>({
+    setState(prev => ({
+      ...prev,
+      attachments: [],
+      emojiOpen: false
+    }))
 
-   ...prev,
+  }
 
-   attachments:[
+  /* =========================
+     EMOJI
+  ========================= */
 
-    ...prev.attachments,
+  function handleInsertEmoji(
+    emoji: string
+  ) {
 
-    ...uploaded
-
-   ]
-
-  }))
-
- }
-
- function removeAttachment(
-
-  id:string
-
- ){
-
-  setState(prev=>({
-
-   ...prev,
-
-   attachments:
-
-    prev.attachments.filter(
-
-     a=>a.id!==id
-
+    insertEmoji(
+      state.editor,
+      emoji
     )
 
-  }))
+    handleToggleEmoji()
 
- }
+  }
 
- function clear(){
+  function handleToggleEmoji() {
 
-  state.editor?.clear()
+    setState(prev =>
+      toggleEmoji(prev)
+    )
 
-  setState(prev=>({
+  }
 
-   ...prev,
+  /* =========================
+     EXPAND
+  ========================= */
 
-   attachments:[],
-   emojiOpen:false
+  function handleToggleExpand() {
 
-  }))
+    setState(prev =>
+      toggleExpand(prev)
+    )
 
- }
+  }
 
- function handleInsertEmoji(
+  /* =========================
+     SEND VALIDATION
+  ========================= */
 
-  emoji:string
+  function canSend() {
 
- ){
+    if (!state.editor)
+      return false
 
-  insertEmoji(
+    if (uploader.uploading)
+      return false
 
-   state.editor,
+    const text =
+      state.editor.getText()
 
-   emoji
+    const html =
+      state.editor.getHTML()
 
-  )
+    if (text.trim().length > 0)
+      return true
 
-  handleToggleEmoji()
+    if (
+      html &&
+      html !== '<p></p>'
+    )
+      return true
 
- }
+    if (
+      state.attachments.some(
+        a => a.storageKey
+      )
+    )
+      return true
 
- function handleToggleEmoji(){
+    return false
 
-  setState(prev=>
+  }
 
-   toggleEmoji(prev)
+  /* =========================
+     RETURN
+  ========================= */
 
-  )
+  return {
 
- }
+    state,
 
- function handleToggleExpand(){
+    uploading:
+      uploader.uploading,
 
-  setState(prev=>
+    actions: {
 
-   toggleExpand(prev)
+      setEditor,
 
-  )
+      attach,
 
- }
+      removeAttachment,
 
- function canSend(){
+      insertEmoji:
+        handleInsertEmoji,
 
-  if(!state.editor)
-   return false
+      toggleEmoji:
+        handleToggleEmoji,
 
-  if(uploader.uploading)
-   return false
+      toggleExpand:
+        handleToggleExpand,
 
-  const text=
-   state.editor.getText()
+      clear,
 
-  const html=
-   state.editor.getHTML()
+      setContent // ✅ NEW SAFE ADDITION
 
-  if(text.trim().length>0)
-   return true
+    },
 
-  if(
-   html &&
-   html !== '<p></p>'
-  )
-   return true
+    canSend
 
-  if(
-
-   state.attachments.some(
-
-    a=>a.storageKey
-
-   )
-
-  )
-   return true
-
-  return false
-
- }
-
- return{
-
-  state,
-
-  uploading:
-   uploader.uploading,
-
-  actions:{
-
-   setEditor,
-
-   attach,
-
-   removeAttachment,
-
-   insertEmoji:
-    handleInsertEmoji,
-
-   toggleEmoji:
-    handleToggleEmoji,
-
-   toggleExpand:
-    handleToggleExpand,
-
-   clear
-
-  },
-
-  canSend
-
- }
+  }
 
 }

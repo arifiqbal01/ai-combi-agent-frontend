@@ -1,5 +1,7 @@
 'use client'
 
+import { useRef } from 'react'
+
 import {
   useConversationController
 } from '@/features/inbox/application/conversation/controller'
@@ -27,9 +29,6 @@ import { Attachment } from '@/features/inbox/domain/attachment/attachment.types'
 
 import { useInboxContext } from '@/features/inbox/ui/context/inbox-context'
 
-import { Icon } from '@/ui'
-import { ChevronLeft } from 'lucide-react'
-
 type Props = {
   conversationId: string | null
 }
@@ -47,6 +46,14 @@ export function ConversationView({ conversationId }: Props) {
   const policy = useMessagePolicy(conversationId)
 
   const { clearSelection } = useInboxContext()
+
+  /* =========================
+     🔥 COMPOSER BRIDGE
+  ========================= */
+
+  const composerRef = useRef<{
+    setContent: (html: string) => void
+  } | null>(null)
 
   if (!conversationId) return <ConversationEmpty />
   if (controller.loading) return <ConversationLoading />
@@ -76,39 +83,29 @@ export function ConversationView({ conversationId }: Props) {
         }
 
         aiSection={
-         <ConversationAISection
-              key={conversationId}
-              conversationId={conversationId}   // 🔥 REQUIRED FIX
+          <ConversationAISection
+            key={conversationId}
+            conversationId={conversationId}
 
-              aiState={ai.aiState}
-              suggestion={ai.suggestion?.content}
-              confidence={ai.suggestion?.confidencePercent}
-              ui={ai.ui}
+            aiState={ai.aiState}
+            suggestion={ai.suggestion?.content}
+            confidence={ai.suggestion?.confidencePercent}
+            ui={ai.ui}
 
-              onInsert={() => {
-                console.log('Insert clicked')
+            /* 🔥 FIXED: INSERT → COMPOSER */
+            onInsert={() => {
+              if (!ai.suggestion) return
 
-                if (!ai.suggestion) {
-                  console.warn('❌ No suggestion')
-                  return
-                }
+              composerRef.current?.setContent(
+                ai.suggestion.content
+              )
+            }}
 
-                if (!controller.lastInboundMessageId) {
-                  console.warn('❌ No inbound message')
-                  return
-                }
-
-                controller.replyMessage({
-                  body: ai.suggestion.content,
-                  attachments: [],
-                  replyToMessageId: controller.lastInboundMessageId
-                })
-              }}
-
-              onRegenerate={() => {
-                console.log('Improve clicked')
-              }}
-            />
+            /* ❌ REMOVE LATER */
+            onRegenerate={() => {
+              console.log('Improve clicked')
+            }}
+          />
         }
 
         composer={
@@ -119,6 +116,12 @@ export function ConversationView({ conversationId }: Props) {
               channel: controller.conversation.channel
             }}
             sending={controller.sending}
+
+            /* 🔥 CONNECT COMPOSER */
+            onReady={(api) => {
+              composerRef.current = api
+            }}
+
             onSend={(params) => {
               if (!controller.lastInboundMessageId) return
 

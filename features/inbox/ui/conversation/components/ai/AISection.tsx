@@ -27,15 +27,16 @@ export function AISection({
   confidence,
   ui,
   onInsert,
-  onRegenerate,
 }: Props) {
 
   const storageKey = `ai:expanded:${conversationId}`
 
   const [expanded, setExpanded] = useState(false)
 
+  const hasSuggestion = !!suggestion
+
   /* =========================
-     LOAD FROM STORAGE
+     LOAD STATE (PER CONVERSATION)
   ========================= */
 
   useEffect(() => {
@@ -46,17 +47,35 @@ export function AISection({
 
       if (saved !== null) {
         setExpanded(saved === 'true')
-      } else if (suggestion) {
-        // first time only
-        setExpanded(true)
+      } else {
+        // ✅ do NOT auto-expand immediately
+        setExpanded(false)
       }
     } catch {
-      // fail silently (SSR / privacy mode)
+      setExpanded(false)
     }
   }, [conversationId])
 
   /* =========================
-     SAVE TO STORAGE
+     AUTO-EXPAND ONLY ON FIRST SUGGESTION
+  ========================= */
+
+  useEffect(() => {
+    if (!conversationId) return
+    if (!hasSuggestion) return
+
+    try {
+      const saved = localStorage.getItem(storageKey)
+
+      // ✅ only expand if user has NEVER interacted
+      if (saved === null) {
+        setExpanded(true)
+      }
+    } catch {}
+  }, [hasSuggestion, conversationId])
+
+  /* =========================
+     PERSIST STATE
   ========================= */
 
   useEffect(() => {
@@ -64,26 +83,23 @@ export function AISection({
 
     try {
       localStorage.setItem(storageKey, String(expanded))
-    } catch {
-      // ignore write failures
-    }
+    } catch {}
   }, [expanded, conversationId])
 
   /* =========================
-     STATE FLAGS
+     FLAGS
   ========================= */
 
   const isRunning = aiState === 'RUNNING'
-  const isSuggestion = aiState === 'SUGGESTION' && !!suggestion
-  const isAutoReply = aiState === 'AUTO_REPLY' && !!suggestion
+  const isSuggestion = aiState === 'SUGGESTION' && hasSuggestion
+  const isAutoReply = aiState === 'AUTO_REPLY' && hasSuggestion
   const isIdle = aiState === 'IDLE'
   const isError = aiState === 'ERROR'
 
-  const hasSuggestion = !!suggestion
   const canExpand = hasSuggestion
 
   /* =========================
-     VISIBILITY LOGIC
+     VISIBILITY
   ========================= */
 
   const shouldShow =
@@ -97,7 +113,7 @@ export function AISection({
   if (!shouldShow) return null
 
   /* =========================
-     STATUS LABEL
+     LABEL
   ========================= */
 
   const statusLabel = (() => {
@@ -147,8 +163,10 @@ export function AISection({
         {hasSuggestion && expanded && (
           <AIExpanded
             suggestion={suggestion}
-            onInsert={onInsert}
-            onRegenerate={onRegenerate}
+            onInsert={() => {
+              onInsert?.()
+              setExpanded(false)
+            }}
           />
         )}
 

@@ -1,73 +1,94 @@
 export interface EditorAdapter {
 
- /* CONTENT */
+  /* =========================
+     CONTENT
+  ========================= */
 
- getHTML():string
- getText():string
+  getHTML(): string
+  getText(): string
 
- setHTML(html:string):void
+  /** Replace entire editor content */
+  setHTML(html: string): void
 
- clear():void
+  /** 🔥 NEW — explicit semantic API (recommended) */
+  replaceContent(html: string): void
 
- focus():void
+  /** 🔥 NEW — append at cursor/end */
+  appendContent(html: string): void
 
+  clear(): void
 
- /* INSERTION */
-
- insertText(text:string):void
-
- insertEmoji(emoji:string):void
-
-
- /* FORMATTING */
-
- bold():void
- italic():void
- underline():void
- code():void
+  /** 🔥 IMPROVED — optional position */
+  focus(position?: 'start' | 'end'): void
 
 
- /* LISTS */
+  /* =========================
+     INSERTION
+  ========================= */
 
- bulletList():void
- orderedList():void
-
-
- /* LINKS */
-
- setLink(url:string):void
-
- removeLink():void
-
- isLinkActive():boolean
-
- getLink():string | null
+  insertText(text: string): void
+  insertEmoji(emoji: string): void
 
 
- /* ACTIVE STATES */
+  /* =========================
+     FORMATTING
+  ========================= */
 
- isBold():boolean
-
- isItalic():boolean
-
- isUnderline():boolean
-
- isCode():boolean
-
- isBulletList():boolean
-
- isOrderedList():boolean
+  bold(): void
+  italic(): void
+  underline(): void
+  code(): void
 
 
- /* STATE */
+  /* =========================
+     LISTS
+  ========================= */
 
- isEmpty():boolean
+  bulletList(): void
+  orderedList(): void
 
- destroy():void
+
+  /* =========================
+     LINKS
+  ========================= */
+
+  setLink(url: string): void
+  removeLink(): void
+
+  isLinkActive(): boolean
+  getLink(): string | null
 
 
- /* EVENTS (CRITICAL FIX) */
+  /* =========================
+     ACTIVE STATES
+  ========================= */
 
- onUpdate(callback:()=>void):void
+  isBold(): boolean
+  isItalic(): boolean
+  isUnderline(): boolean
+  isCode(): boolean
 
+  isBulletList(): boolean
+  isOrderedList(): boolean
+
+
+  /* =========================
+     STATE
+  ========================= */
+
+  isEmpty(): boolean
+
+
+  /* =========================
+     EVENTS
+  ========================= */
+
+  onUpdate(callback: () => void): void
+
+
+  /* =========================
+     LIFECYCLE
+  ========================= */
+
+  destroy(): void
 }
