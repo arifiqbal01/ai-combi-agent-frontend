@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Stack } from '@/ui'
 
 import { KnowledgeSource } from '@/features/knowledge/domain/knowledge.types'
@@ -16,14 +16,10 @@ export function KnowledgeSourceItem({
   source: KnowledgeSource
   onAdd: (id: string) => void
 }) {
-  const [open, setOpen] = useState(false)
-  const [docId, setDocId] = useState<string | undefined>()
+  // ✅ default OPEN
+  const [open, setOpen] = useState(true)
 
-  useEffect(() => {
-    if (source.documentCount > 0) {
-      setOpen(true)
-    }
-  }, [])
+  const [docId, setDocId] = useState<string | undefined>()
 
   return (
     <div

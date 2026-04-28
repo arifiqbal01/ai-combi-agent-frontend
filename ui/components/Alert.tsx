@@ -1,7 +1,7 @@
 'use client'
 
 import clsx from 'clsx'
-import { Surface, Inline, Text } from '@/ui'
+import { Surface, Text } from '@/ui'
 
 type Variant =
   | 'default'
@@ -12,13 +12,10 @@ type Variant =
 const VARIANTS: Record<Variant, string> = {
   default:
     'bg-bg-surface border border-border-subtle',
-
   success:
     'bg-green-50 border border-green-200',
-
   warning:
     'bg-yellow-50 border border-yellow-200',
-
   danger:
     'bg-red-50 border border-red-200',
 }
@@ -45,7 +42,9 @@ export function Alert({
   )
 }
 
-'use client'
+/* ----------------------------------------
+   SUB COMPONENTS
+---------------------------------------- */
 
 export function AlertTitle({
   children,
