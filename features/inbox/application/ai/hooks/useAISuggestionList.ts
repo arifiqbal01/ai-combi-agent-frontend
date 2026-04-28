@@ -7,19 +7,20 @@ import { listAISuggestions } from '@/features/inbox/infrastructure/api/ai.api'
 import { mapAISuggestions } from '@/features/inbox/infrastructure/mappers/ai.mapper'
 import { AISuggestion } from '@/features/inbox/domain/ai/ai.types'
 
-type Action =
-  | { type: 'AI_SUGGESTION'; payload: AISuggestion }
-  | { type: 'AI_SUGGESTION_ERROR'; payload: unknown }
+import {
+  ConversationDispatch
+} from '@/features/inbox/application/conversation/types/conversation.actions'
 
 type Props = {
   conversationId: string | null
-  dispatch: React.Dispatch<Action>
+  dispatch: ConversationDispatch
 }
 
 export function useAISuggestionList({
   conversationId,
   dispatch,
 }: Props) {
+
   const query = useAppQuery<AISuggestion[]>({
     queryKey: ['ai', 'list', conversationId],
 
@@ -31,15 +32,15 @@ export function useAISuggestionList({
       return mapAISuggestions(res.suggestions ?? [])
     },
 
-    // ✅ ONLY local condition
     enabled: !!conversationId,
-
-    // ✅ polling still valid
     refetchInterval: 5000,
     staleTime: 0,
   })
 
-  /* dispatch side-effect */
+  /* =========================
+     DISPATCH SUGGESTIONS
+  ========================= */
+
   useEffect(() => {
     if (!query.data) return
 
@@ -51,12 +52,19 @@ export function useAISuggestionList({
     })
   }, [query.data, dispatch])
 
+  /* =========================
+     DISPATCH ERROR (FIXED)
+  ========================= */
+
   useEffect(() => {
     if (!query.error) return
 
     dispatch({
       type: 'AI_SUGGESTION_ERROR',
-      payload: query.error,
+      payload:
+        query.error instanceof Error
+          ? query.error
+          : new Error('AI suggestion error'),
     })
   }, [query.error, dispatch])
 

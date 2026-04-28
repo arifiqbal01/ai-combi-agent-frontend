@@ -98,6 +98,19 @@ function normalizeRunState(
 }
 
 /* =========================
+ Safe date helper
+========================= */
+
+function safeDate(value?: string | null): string {
+  if (!value) return new Date().toISOString()
+
+  const date = new Date(value)
+  return isNaN(date.getTime())
+    ? new Date().toISOString()
+    : date.toISOString()
+}
+
+/* =========================
  Suggestion mapper
 ========================= */
 
@@ -119,7 +132,7 @@ export function mapAISuggestionDTO(
 
     status: normalizeStatus(dto.status),
 
-    createdAt: dto.created_at || new Date().toISOString(),
+    createdAt: safeDate(dto.created_at),
 
     messageId: dto.message_id ?? undefined,
 
@@ -149,7 +162,7 @@ export function mapAIRunDTO(
 
     active: Boolean(dto.active),
 
-    updatedAt: dto.updated_at || new Date().toISOString(),
+    updatedAt: safeDate(dto.updated_at),
 
     stage: dto.stage ?? undefined,
 
@@ -165,12 +178,16 @@ export function mapAISuggestions(
   suggestions: AISuggestionDTO[] | null | undefined
 ): AISuggestion[] {
 
-  return (suggestions || []).map(mapAISuggestionDTO)
+  if (!Array.isArray(suggestions)) return []
+
+  return suggestions.map(mapAISuggestionDTO)
 }
 
 export function mapAIRuns(
   runs: AIRunDTO[] | null | undefined
 ): AIRun[] {
 
-  return (runs || []).map(mapAIRunDTO)
+  if (!Array.isArray(runs)) return []
+
+  return runs.map(mapAIRunDTO)
 }

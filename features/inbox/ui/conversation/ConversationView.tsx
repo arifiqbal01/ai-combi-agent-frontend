@@ -83,14 +83,28 @@ export function ConversationView({ conversationId }: Props) {
             ui={ai.ui}
 
             onInsert={() => {
-              if (!ai.suggestion) return
-              if (!controller.lastInboundMessageId) return
+              console.log('Insert clicked')
+
+              if (!ai.suggestion) {
+                console.warn('❌ No suggestion')
+                return
+              }
+
+              if (!controller.lastInboundMessageId) {
+                console.warn('❌ No inbound message')
+                return
+              }
 
               controller.replyMessage({
                 body: ai.suggestion.content,
                 attachments: [],
                 replyToMessageId: controller.lastInboundMessageId
               })
+            }}
+
+            onRegenerate={() => {
+              console.log('Improve clicked')
+              // TEMP: trigger refetch (next step below)
             }}
           />
         }

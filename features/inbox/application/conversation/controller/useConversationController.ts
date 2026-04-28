@@ -15,6 +15,8 @@ import { useConversationSendController } from './useConversationSendController'
 import { useConversationReadController } from './useConversationReadController'
 import { useConversationDerivedState } from './useConversationDerivedState'
 
+import { useConversationAIOrchestrator } from '@/features/inbox/application/ai/controller/useConversationAIOrchestrator'
+
 import { selectAllMessages } from '../selectors/conversation.selectors'
 
 import { Message } from '@/features/inbox/domain/message/message.types'
@@ -40,7 +42,6 @@ export function useConversationController({
   const replyUsecase = useReplyMessage()
   const read = useMarkConversationRead()
 
-  /* ✅ WRAP USECASES (fix return type issue) */
   const send = {
     execute: async (params: any) => {
       await sendUsecase.execute(params)
@@ -71,6 +72,19 @@ export function useConversationController({
 
   const [sending, setSending] = useState(false)
   const [, setScrolled] = useState(false)
+
+  /* =========================
+     🔥 AI (NOW CLEAN)
+  ========================= */
+
+  useConversationAIOrchestrator({
+    conversationId,
+    dispatch: typedDispatch,
+  })
+
+  /* =========================
+     CONVERSATION SYNC
+  ========================= */
 
   useEffect(() => {
     if (!conversation) return

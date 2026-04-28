@@ -10,7 +10,8 @@ import {
 import { Attachment } from '@/features/inbox/domain/attachment/attachment.types'
 
 import {
-  AISuggestion
+  AISuggestion,
+  AIRun
 } from '@/features/inbox/domain/ai/ai.types'
 
 /* =========================
@@ -76,7 +77,7 @@ export type ConversationAction =
       payload: {
         messageId: string
         clientId?: string
-        status: MessageSyncState // ✅ FIXED
+        status: MessageSyncState
       }
     }
 
@@ -88,11 +89,16 @@ export type ConversationAction =
   | { type: 'UNREAD_UPDATE'; payload: number }
   | { type: 'MARK_READ_LOCAL'; payload: string }
 
+  /* =========================
+     AI ACTIONS
+  ========================= */
+
   | { type: 'AI_SUGGESTION'; payload: AISuggestion }
   | { type: 'AI_SUGGESTION_ERROR'; payload: Error }
+  | { type: 'AI_RUN_UPDATE'; payload: AIRun }
 
 /* =========================
-   DISPATCH TYPE (🔥 IMPORTANT)
+   DISPATCH TYPE
 ========================= */
 
 export type ConversationDispatch =

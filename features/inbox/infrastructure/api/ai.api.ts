@@ -1,10 +1,9 @@
-// features/inbox/infrastructure/api/ai.api.ts
-
 import { apiClient } from '@/infra/api/client'
 
 import {
   AISuggestionListResponseDTO,
-  AISuggestionDTO
+  AISuggestionDTO,
+  AIRunDTO // 👈 ADD THIS TYPE
 } from '../dto/ai.dto'
 
 const BASE = '/inbox/conversations'
@@ -24,5 +23,17 @@ export function getLatestAISuggestion(
 
   return apiClient.get<{ suggestion?: AISuggestionDTO }>(
     `${BASE}/${conversationId}/ai-suggestions/latest`
+  )
+}
+
+/* =========================
+   🔥 ADD THIS (FIX)
+========================= */
+
+export function getLatestAIRun(
+  conversationId: string
+): Promise<AIRunDTO | null> {
+  return apiClient.get<AIRunDTO | null>(
+    `${BASE}/${conversationId}/ai-runs/latest`
   )
 }

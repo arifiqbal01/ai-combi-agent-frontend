@@ -75,6 +75,8 @@ export function AISection({
       w-full
       px-2 py-1.5
       sm:px-6 sm:py-3
+
+      flex-shrink-0   // ✅ prevents pushing layout
     ">
 
       <div className="

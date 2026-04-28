@@ -18,9 +18,16 @@ export function AIExpanded({
 
       <Stack gap="sm">
 
-        <Text size="sm" className="leading-6">
-          {suggestion}
-        </Text>
+        {/* 🔥 SCROLLABLE CONTENT */}
+        <div className="
+          max-h-[30vh]
+          overflow-y-auto
+          pr-1
+        ">
+          <Text size="sm" className="leading-6">
+            {suggestion}
+          </Text>
+        </div>
 
         <Inline gap="xs">
           <Button size="sm" onClick={onInsert}>

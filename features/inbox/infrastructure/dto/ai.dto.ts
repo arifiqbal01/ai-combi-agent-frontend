@@ -1,85 +1,79 @@
 /* infrastructure/dto/ai.dto.ts */
 
-export type AISuggestionDecisionDTO =
+/* =========================
+   AI SUGGESTION
+========================= */
 
+export type AISuggestionDecisionDTO =
   | 'suggest'
   | 'auto_reply'
   | 'ignore'
 
 export type AISuggestionStatusDTO =
-
   | 'pending'
   | 'ready'
   | 'failed'
 
-export type AISuggestionDTO={
+export type AISuggestionDTO = {
+  suggestion_id: string
 
-  suggestion_id:string
+  decision: AISuggestionDecisionDTO
 
-  decision:AISuggestionDecisionDTO
+  confidence: number
 
-  confidence:number
+  content: string | null
 
-  content:string | null
+  status: AISuggestionStatusDTO
 
-  status:AISuggestionStatusDTO
+  message_id: string | null
 
-  message_id:string | null
+  created_at: string
 
-  created_at:string
-
-  metadata?:{
-
-    model?:string
-
-    tokens?:number
-
+  metadata?: {
+    model?: string
+    tokens?: number
   }
 
-  signals?:{
-
-    intent?:string
-
-    urgency?:string
-
+  signals?: {
+    intent?: string
+    urgency?: string
   }
-
 }
 
-export type AISuggestionListResponseDTO={
-
-  suggestions:AISuggestionDTO[]
-
+export type AISuggestionListResponseDTO = {
+  suggestions: AISuggestionDTO[]
 }
 
+/* =========================
+   AI RUN
+========================= */
 
 export type AIRunStateDTO =
+  | 'running'
+  | 'completed'
+  | 'skipped'
+  | 'failed'
 
- | 'running'
- | 'completed'
- | 'skipped'
- | 'failed'
+export type AIRunDTO = {
+  agent_run_id: string
 
-export type AIRunDTO={
+  state: AIRunStateDTO
 
- agent_run_id:string
+  progress: number
 
- state:AIRunStateDTO
+  active: boolean
 
- progress:number
+  updated_at: string
 
- active:boolean
-
- updated_at:string
-
- stage?:string
-
- status?:string
-
+  /* backend debug fields (optional) */
+  stage?: string
+  status?: string
 }
 
-export type AIRunListResponseDTO={
-
- runs:AIRunDTO[]
-
+/* 🔥 IMPORTANT: backend returns LIST + SINGLE */
+export type AIRunListResponseDTO = {
+  runs: AIRunDTO[]
 }
+
+/* 🔥 ADD THIS (missing before) */
+export type AIRunResponseDTO = AIRunDTO | null
