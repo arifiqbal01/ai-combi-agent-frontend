@@ -22,16 +22,33 @@ export function useDeactivateDocument() {
     }) =>
       knowledgeApi.deactivateDocument(sourceId, documentId),
 
-    onSuccess: (_, variables) => {
+    onSuccess: async (_, variables) => {
+      const { sourceId, documentId } = variables
+
+      // ✅ update list
       qc.setQueryData<KnowledgeDocument[]>(
-        knowledgeKeys.documents(variables.sourceId),
+        knowledgeKeys.documents(sourceId),
         (old = []) =>
           old.map(doc =>
-            doc.id === variables.documentId
+            doc.id === documentId
               ? { ...doc, status: KnowledgeStatus.INACTIVE }
               : doc
           )
       )
+
+      // ✅ update single doc
+      qc.setQueryData<KnowledgeDocument>(
+        knowledgeKeys.document(documentId),
+        (old) =>
+          old
+            ? { ...old, status: KnowledgeStatus.INACTIVE }
+            : old
+      )
+
+      // 🔥 ensure backend sync
+      await qc.invalidateQueries({
+        queryKey: knowledgeKeys.documents(sourceId),
+      })
     },
   })
 }

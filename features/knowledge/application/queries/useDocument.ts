@@ -4,13 +4,17 @@ import { knowledgeApi } from '@/features/knowledge/infrastructure/api/knowledge.
 import { mapDocumentDetailDTO } from '@/features/knowledge/infrastructure/mappers/knowledge.mapper'
 
 import { KnowledgeDocument } from '@/features/knowledge/domain/knowledge.types'
+import { knowledgeKeys } from '../keys/knowledge.keys'
 
 export function useDocument(
   sourceId?: string,
   documentId?: string
 ) {
   return useAppQuery<KnowledgeDocument>({
-    queryKey: ['document', documentId],
+    // ✅ FIXED
+    queryKey: documentId
+      ? knowledgeKeys.document(documentId)
+      : ['document', 'unknown'],
 
     enabled: !!sourceId && !!documentId,
 

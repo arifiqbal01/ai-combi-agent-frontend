@@ -22,16 +22,33 @@ export function useActivateDocument() {
     }) =>
       knowledgeApi.activateDocument(sourceId, documentId),
 
-    onSuccess: (_, variables) => {
+    onSuccess: async (_, variables) => {
+      const { sourceId, documentId } = variables
+
+      // ✅ update list
       qc.setQueryData<KnowledgeDocument[]>(
-        knowledgeKeys.documents(variables.sourceId),
+        knowledgeKeys.documents(sourceId),
         (old = []) =>
           old.map(doc =>
-            doc.id === variables.documentId
+            doc.id === documentId
               ? { ...doc, status: KnowledgeStatus.ACTIVE }
               : doc
           )
       )
+
+      // ✅ update single doc cache
+      qc.setQueryData<KnowledgeDocument>(
+        knowledgeKeys.document(documentId),
+        (old) =>
+          old
+            ? { ...old, status: KnowledgeStatus.ACTIVE }
+            : old
+      )
+
+      // 🔥 ensure backend sync
+      await qc.invalidateQueries({
+        queryKey: knowledgeKeys.documents(sourceId),
+      })
     },
   })
 }
