@@ -12,6 +12,7 @@ import {
 } from './composer'
 
 import { ComposerEditor } from './composer/ComposerEditor'
+import { ChannelContext } from '@/features/inbox/domain/channel/channel.context'
 
 type SendMessageParams = {
   body: string
@@ -22,9 +23,11 @@ type Props = {
   onSend: (params: SendMessageParams) => void
   sending: boolean
   policy: unknown
-  context: unknown
+  context: {
+    conversationId: string
+    channel: ChannelContext
+  }
 
-  /* 🔥 NEW: expose composer API */
   onReady?: (api: {
     setContent: (html: string) => void
   }) => void
@@ -172,6 +175,7 @@ export function ConversationComposer({
               }}
               onEmoji={composer.actions.toggleEmoji}
               onExpand={composer.actions.toggleExpand}
+              channel={context?.channel}
             />
           </div>
 

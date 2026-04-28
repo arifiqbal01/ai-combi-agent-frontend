@@ -113,7 +113,10 @@ export function ConversationView({ conversationId }: Props) {
             policy={policy}
             context={{
               conversationId,
-              channel: controller.conversation.channel
+              channel: {
+                type: controller.conversation.channel,
+                address: controller.conversation.channelAccount
+              }
             }}
             sending={controller.sending}
 

@@ -4,8 +4,11 @@ import {
   Send,
   Smile,
   Paperclip,
-  Maximize2
+  Maximize2,
+  Mail,
+  MessageCircle
 } from 'lucide-react'
+import { ChannelContext } from '@/features/inbox/domain/channel/channel.context'
 
 type Props = {
   sending: boolean
@@ -14,6 +17,21 @@ type Props = {
   onFiles: (f: File[]) => void
   onEmoji: () => void
   onExpand: () => void
+  channel?: ChannelContext
+}
+
+function getChannelIcon(type?: string) {
+  if (!type) return null
+
+  if (type.toLowerCase() === 'email') {
+    return <Mail size={14} />
+  }
+
+  if (type.toLowerCase() === 'whatsapp') {
+    return <MessageCircle size={14} />
+  }
+
+  return null
 }
 
 export function ComposerActions({
@@ -22,7 +40,8 @@ export function ComposerActions({
   onSend,
   onFiles,
   onEmoji,
-  onExpand
+  onExpand,
+  channel
 }: Props) {
 
   return (
@@ -81,6 +100,29 @@ export function ComposerActions({
         </button>
 
       </div>
+
+      {channel && (
+          <div className="
+            flex items-center gap-1.5
+            px-2 py-1
+            rounded-md
+            bg-gray-100
+            text-xs text-gray-700
+            max-w-[200px]
+          ">
+
+            <span className="font-medium capitalize">
+              {channel.type}
+            </span>
+
+            {channel.address && (
+              <span className="truncate text-gray-500">
+                {channel.address}
+              </span>
+            )}
+
+          </div>
+        )}
 
       {/* SEND BUTTON */}
       <div className="ml-auto flex items-center">
