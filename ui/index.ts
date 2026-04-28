@@ -19,6 +19,8 @@ export { Button } from './components/Button'
 export { Badge } from './components/Badge'
 export { Avatar } from './components/Avatar'
 export { Icon } from './components/Icon'
+export { Alert } from './components/Alert'
+export { AlertTitle, AlertDescription } from './components/Alert'
 
 export { Input, Textarea } from './components/Input'
 export { Checkbox } from './components/Checkbox'

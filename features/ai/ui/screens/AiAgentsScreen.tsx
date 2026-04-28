@@ -12,6 +12,7 @@ import {
 import { useAgents } from '../../application/queries/useAgents'
 import { AgentList } from '../components/AgentList'
 import { CreateAgentDialog } from '../components/CreateAgentDialog'
+import { AiKnowledgeNotice } from '../components/AiKnowledgeNotice'
 
 export function AiAgentsScreen() {
   const { data, isLoading } = useAgents()
@@ -31,6 +32,9 @@ export function AiAgentsScreen() {
       />
 
       <PageSection>
+
+        {/* 🔥 Extracted Notice (clean + isolated) */}
+        <AiKnowledgeNotice />
 
         {isLoading && <LoadingState />}
 
