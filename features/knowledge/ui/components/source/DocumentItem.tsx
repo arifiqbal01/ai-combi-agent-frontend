@@ -1,8 +1,18 @@
 'use client'
 
-import { Text } from '@/ui'
+import { Text, Button, Inline, Badge } from '@/ui'
+
 import { useArchiveDocument } from '@/features/knowledge/application/mutations/useArchiveDocument'
-import { KnowledgeDocument } from '@/features/knowledge/domain/knowledge.types'
+import {
+  useActivateDocument,
+  useDeactivateDocument,
+} from '@/features/knowledge/application/mutations'
+
+import {
+  KnowledgeDocument,
+  KnowledgeStatus,
+} from '@/features/knowledge/domain/knowledge.types'
+
 import { Trash2 } from 'lucide-react'
 
 function extractTitle(content: string) {
@@ -25,6 +35,11 @@ export function DocumentItem({
   onOpen: (id: string) => void
 }) {
   const archive = useArchiveDocument()
+  const activate = useActivateDocument()
+  const deactivate = useDeactivateDocument()
+
+  const isActive = doc.status === KnowledgeStatus.ACTIVE
+  const isProcessing = doc.status === KnowledgeStatus.PROCESSING
 
   const baseContent = doc.content ?? doc.preview ?? ''
   const title = extractTitle(baseContent)
@@ -32,47 +47,104 @@ export function DocumentItem({
 
   return (
     <div
-      className="
+      className={`
         px-3 py-2.5
         border-b border-border-subtle
         last:border-0
-        hover:bg-surface-hover
         transition
-      "
+        ${isActive ? 'hover:bg-surface-hover' : 'opacity-60'}
+      `}
     >
       <div
         className="flex items-start gap-2 cursor-pointer"
         onClick={() => onOpen(doc.id)}
       >
-        {/* TEXT */}
         <div className="flex-1 min-w-0">
 
-          {/* TITLE ROW */}
-          <div className="flex items-center justify-between gap-2">
-            <Text size="sm" weight="medium" className="truncate">
-              {title}
-            </Text>
+          {/* TITLE + BADGE + ACTIONS */}
+          <Inline className="justify-between gap-2">
 
-            {/* DELETE */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                if (!confirm('Delete this item?')) return
+            <Inline gap="xs" className="min-w-0">
 
-                archive.mutate({
-                  sourceId,
-                  documentId: doc.id,
-                })
-              }}
-              className="
-                text-muted hover:text-red-500
-                transition-colors
-                shrink-0
-              "
-            >
-              <Trash2 size={16} />
-            </button>
-          </div>
+              <Text size="sm" weight="medium" className="truncate">
+                {title}
+              </Text>
+
+              {/* 🔥 STATUS BADGE */}
+              {isProcessing ? (
+                <Badge variant="warning">Processing</Badge>
+              ) : (
+                <Badge variant={isActive ? 'success' : 'default'}>
+                  {isActive ? 'Active' : 'Inactive'}
+                </Badge>
+              )}
+
+            </Inline>
+
+            <Inline gap="xs" className="shrink-0">
+
+              {/* ENABLE / DISABLE */}
+              {!isProcessing && (
+                isActive ? (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      deactivate.mutate({
+                        sourceId,
+                        documentId: doc.id,
+                      })
+                    }}
+                    loading={deactivate.isPending}
+                  >
+                    Disable
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="h-7 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      activate.mutate({
+                        sourceId,
+                        documentId: doc.id,
+                      })
+                    }}
+                    loading={activate.isPending}
+                  >
+                    Enable
+                  </Button>
+                )
+              )}
+
+              {/* DELETE */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+
+                  if (isProcessing) return // 🔥 block delete during processing
+
+                  if (!confirm('Delete this item?')) return
+
+                  archive.mutate({
+                    sourceId,
+                    documentId: doc.id,
+                  })
+                }}
+                className={`
+                  text-muted transition-colors
+                  ${isProcessing ? 'opacity-40 cursor-not-allowed' : 'hover:text-red-500'}
+                `}
+              >
+                <Trash2 size={16} />
+              </button>
+
+            </Inline>
+
+          </Inline>
 
           {/* PREVIEW */}
           {preview && (
@@ -84,6 +156,7 @@ export function DocumentItem({
               {preview}
             </Text>
           )}
+
         </div>
       </div>
     </div>

@@ -114,6 +114,26 @@ export const knowledgeApi = {
   },
 
     /* =========================
+       DOCUMENT STATE
+    ========================= */
+
+    // ❌ NO trailing slash
+    activateDocument(sourceId: string, documentId: string) {
+      return apiClient.post<{ status: string }>(
+        joinUrl(BASE, 'documents', sourceId, documentId, 'activate'),
+        undefined as unknown as void
+      )
+    },
+
+    // ❌ NO trailing slash
+    deactivateDocument(sourceId: string, documentId: string) {
+      return apiClient.post<{ status: string }>(
+        joinUrl(BASE, 'documents', sourceId, documentId, 'deactivate'),
+        undefined as unknown as void
+      )
+    },
+
+    /* =========================
        SNAPSHOT
     ========================= */
 
