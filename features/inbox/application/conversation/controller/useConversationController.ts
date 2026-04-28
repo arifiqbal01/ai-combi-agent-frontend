@@ -77,6 +77,13 @@ export function useConversationController({
      🔥 AI (NOW CLEAN)
   ========================= */
 
+  useEffect(() => {
+  if (!conversationId) return
+
+  typedDispatch({ type: 'AI_RESET' })
+
+}, [conversationId])
+
   useConversationAIOrchestrator({
     conversationId,
     dispatch: typedDispatch,

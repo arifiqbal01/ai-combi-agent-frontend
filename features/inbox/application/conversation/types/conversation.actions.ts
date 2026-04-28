@@ -96,6 +96,7 @@ export type ConversationAction =
   | { type: 'AI_SUGGESTION'; payload: AISuggestion }
   | { type: 'AI_SUGGESTION_ERROR'; payload: Error }
   | { type: 'AI_RUN_UPDATE'; payload: AIRun }
+  | { type: 'AI_RESET' }
 
 /* =========================
    DISPATCH TYPE

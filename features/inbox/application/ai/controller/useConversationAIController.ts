@@ -14,9 +14,22 @@ import {
   resolveAIProgress
 } from '@/features/inbox/domain/ai/ai.progress'
 
+import { AIRunState } from '@/features/inbox/domain/ai/ai.types'
+
 type Props = {
   state: any
 }
+
+/* =========================
+   🔥 STRICT AI STATE TYPE
+========================= */
+
+type AIState =
+  | 'RUNNING'
+  | 'AUTO_REPLY'
+  | 'SUGGESTION'
+  | 'IDLE'
+  | 'ERROR'
 
 export function useConversationAIController({
   state
@@ -49,23 +62,24 @@ export function useConversationAIController({
     }, [suggestion])
 
   /* =========================
-     AI STATE
+     AI STATE (🔥 FIXED)
   ========================= */
 
-  const aiState =
-    useMemo(() => {
+  const aiState: AIState =
+    useMemo((): AIState => {
 
+      // running always wins
       if (run?.active)
         return 'RUNNING'
+
+      // backend failure → surface error
+      if (run?.state === AIRunState.FAILED)
+        return 'ERROR'
 
       if (identity?.isAutoReply)
         return 'AUTO_REPLY'
 
-      if (
-        shouldDisplaySuggestion(
-          suggestion
-        )
-      )
+      if (shouldDisplaySuggestion(suggestion))
         return 'SUGGESTION'
 
       return 'IDLE'
@@ -84,11 +98,9 @@ export function useConversationAIController({
       return
 
     const interval = setInterval(() => {
-
       setLocalProgress(prev =>
         getNextLocalProgress(prev)
       )
-
     }, 400)
 
     return () => clearInterval(interval)
@@ -111,7 +123,6 @@ export function useConversationAIController({
       )
 
       return () => clearTimeout(t)
-
     }
 
     setShowProgress(false)
@@ -126,8 +137,7 @@ export function useConversationAIController({
     useMemo(() => {
 
       return resolveAIProgress({
-        backendProgress:
-          run?.progress,
+        backendProgress: run?.progress,
         localProgress
       })
 
@@ -148,7 +158,7 @@ export function useConversationAIController({
 
   return {
 
-    aiState,
+    aiState, // ✅ now strictly typed
 
     suggestion,
 
@@ -162,7 +172,6 @@ export function useConversationAIController({
     shouldShow:
       aiState !== 'IDLE',
 
-    /* 🔥 UI READY MODEL */
     ui: {
       progress: progressValue,
       stageLabel,
@@ -170,5 +179,4 @@ export function useConversationAIController({
     }
 
   }
-
 }

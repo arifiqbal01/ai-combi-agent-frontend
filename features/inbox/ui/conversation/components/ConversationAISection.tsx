@@ -4,6 +4,8 @@
 
 import { AISection } from './ai/AISection'
 
-export function ConversationAISection(props: any) {
+type Props = React.ComponentProps<typeof AISection>
+
+export function ConversationAISection(props: Props) {
   return <AISection {...props} />
 }

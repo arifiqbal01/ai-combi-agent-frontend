@@ -76,37 +76,39 @@ export function ConversationView({ conversationId }: Props) {
         }
 
         aiSection={
-          <ConversationAISection
-            aiState={ai.aiState}
-            suggestion={ai.suggestion?.content}
-            confidence={ai.suggestion?.confidencePercent}
-            ui={ai.ui}
+         <ConversationAISection
+              key={conversationId}
+              conversationId={conversationId}   // 🔥 REQUIRED FIX
 
-            onInsert={() => {
-              console.log('Insert clicked')
+              aiState={ai.aiState}
+              suggestion={ai.suggestion?.content}
+              confidence={ai.suggestion?.confidencePercent}
+              ui={ai.ui}
 
-              if (!ai.suggestion) {
-                console.warn('❌ No suggestion')
-                return
-              }
+              onInsert={() => {
+                console.log('Insert clicked')
 
-              if (!controller.lastInboundMessageId) {
-                console.warn('❌ No inbound message')
-                return
-              }
+                if (!ai.suggestion) {
+                  console.warn('❌ No suggestion')
+                  return
+                }
 
-              controller.replyMessage({
-                body: ai.suggestion.content,
-                attachments: [],
-                replyToMessageId: controller.lastInboundMessageId
-              })
-            }}
+                if (!controller.lastInboundMessageId) {
+                  console.warn('❌ No inbound message')
+                  return
+                }
 
-            onRegenerate={() => {
-              console.log('Improve clicked')
-              // TEMP: trigger refetch (next step below)
-            }}
-          />
+                controller.replyMessage({
+                  body: ai.suggestion.content,
+                  attachments: [],
+                  replyToMessageId: controller.lastInboundMessageId
+                })
+              }}
+
+              onRegenerate={() => {
+                console.log('Improve clicked')
+              }}
+            />
         }
 
         composer={

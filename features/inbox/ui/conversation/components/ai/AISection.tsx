@@ -1,22 +1,27 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { AIHeader } from './AIHeader'
 import { AIExpanded } from './AIExpanded'
 
 type Props = {
+  conversationId: string | null
+
   aiState?: 'RUNNING' | 'AUTO_REPLY' | 'SUGGESTION' | 'IDLE' | 'ERROR'
   suggestion?: string
   confidence?: number
+
   ui?: {
     progress: number
     stageLabel: string
   }
+
   onInsert?: () => void
   onRegenerate?: () => void
 }
 
 export function AISection({
+  conversationId,
   aiState = 'IDLE',
   suggestion,
   confidence,
@@ -25,7 +30,48 @@ export function AISection({
   onRegenerate,
 }: Props) {
 
+  const storageKey = `ai:expanded:${conversationId}`
+
   const [expanded, setExpanded] = useState(false)
+
+  /* =========================
+     LOAD FROM STORAGE
+  ========================= */
+
+  useEffect(() => {
+    if (!conversationId) return
+
+    try {
+      const saved = localStorage.getItem(storageKey)
+
+      if (saved !== null) {
+        setExpanded(saved === 'true')
+      } else if (suggestion) {
+        // first time only
+        setExpanded(true)
+      }
+    } catch {
+      // fail silently (SSR / privacy mode)
+    }
+  }, [conversationId])
+
+  /* =========================
+     SAVE TO STORAGE
+  ========================= */
+
+  useEffect(() => {
+    if (!conversationId) return
+
+    try {
+      localStorage.setItem(storageKey, String(expanded))
+    } catch {
+      // ignore write failures
+    }
+  }, [expanded, conversationId])
+
+  /* =========================
+     STATE FLAGS
+  ========================= */
 
   const isRunning = aiState === 'RUNNING'
   const isSuggestion = aiState === 'SUGGESTION' && !!suggestion
@@ -36,29 +82,23 @@ export function AISection({
   const hasSuggestion = !!suggestion
   const canExpand = hasSuggestion
 
-  const lastSuggestionRef = useRef<string | null>(null)
+  /* =========================
+     VISIBILITY LOGIC
+  ========================= */
 
-  // 🔥 Auto-expand when new suggestion arrives
-  useEffect(() => {
-    if (!suggestion) return
-
-    if (lastSuggestionRef.current !== suggestion) {
-      setExpanded(true)
-      lastSuggestionRef.current = suggestion
-    }
-  }, [suggestion])
-
-  // 🔥 Visibility logic (core improvement)
   const shouldShow =
-      isRunning ||
-      isSuggestion ||
-      isAutoReply ||
-      isError ||
-      hasSuggestion ||   // ✅ important
-      isIdle             // ✅ show collapsed state
+    isRunning ||
+    isSuggestion ||
+    isAutoReply ||
+    isError ||
+    hasSuggestion ||
+    isIdle
 
-  // 🔥 Completely hide when not needed
   if (!shouldShow) return null
+
+  /* =========================
+     STATUS LABEL
+  ========================= */
 
   const statusLabel = (() => {
     if (isRunning) return ui?.stageLabel || 'Processing…'
@@ -69,14 +109,16 @@ export function AISection({
     return 'Ready'
   })()
 
-  return (
+  /* =========================
+     RENDER
+  ========================= */
 
+  return (
     <div className="
       w-full
       px-2 py-1.5
       sm:px-6 sm:py-3
-
-      flex-shrink-0   // ✅ prevents pushing layout
+      flex-shrink-0
     ">
 
       <div className="
@@ -104,7 +146,7 @@ export function AISection({
 
         {hasSuggestion && expanded && (
           <AIExpanded
-            suggestion={suggestion!}
+            suggestion={suggestion}
             onInsert={onInsert}
             onRegenerate={onRegenerate}
           />

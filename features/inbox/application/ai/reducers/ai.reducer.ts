@@ -20,6 +20,12 @@ export function aiReducer(
 
   switch (action.type) {
 
+    case 'AI_RESET':
+      return {
+        aiSuggestion: null,
+        aiRun: null,
+      }
+
     case 'AI_RUN_UPDATE':
       return {
         aiRun: mergeAIRun(
