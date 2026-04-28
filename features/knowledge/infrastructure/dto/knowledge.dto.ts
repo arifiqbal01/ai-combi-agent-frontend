@@ -33,3 +33,13 @@ export type DocumentDetailDTO = {
  status: string
  content: string
 }
+
+/* =========================
+   SNAPSHOT
+========================= */
+
+export type RebuildSnapshotResponseDTO = {
+  status: string
+  snapshot_id: string
+  generated_at: string
+}

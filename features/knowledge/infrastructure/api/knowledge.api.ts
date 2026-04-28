@@ -4,6 +4,7 @@ import {
   SourceDTO,
   DocumentDTO,
   DocumentDetailDTO,
+  RebuildSnapshotResponseDTO,
 } from '../dto/knowledge.dto'
 
 // 🔥 Base WITHOUT trailing slash
@@ -111,4 +112,15 @@ export const knowledgeApi = {
       { content }
     )
   },
+
+    /* =========================
+       SNAPSHOT
+    ========================= */
+
+    rebuildSnapshot() {
+      return apiClient.post<RebuildSnapshotResponseDTO>(
+        `${BASE}/snapshot/rebuild`,
+        undefined as unknown as void
+      )
+    },
 }

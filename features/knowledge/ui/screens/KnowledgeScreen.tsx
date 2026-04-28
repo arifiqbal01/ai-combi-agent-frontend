@@ -8,9 +8,11 @@ import {
   PageActions,
   Text,
   Button,
+  Inline,
 } from '@/ui'
 
 import { useSources } from '@/features/knowledge/application/queries/useSources'
+import { useRebuildSnapshot } from '@/features/knowledge/application/mutations'
 
 import { KnowledgePresetDialog } from '../components/presets/KnowledgePresetDialog'
 import { KnowledgeSourceItem } from '../components/source/KnowledgeSourceItem'
@@ -22,6 +24,8 @@ import {
 
 export function KnowledgeScreen() {
   const { data: sources = [], isLoading, isFetching } = useSources()
+
+  const rebuild = useRebuildSnapshot()
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedSourceId, setSelectedSourceId] = useState<string | undefined>()
@@ -42,16 +46,31 @@ export function KnowledgeScreen() {
     <PageLayout>
 
       <PageHeader
-          title="Knowledge"
-          description="Manage your knowledge sources and documents"
-          actions={
-            <PageActions>
+        title="Knowledge"
+        description="Manage your knowledge sources and documents"
+        actions={
+          <PageActions>
+            <Inline gap="sm">
+
+              {/* 🔥 SNAPSHOT ACTION */}
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => rebuild.mutate()}
+                loading={rebuild.isPending}
+              >
+                Rebuild Snapshot
+              </Button>
+
+              {/* PRIMARY ACTION */}
               <Button onClick={openGlobal}>
                 Add Knowledge
               </Button>
-            </PageActions>
-          }
-        />
+
+            </Inline>
+          </PageActions>
+        }
+      />
 
       <PageSection>
 
