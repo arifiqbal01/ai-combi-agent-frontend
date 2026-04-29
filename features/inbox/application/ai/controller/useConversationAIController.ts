@@ -68,9 +68,17 @@ export function useConversationAIController({
   const aiState: AIState =
     useMemo((): AIState => {
 
-      // running always wins
-      if (run?.active)
+      // ✅ robust RUNNING detection (not just active flag)
+      if (
+        run?.active ||
+        (
+          run?.progress !== undefined &&
+          run.progress > 0 &&
+          run.progress < 100
+        )
+      ) {
         return 'RUNNING'
+      }
 
       // backend failure → surface error
       if (run?.state === AIRunState.FAILED)
@@ -94,8 +102,11 @@ export function useConversationAIController({
 
   useEffect(() => {
 
-    if (aiState !== 'RUNNING')
+    // ✅ reset when leaving RUNNING
+    if (aiState !== 'RUNNING') {
+      setLocalProgress(5)
       return
+    }
 
     const interval = setInterval(() => {
       setLocalProgress(prev =>
@@ -158,7 +169,7 @@ export function useConversationAIController({
 
   return {
 
-    aiState, // ✅ now strictly typed
+    aiState,
 
     suggestion,
 

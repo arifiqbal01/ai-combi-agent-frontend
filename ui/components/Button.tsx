@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import { Slot } from '@radix-ui/react-slot'
 import clsx from 'clsx'
 import { Loader2 } from 'lucide-react'
 
@@ -44,12 +43,34 @@ export function Button({
   rightIcon,
   ...props
 }: Props) {
-  const Comp = asChild ? Slot : 'button'
-
   const isDisabled = disabled || loading
+console.log('Button children:', children)
 
+  // 🔥 SAFE: only require Slot when needed
+  if (asChild) {
+    const { Slot } = require('@radix-ui/react-slot')
+
+    return (
+      <Slot
+        className={clsx(
+          'inline-flex items-center justify-center rounded-md font-medium transition',
+          'focus-visible:outline-none focus-visible:ring-2',
+          VARIANTS[variant],
+          SIZES[size],
+          isDisabled && 'opacity-50 pointer-events-none',
+          className
+        )}
+        aria-disabled={isDisabled}
+        {...props}
+      >
+        {children} {/* MUST be single element */}
+      </Slot>
+    )
+  }
+
+  // ✅ Normal button
   return (
-    <Comp
+    <button
       className={clsx(
         'inline-flex items-center justify-center rounded-md font-medium transition',
         'focus-visible:outline-none focus-visible:ring-2',
@@ -58,25 +79,21 @@ export function Button({
         isDisabled && 'opacity-50 pointer-events-none',
         className
       )}
-      disabled={!asChild ? isDisabled : undefined}
-      aria-disabled={isDisabled}
+      disabled={isDisabled}
       aria-busy={loading || undefined}
       {...props}
     >
-      {/* LEFT ICON / LOADER */}
       {loading ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
         leftIcon
       )}
 
-      {/* CONTENT */}
       <span className="inline-flex items-center">
         {children}
       </span>
 
-      {/* RIGHT ICON */}
       {!loading && rightIcon}
-    </Comp>
+    </button>
   )
 }

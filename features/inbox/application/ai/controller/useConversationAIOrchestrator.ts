@@ -1,11 +1,9 @@
-/* application/ai/controller/useConversationAIOrchestrator.ts */
-
 'use client'
 
 import { useEffect, useRef } from 'react'
 import { useAppQuery } from '@/core/query/useAppQuery'
 
-import { useAISuggestionList } from '../hooks/useAISuggestionList'
+import { useLatestAISuggestion } from '../hooks/useLatestAISuggestion'
 
 import { getLatestAIRun } from '@/features/inbox/infrastructure/api/ai.api'
 import { mapAIRunDTO } from '@/features/inbox/infrastructure/mappers/ai.mapper'
@@ -26,19 +24,16 @@ export function useConversationAIOrchestrator({
 }: Props) {
 
   /* =========================
-     SUGGESTIONS
+     ✅ SINGLE SOURCE OF TRUTH (LATEST ONLY)
   ========================= */
 
-  useAISuggestionList({
-    conversationId,
-    dispatch,
-  })
+  useLatestAISuggestion(conversationId, dispatch)
 
   /* =========================
      AI RUN (PROGRESS)
   ========================= */
 
-  const lastRunIdRef = useRef<string | null>(null)
+  const prevHashRef = useRef<string>('')
 
   const runQuery = useAppQuery<AIRun | null>({
     queryKey: ['ai', 'run', conversationId],
@@ -47,15 +42,12 @@ export function useConversationAIOrchestrator({
       if (!conversationId) return null
 
       const res = await getLatestAIRun(conversationId)
-
       return res ? mapAIRunDTO(res) : null
     },
 
     enabled: !!conversationId,
 
-    /* 🔥 FIXED */
     refetchInterval: (query) => {
-
       const run = query.state.data
 
       if (!run) return 2000
@@ -75,16 +67,18 @@ export function useConversationAIOrchestrator({
   })
 
   /* =========================
-     DISPATCH RUN UPDATE
+     ✅ ALLOW SAME RUN ID UPDATES
+     (progress / stage changes)
   ========================= */
 
   useEffect(() => {
     const run = runQuery.data
     if (!run) return
 
-    if (lastRunIdRef.current === run.id) return
+    const hash = `${run.id}-${run.progress}-${run.state}-${run.stage}`
 
-    lastRunIdRef.current = run.id
+    if (prevHashRef.current === hash) return
+    prevHashRef.current = hash
 
     dispatch({
       type: 'AI_RUN_UPDATE',

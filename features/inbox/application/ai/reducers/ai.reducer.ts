@@ -26,21 +26,38 @@ export function aiReducer(
         aiRun: null,
       }
 
-    case 'AI_RUN_UPDATE':
-      return {
-        aiRun: mergeAIRun(
-          state.aiRun ?? null,
-          action.payload
-        )
-      }
+    case 'AI_RUN_UPDATE': {
+      const next = mergeAIRun(
+        state.aiRun ?? null,
+        action.payload
+      )
 
-    case 'AI_SUGGESTION':
+      // ✅ ensure updates are not blocked
+      if (!next) return {}
+
       return {
-        aiSuggestion: mergeSuggestion(
-          state.aiSuggestion ?? null,
-          action.payload
-        )
+        aiRun: {
+          ...state.aiRun,
+          ...next, // force override progress, stage, state
+        }
       }
+    }
+
+    case 'AI_SUGGESTION': {
+      const next = mergeSuggestion(
+        state.aiSuggestion ?? null,
+        action.payload
+      )
+
+      if (!next) return {}
+
+      return {
+        aiSuggestion: {
+          ...state.aiSuggestion,
+          ...next, // force override content, confidence
+        }
+      }
+    }
 
     default:
       return {}
