@@ -1,6 +1,6 @@
 'use client'
 
-import { Stack, Inline, Text, Button } from '@/ui'
+import { Stack, Inline, Button } from '@/ui'
 
 type Props = {
   suggestion: string
@@ -18,16 +18,20 @@ export function AIExpanded({
 
       <Stack gap="sm">
 
-        {/* 🔥 SCROLLABLE CONTENT */}
-        <div className="
-          max-h-[30vh]
-          overflow-y-auto
-          pr-1
-        ">
-          <Text size="sm" className="leading-6">
-            {suggestion}
-          </Text>
-        </div>
+        {/* 🔥 HTML CONTENT (TYPOGRAPHY ENABLED) */}
+        <div
+          className="
+            max-h-[30vh]
+            overflow-y-auto
+            pr-1
+
+            prose prose-sm max-w-none
+            prose-p:my-2
+            prose-ul:my-2
+            prose-li:my-1
+          "
+          dangerouslySetInnerHTML={{ __html: suggestion }}
+        />
 
         <Inline gap="xs">
           <Button size="sm" onClick={onInsert}>
