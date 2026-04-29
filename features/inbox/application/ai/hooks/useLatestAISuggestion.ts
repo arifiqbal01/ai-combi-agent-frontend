@@ -22,12 +22,12 @@ export function useLatestAISuggestion(
 
       const res = await getLatestAISuggestion(conversationId)
 
-      return res?.suggestion
-        ? mapAISuggestionDTO(res.suggestion)
-        : null
+      // ✅ FIX: backend returns flat object (NOT { suggestion })
+      if (!res) return null
+
+      return mapAISuggestionDTO(res as any)
     },
 
-    // ✅ only local condition
     enabled: !!conversationId,
 
     refetchInterval: 5000,

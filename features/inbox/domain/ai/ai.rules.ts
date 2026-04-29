@@ -11,9 +11,7 @@ import {
 ========================= */
 
 export function hasSuggestionContent(
-
  suggestion:AISuggestion | null
-
 ):boolean{
 
  if(!suggestion)
@@ -23,7 +21,6 @@ export function hasSuggestionContent(
   return false
 
  return suggestion.content.trim().length > 0
-
 }
 
 /* =========================
@@ -31,43 +28,34 @@ export function hasSuggestionContent(
 ========================= */
 
 export function isSuggestionDecision(
-
  suggestion:AISuggestion | null
-
 ):boolean{
 
  if(!suggestion)
   return false
 
  return (
-
   suggestion.decision ===
   AISuggestionDecision.SUGGEST
-
  )
-
 }
 
 /* =========================
- status validation
+ status validation (UPDATED)
 ========================= */
 
 export function isSuggestionReady(
-
  suggestion:AISuggestion | null
-
 ):boolean{
 
  if(!suggestion)
   return false
 
+ // ✅ allow PENDING + READY (for real-time UI)
  return (
-
-  suggestion.status ===
-  AISuggestionStatus.READY
-
+  suggestion.status === AISuggestionStatus.READY ||
+  suggestion.status === AISuggestionStatus.PENDING
  )
-
 }
 
 /* =========================
@@ -75,31 +63,22 @@ export function isSuggestionReady(
 ========================= */
 
 export function shouldDisplaySuggestion(
-
  suggestion:AISuggestion | null
-
 ):boolean{
 
  if(!suggestion)
   return false
 
- if(!isSuggestionDecision(
-  suggestion
- ))
+ if(!isSuggestionDecision(suggestion))
   return false
 
- if(!isSuggestionReady(
-  suggestion
- ))
+ if(!isSuggestionReady(suggestion))
   return false
 
- if(!hasSuggestionContent(
-  suggestion
- ))
+ if(!hasSuggestionContent(suggestion))
   return false
 
  return true
-
 }
 
 /* =========================
@@ -107,45 +86,34 @@ export function shouldDisplaySuggestion(
 ========================= */
 
 export function isHighConfidence(
-
  suggestion:AISuggestion | null
-
 ):boolean{
 
  if(!suggestion)
   return false
 
  return suggestion.confidence >= 0.75
-
 }
 
 export function isMediumConfidence(
-
  suggestion:AISuggestion | null
-
 ):boolean{
 
  if(!suggestion)
   return false
 
  return (
-
   suggestion.confidence >= 0.50 &&
   suggestion.confidence < 0.75
-
  )
-
 }
 
 export function isLowConfidence(
-
  suggestion:AISuggestion | null
-
 ):boolean{
 
  if(!suggestion)
   return false
 
  return suggestion.confidence < 0.50
-
 }
