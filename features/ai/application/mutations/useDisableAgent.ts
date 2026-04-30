@@ -25,8 +25,10 @@ export function useDisableAgent() {
     onSuccess: async () => {
       toast.success('Agent disabled')
 
-      await queryClient.invalidateQueries({
+      // ✅ Refetch only active queries
+      await queryClient.refetchQueries({
         queryKey: aiKeys.lists(),
+        type: 'active',
       })
     },
 

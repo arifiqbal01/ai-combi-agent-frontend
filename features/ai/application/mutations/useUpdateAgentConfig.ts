@@ -27,15 +27,38 @@ export function useUpdateAgentConfig() {
     mutationFn: (variables) =>
       aiApi.updateConfig(variables.id, variables.body),
 
-    onSuccess: async () => {
+    onSuccess: async (res, variables) => {
+      if (res.status === 'no_changes') {
+        toast.info('No changes made')
+        return
+      }
+
       toast.success('Agent configuration updated')
 
-      await queryClient.invalidateQueries({
-        queryKey: aiKeys.lists(),
-      })
+      await Promise.all([
+        queryClient.refetchQueries({
+          queryKey: aiKeys.lists(),
+          type: 'active',
+        }),
+        queryClient.refetchQueries({
+          queryKey: aiKeys.detail(variables.id),
+          type: 'active',
+        }),
+      ])
     },
 
-    onError: () => {
+    onError: (error: any) => {
+      const apiError = error?.response?.data
+
+      // 🔥 Handle domain-specific error
+      if (apiError?.error === 'agent_disabled') {
+        toast.error(
+          'Cannot update configuration while agent is disabled. Please enable it first.'
+        )
+        return
+      }
+
+      // fallback
       toast.error('Failed to update configuration')
     },
   })

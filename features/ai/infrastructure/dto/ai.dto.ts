@@ -5,7 +5,49 @@ import {
   ToneLanguage,
 } from '../../domain/ai.types'
 
+/* -----------------------------
+   Tone
+----------------------------- */
+export type ToneDTO = {
+  style: ToneStyle
+  formality: ToneFormality
+  verbosity: ToneVerbosity
+  language: ToneLanguage
+}
 
+/* -----------------------------
+   Capabilities
+----------------------------- */
+export type CapabilitiesDTO = {
+  suggestion: boolean
+  auto_reply: boolean
+}
+
+/* -----------------------------
+   Signature
+----------------------------- */
+export type SignatureDTO = {
+  enabled: boolean
+  strip_ai_signature: boolean
+  template?: string
+  company_name?: string
+  support_email?: string
+  website?: string
+}
+
+/* -----------------------------
+   Agent Config (READ - STRONG)
+----------------------------- */
+export type AgentConfigDTO = {
+  tone: ToneDTO
+  capabilities: CapabilitiesDTO
+  auto_reply_threshold: number
+  signature: SignatureDTO
+}
+
+/* -----------------------------
+   Agent DTO (READ)
+----------------------------- */
 export type AgentDTO = {
   id: string
   name: string
@@ -14,22 +56,27 @@ export type AgentDTO = {
   enabled: boolean
   is_default: boolean
 
-  max_runs_per_minute: number
+  config: AgentConfigDTO
 
   created_at: string
   updated_at?: string | null
 }
 
 /* -----------------------------
-   Create
+   Create Agent (WRITE)
 ----------------------------- */
 export type CreateAgentDTO = {
   name: string
   description?: string
-  config: Record<string, unknown>
+
+  config: {
+    tone: ToneDTO
+    capabilities: CapabilitiesDTO
+    auto_reply_threshold?: number
+    signature?: SignatureDTO
+  }
 
   is_default?: boolean
-  max_runs_per_minute?: number
 }
 
 /* -----------------------------
@@ -39,17 +86,19 @@ export type AgentStatusDTO = {
   status: 'enabled' | 'disabled'
 }
 
-export type ToneDTO = {
-  style?: ToneStyle
-  formality?: ToneFormality
-  verbosity?: ToneVerbosity
-  language?: ToneLanguage
-}
-
+/* -----------------------------
+   Update Config (PATCH)
+----------------------------- */
 export type UpdateAgentConfigDTO = {
-  tone?: ToneDTO
+  tone?: Partial<ToneDTO>
+  capabilities?: Partial<CapabilitiesDTO>
+  auto_reply_threshold?: number
+  signature?: Partial<SignatureDTO>
 }
 
+/* -----------------------------
+   Update Config Response
+----------------------------- */
 export type UpdateAgentConfigResponseDTO = {
-  status: 'updated'
+  status: 'updated' | 'no_changes'
 }

@@ -3,9 +3,6 @@ export const aiKeys = {
 
   lists: () => [...aiKeys.all, 'list'] as const,
 
-  list: (filters?: Record<string, unknown>) =>
-    [...aiKeys.lists(), filters] as const,
-
   details: () => [...aiKeys.all, 'detail'] as const,
 
   detail: (id: string) =>

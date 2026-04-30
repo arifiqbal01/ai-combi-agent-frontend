@@ -19,35 +19,55 @@ export function mapAgentDTO(dto: AgentDTO): Agent {
     description: dto.description ?? undefined,
 
     isDefault: dto.is_default,
-    maxRunsPerMinute: dto.max_runs_per_minute,
 
     status,
+    isActive,
 
     createdAt: dto.created_at,
     updatedAt: dto.updated_at ?? undefined,
 
-    isActive,
+    config: {
+      tone: {
+        style: dto.config.tone.style,
+        formality: dto.config.tone.formality,
+        verbosity: dto.config.tone.verbosity,
+        language: dto.config.tone.language,
+      },
+
+      capabilities: {
+        suggestion: dto.config.capabilities.suggestion,
+        autoReply: dto.config.capabilities.auto_reply,
+      },
+
+      autoReplyThreshold: dto.config.auto_reply_threshold,
+
+      signature: {
+        enabled: dto.config.signature.enabled,
+        stripAiSignature: dto.config.signature.strip_ai_signature,
+        template: dto.config.signature.template,
+        companyName: dto.config.signature.company_name,
+        supportEmail: dto.config.signature.support_email,
+        website: dto.config.signature.website,
+      },
+    },
   }
 }
 
 /* ----------------------------------------
-   Map + Sort Agents
+   Map List
 ---------------------------------------- */
 export function mapAgents(dtos: AgentDTO[]): Agent[] {
   return dtos
     .map(mapAgentDTO)
     .sort((a, b) => {
-      // 🔥 Priority 1: default agents first
-      if (a.isDefault !== b.isDefault) {
-        return a.isDefault ? -1 : 1
-      }
-
-      // 🔥 Priority 2: active agents
       if (a.isActive !== b.isActive) {
         return a.isActive ? -1 : 1
       }
 
-      // 🔥 Priority 3: newest first
+      if (a.isDefault !== b.isDefault) {
+        return a.isDefault ? -1 : 1
+      }
+
       return (
         new Date(b.createdAt).getTime() -
         new Date(a.createdAt).getTime()

@@ -4,25 +4,20 @@ import { aiApi } from '../../infrastructure/api/ai.api'
 import { mapAgents } from '../../infrastructure/mappers/ai.mapper'
 import { aiKeys } from '../keys/ai.keys'
 
-export function useAgents(enabled?: boolean) {
+export function useAgents() {
   return useAppQuery({
-    queryKey: aiKeys.list({ enabled }),
+    queryKey: aiKeys.lists(),
 
     queryFn: async () => {
-      const res = await aiApi.list(
-        enabled !== undefined ? { enabled } : undefined
-      )
+      const res = await aiApi.list()
       return mapAgents(res)
     },
 
-    // ✅ CACHE
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
     gcTime: 10 * 60 * 1000,
 
-    // ✅ UX
-    placeholderData: (prev) => prev,
-
-    // ✅ REFRESH
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
   })
 }

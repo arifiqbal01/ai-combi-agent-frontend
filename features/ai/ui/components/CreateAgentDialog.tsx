@@ -24,23 +24,39 @@ export function CreateAgentDialog() {
   const [description, setDescription] = useState('')
 
   const handleCreate = () => {
-    if (!name) return
+  if (!name) return
 
-    create.mutate(
-      {
-        name,
-        description,
-        config: {}, // 🔥 required by backend
-      },
-      {
-        onSuccess: () => {
-          setOpen(false)
-          setName('')
-          setDescription('')
+  create.mutate(
+    {
+      name,
+      description,
+      config: {
+        tone: {
+          style: 'friendly',
+          formality: 'professional',
+          verbosity: 'balanced',
+          language: 'en',
         },
-      }
-    )
-  }
+        capabilities: {
+          suggestion: true,
+          auto_reply: false,
+        },
+        auto_reply_threshold: 0.8,
+        signature: {
+          enabled: false,
+          strip_ai_signature: true,
+        },
+      },
+    },
+    {
+      onSuccess: () => {
+        setOpen(false)
+        setName('')
+        setDescription('')
+      },
+    }
+  )
+}
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

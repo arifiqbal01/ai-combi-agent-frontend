@@ -1,37 +1,33 @@
 import { AGENT_STATUS } from './ai.constants'
 import { AgentStatus } from './ai.types'
 
+/* ----------------------------------------
+   Normalize Status (STRICT)
+---------------------------------------- */
 export function normalizeAgentStatus(
-  enabled?: boolean
+  enabled: boolean
 ): AgentStatus {
-  if (enabled === true) return AGENT_STATUS.ENABLED
-  if (enabled === false) return AGENT_STATUS.DISABLED
-  return AGENT_STATUS.UNKNOWN
+  return enabled
+    ? AGENT_STATUS.ENABLED
+    : AGENT_STATUS.DISABLED
 }
 
+/* ----------------------------------------
+   Can Disable Agent
+---------------------------------------- */
 export function canDisableAgent(
-  agent: { isDefault: boolean; isActive: boolean },
-  totalAgents: number
+  agent: { isActive: boolean }
 ): boolean {
-  if (!agent.isActive) return false
-
-  // ❌ default + only one → cannot disable
-  if (agent.isDefault && totalAgents === 1) {
-    return false
-  }
-
-  return true
+  return agent.isActive
 }
 
+/* ----------------------------------------
+   Disable Reason
+---------------------------------------- */
 export function getDisableAgentReason(
-  agent: { isDefault: boolean; isActive: boolean },
-  totalAgents: number
+  agent: { isActive: boolean }
 ): string | null {
-  if (!agent.isActive) return null
-
-  if (agent.isDefault && totalAgents === 1) {
-    return 'Default agent cannot be disabled while it is the only agent'
-  }
-
-  return null
+  return agent.isActive
+    ? null
+    : 'Agent is already disabled'
 }

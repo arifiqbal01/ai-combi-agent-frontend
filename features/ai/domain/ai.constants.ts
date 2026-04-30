@@ -4,7 +4,6 @@ export const AGENT_STATUS = {
   UNKNOWN: 'unknown',
 } as const
 
-
 export const TONE_STYLE = {
   DIRECT: 'direct',
   FRIENDLY: 'friendly',

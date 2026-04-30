@@ -30,14 +30,18 @@ export function AgentActions({
   const enable = useEnableAgent()
   const disable = useDisableAgent()
 
-  const canDisable = canDisableAgent(agent, totalAgents)
-  const disableReason = getDisableAgentReason(agent, totalAgents)
+  const canDisable = canDisableAgent(agent)
+  const disableReason = getDisableAgentReason(agent)
 
   return (
     <div className="flex items-center gap-2 pt-1 overflow-x-auto no-scrollbar">
 
-      {/* CONFIG */}
-      <AgentConfigDialog agentId={agent.id} />
+      {/* ✅ FIX: pass config */}
+      <AgentConfigDialog
+          agentId={agent.id}
+          config={agent.config}
+          isActive={agent.isActive}
+        />
 
       {/* ENABLE / DISABLE */}
       {agent.isActive ? (

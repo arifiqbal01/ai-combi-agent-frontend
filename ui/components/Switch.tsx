@@ -5,13 +5,21 @@ import clsx from 'clsx'
 
 type Props = React.InputHTMLAttributes<HTMLInputElement> & {
   label?: React.ReactNode
+  onCheckedChange?: (checked: boolean) => void
 }
 
 export const Switch = React.forwardRef<
   HTMLInputElement,
   Props
 >(function Switch(
-  { label, className, disabled, id, ...props },
+  {
+    label,
+    className,
+    disabled,
+    id,
+    onCheckedChange,
+    ...props
+  },
   ref
 ) {
   const generatedId = React.useId()
@@ -21,7 +29,7 @@ export const Switch = React.forwardRef<
     <div
       className={clsx(
         'flex items-center gap-3',
-        disabled && 'opacity-50'
+        disabled && 'opacity-50 cursor-not-allowed'
       )}
     >
       <label className="relative inline-flex h-5 w-9 cursor-pointer">
@@ -32,6 +40,9 @@ export const Switch = React.forwardRef<
           disabled={disabled}
           className={clsx('peer sr-only', className)}
           {...props}
+          onChange={(e) => {
+            onCheckedChange?.(e.target.checked)
+          }}
         />
 
         <span
@@ -53,7 +64,10 @@ export const Switch = React.forwardRef<
       {label && (
         <label
           htmlFor={inputId}
-          className="text-sm text-text-primary cursor-pointer select-none"
+          className={clsx(
+            'text-sm text-text-primary select-none',
+            disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+          )}
         >
           {label}
         </label>

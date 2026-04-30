@@ -22,8 +22,10 @@ export function useCreateAgent() {
     onSuccess: async () => {
       toast.success('Agent created')
 
-      await queryClient.invalidateQueries({
+      // ✅ Refetch only active queries (clean + efficient)
+      await queryClient.refetchQueries({
         queryKey: aiKeys.lists(),
+        type: 'active',
       })
     },
 
