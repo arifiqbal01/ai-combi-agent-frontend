@@ -7,10 +7,6 @@ import {
 } from '@/features/inbox/application/conversation/controller'
 
 import {
-  useConversationAIController
-} from '@/features/inbox/application/ai/controller'
-
-import {
   useMessagePolicy
 } from '@/features/inbox/application/message/useMessagePolicy'
 
@@ -39,16 +35,12 @@ export function ConversationView({ conversationId }: Props) {
     conversationId
   })
 
-  const ai = useConversationAIController({
-    state: controller.state
-  })
-
   const policy = useMessagePolicy(conversationId)
 
   const { clearSelection } = useInboxContext()
 
   /* =========================
-     🔥 COMPOSER BRIDGE
+     COMPOSER BRIDGE
   ========================= */
 
   const composerRef = useRef<{
@@ -61,11 +53,7 @@ export function ConversationView({ conversationId }: Props) {
 
   return (
 
-    <div className="
-      relative
-      h-full
-      min-h-0
-    ">
+    <div className="relative h-full min-h-0">
 
       <ConversationLayout
 
@@ -82,28 +70,19 @@ export function ConversationView({ conversationId }: Props) {
           />
         }
 
+        /* ✅ NEW AI (clean, backend-driven) */
         aiSection={
           <ConversationAISection
             key={conversationId}
             conversationId={conversationId}
 
-            aiState={ai.aiState}
-            suggestion={ai.suggestion?.content}
-            confidence={ai.suggestion?.confidencePercent}
-            ui={ai.ui}
-
-            /* 🔥 FIXED: INSERT → COMPOSER */
-            onInsert={() => {
-              if (!ai.suggestion) return
-
-              composerRef.current?.setContent(
-                ai.suggestion.content
-              )
+            onInsert={(text) => {
+              composerRef.current?.setContent(text)
             }}
 
-            /* ❌ REMOVE LATER */
-            onRegenerate={() => {
-              console.log('Improve clicked')
+            onView={(runId) => {
+              // optional: navigate to full AI screen
+              console.log('Open AI run:', runId)
             }}
           />
         }
@@ -120,7 +99,6 @@ export function ConversationView({ conversationId }: Props) {
             }}
             sending={controller.sending}
 
-            /* 🔥 CONNECT COMPOSER */
             onReady={(api) => {
               composerRef.current = api
             }}

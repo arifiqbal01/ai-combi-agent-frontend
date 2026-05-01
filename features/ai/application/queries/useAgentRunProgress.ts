@@ -22,9 +22,11 @@ export function useAgentRunProgress(runId?: string) {
     /* -----------------------------
        Polling
     ----------------------------- */
-    refetchInterval: (data) => {
-      // stop polling when finished
-      if (!data || data.isFinal) return false
+    refetchInterval: (query) => {
+      const data = query.state.data as any
+
+      if (!data) return 1500
+      if (data.isFinal) return false
 
       return 1500
     },
