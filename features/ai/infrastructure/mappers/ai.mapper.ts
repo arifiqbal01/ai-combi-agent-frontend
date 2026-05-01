@@ -1,8 +1,24 @@
-import { AgentDTO } from '../dto/ai.dto'
+import {
+  AgentDTO,
+  AgentRunProgressDTO,
+  SuggestionPreviewDTO,
+} from '../dto/ai.dto'
 
-import { Agent } from '../../domain/ai.types'
-import { normalizeAgentStatus } from '../../domain/ai.guards'
-import { AGENT_STATUS } from '../../domain/ai.constants'
+import {
+  Agent,
+  AgentRunProgress,
+  Suggestion,
+} from '../../domain/ai.types'
+
+import {
+  normalizeAgentStatus,
+} from '../../domain/ai.guards'
+
+import {
+  AGENT_STATUS,
+  AGENT_RUN_STATUS,
+  AGENT_RUN_STAGE,
+} from '../../domain/ai.constants'
 
 /* ----------------------------------------
    Map Single Agent
@@ -54,7 +70,7 @@ export function mapAgentDTO(dto: AgentDTO): Agent {
 }
 
 /* ----------------------------------------
-   Map List
+   Map Agent List
 ---------------------------------------- */
 export function mapAgents(dtos: AgentDTO[]): Agent[] {
   return dtos
@@ -73,4 +89,66 @@ export function mapAgents(dtos: AgentDTO[]): Agent[] {
         new Date(a.createdAt).getTime()
       )
     })
+}
+
+/* ----------------------------------------
+   Map Suggestion
+---------------------------------------- */
+function mapSuggestion(
+  dto?: SuggestionPreviewDTO | null
+): Suggestion | undefined {
+  if (!dto) return undefined
+
+  return {
+    id: dto.id,
+    content: dto.content,
+    confidence: dto.confidence,
+    decision: dto.decision,
+  }
+}
+
+/* ----------------------------------------
+   Normalize Run Status (SAFE)
+---------------------------------------- */
+function normalizeRunStatus(status: string) {
+  if (Object.values(AGENT_RUN_STATUS).includes(status as any)) {
+    return status as AgentRunProgress['status']
+  }
+
+  return AGENT_RUN_STATUS.FAILED
+}
+
+/* ----------------------------------------
+   Normalize Run Stage (SAFE)
+---------------------------------------- */
+function normalizeRunStage(stage: string) {
+  if (Object.values(AGENT_RUN_STAGE).includes(stage as any)) {
+    return stage as AgentRunProgress['stage']
+  }
+
+  return AGENT_RUN_STAGE.INIT
+}
+
+/* ----------------------------------------
+   Map Agent Run Progress
+---------------------------------------- */
+export function mapAgentRunProgressDTO(
+  dto: AgentRunProgressDTO
+): AgentRunProgress {
+  return {
+    runId: dto.run_id,
+
+    status: normalizeRunStatus(dto.status),
+    stage: normalizeRunStage(dto.stage),
+    progress: dto.progress,
+
+    startedAt: dto.started_at,
+    updatedAt: dto.updated_at ?? undefined,
+    finishedAt: dto.finished_at ?? undefined,
+
+    isFinal: dto.is_final,
+    isAutoReply: dto.is_auto_reply,
+
+    suggestion: mapSuggestion(dto.suggestion),
+  }
 }

@@ -1,7 +1,10 @@
 import { Agent } from './ai.types'
 import { normalizeAgentStatus } from './ai.guards'
 import { AGENT_STATUS } from './ai.constants'
-
+import {
+  AgentRunProgress,
+  Suggestion,
+} from './ai.types'
 import { AgentDTO } from '../infrastructure/dto/ai.dto'
 
 export function createAgentEntity(dto: AgentDTO): Agent {
@@ -47,5 +50,45 @@ export function createAgentEntity(dto: AgentDTO): Agent {
         website: dto.config.signature.website,
       },
     },
+  }
+}
+
+/* ----------------------------------------
+   Create Suggestion Entity
+---------------------------------------- */
+export function createSuggestionEntity(
+  data: Suggestion
+): Suggestion {
+  return {
+    id: data.id,
+    content: data.content,
+    confidence: data.confidence,
+    decision: data.decision,
+  }
+}
+
+/* ----------------------------------------
+   Create Agent Run Entity
+---------------------------------------- */
+export function createAgentRunEntity(
+  data: AgentRunProgress
+): AgentRunProgress {
+  return {
+    runId: data.runId,
+
+    status: data.status,
+    stage: data.stage,
+    progress: data.progress,
+
+    startedAt: data.startedAt,
+    updatedAt: data.updatedAt,
+    finishedAt: data.finishedAt,
+
+    isFinal: data.isFinal,
+    isAutoReply: data.isAutoReply,
+
+    suggestion: data.suggestion
+      ? createSuggestionEntity(data.suggestion)
+      : undefined,
   }
 }

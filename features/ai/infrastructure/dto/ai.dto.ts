@@ -102,3 +102,33 @@ export type UpdateAgentConfigDTO = {
 export type UpdateAgentConfigResponseDTO = {
   status: 'updated' | 'no_changes'
 }
+
+/* -----------------------------
+   Suggestion Preview
+----------------------------- */
+export type SuggestionPreviewDTO = {
+  id: string
+  content: string
+  confidence: number
+  decision: 'suggest' | 'auto_reply'
+}
+
+/* -----------------------------
+   Agent Run Progress
+----------------------------- */
+export type AgentRunProgressDTO = {
+  run_id: string
+
+  status: string
+  stage: string
+  progress: number
+
+  started_at: string
+  updated_at?: string | null
+  finished_at?: string | null
+
+  is_final: boolean
+  is_auto_reply: boolean
+
+  suggestion?: SuggestionPreviewDTO | null
+}

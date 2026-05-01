@@ -25,3 +25,31 @@ export const TONE_LANGUAGE = {
   ENGLISH: 'en',
   DUTCH: 'nl',
 } as const
+
+/* -----------------------------
+   Agent Run Status
+----------------------------- */
+export const AGENT_RUN_STATUS = {
+  QUEUED: 'queued',
+  RUNNING: 'running',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+} as const
+
+/* -----------------------------
+   Agent Run Stage
+----------------------------- */
+export const AGENT_RUN_STAGE = {
+  INIT: 'init',
+  RETRIEVAL: 'retrieval',
+  GENERATION: 'generation',
+  FINALIZING: 'finalizing',
+} as const
+
+/* -----------------------------
+   Suggestion Decision
+----------------------------- */
+export const SUGGESTION_DECISION = {
+  SUGGEST: 'suggest',
+  AUTO_REPLY: 'auto_reply',
+} as const

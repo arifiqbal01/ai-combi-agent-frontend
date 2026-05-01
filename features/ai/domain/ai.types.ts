@@ -1,9 +1,12 @@
-import { AGENT_STATUS } from './ai.constants'
 import {
+    AGENT_STATUS,
   TONE_STYLE,
   TONE_FORMALITY,
   TONE_VERBOSITY,
   TONE_LANGUAGE,
+  AGENT_RUN_STATUS,
+  AGENT_RUN_STAGE,
+  SUGGESTION_DECISION,
 } from './ai.constants'
 
 /* -----------------------------
@@ -81,5 +84,54 @@ export type Agent = {
   createdAt: string
   updatedAt?: string
 
-  config: AgentConfig // ✅ REQUIRED
+  config: AgentConfig
+}
+
+
+/* -----------------------------
+   Agent Run Status
+----------------------------- */
+export type AgentRunStatus =
+  (typeof AGENT_RUN_STATUS)[keyof typeof AGENT_RUN_STATUS]
+
+/* -----------------------------
+   Agent Run Stage
+----------------------------- */
+export type AgentRunStage =
+  (typeof AGENT_RUN_STAGE)[keyof typeof AGENT_RUN_STAGE]
+
+/* -----------------------------
+   Suggestion Decision
+----------------------------- */
+export type SuggestionDecision =
+  (typeof SUGGESTION_DECISION)[keyof typeof SUGGESTION_DECISION]
+
+/* -----------------------------
+   Suggestion (Domain)
+----------------------------- */
+export type Suggestion = {
+  id: string
+  content: string
+  confidence: number
+  decision: SuggestionDecision
+}
+
+/* -----------------------------
+   Agent Run Progress (Domain)
+----------------------------- */
+export type AgentRunProgress = {
+  runId: string
+
+  status: AgentRunStatus
+  stage: AgentRunStage
+  progress: number
+
+  startedAt: string
+  updatedAt?: string
+  finishedAt?: string
+
+  isFinal: boolean
+  isAutoReply: boolean
+
+  suggestion?: Suggestion
 }

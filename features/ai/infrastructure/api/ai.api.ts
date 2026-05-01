@@ -6,6 +6,7 @@ import {
   AgentStatusDTO,
   UpdateAgentConfigDTO,
   UpdateAgentConfigResponseDTO,
+  AgentRunProgressDTO,
 } from '../dto/ai.dto'
 
 const BASE = '/ai/agents'
@@ -74,4 +75,27 @@ export const aiApi = {
       body
     )
   },
+
+    /* -----------------------------
+       GET RUN PROGRESS
+    ----------------------------- */
+    getRunProgress(runId: string) {
+      return apiClient.get<AgentRunProgressDTO>(
+        joinUrl(BASE.replace('/agents', ''), 'runs', runId, 'progress')
+      )
+    },
+
+    /* -----------------------------
+       GET CONVERSATION RUN PROGRESS
+    ----------------------------- */
+    getConversationRunProgress(conversationId: string) {
+      return apiClient.get<AgentRunProgressDTO | null>(
+        joinUrl(
+          BASE.replace('/agents', ''),
+          'conversations',
+          conversationId,
+          'ai-progress'
+        )
+      )
+    },
 }
