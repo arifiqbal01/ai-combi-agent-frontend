@@ -20,7 +20,6 @@ export function DialogOverlay({
   return (
     <DialogPrimitive.Overlay
       className={clsx(
-        // 👇 lower than content
         'fixed inset-0 z-40 bg-black/40 backdrop-blur-sm',
         className
       )}
@@ -31,39 +30,57 @@ export function DialogOverlay({
 
 /* ================= CONTENT ================= */
 
+type DialogContentProps =
+  React.ComponentProps<typeof DialogPrimitive.Content> & {
+    variant?: 'centered' | 'fullscreen'
+  }
+
 export function DialogContent({
   className,
   children,
+  variant = 'centered',
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content>) {
+}: DialogContentProps) {
+  const isFullscreen = variant === 'fullscreen'
+
   return (
     <DialogPrimitive.Portal>
 
-      <DialogPrimitive.Overlay
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-      />
+      {/* ✅ Overlay */}
+      <DialogOverlay />
 
+      {/* ✅ Content */}
       <DialogPrimitive.Content
-      className="
-        fixed inset-0 z-50
-        flex items-center justify-center
-        px-3
-      "
-      {...props}
-    >
-      <div
         className={clsx(
-          'w-full max-w-lg rounded-xl border bg-white p-4 shadow-xl',
-          className
+          'fixed z-50',
+
+          isFullscreen
+            ? 'inset-0 flex items-center justify-center p-2'
+            : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg px-3',
+
+          'outline-none'
         )}
+        {...props}
       >
-        {children}
-      </div>
-    </DialogPrimitive.Content>
+        <div
+          className={clsx(
+            'w-full shadow-xl',
+
+            isFullscreen
+              ? 'h-full bg-black rounded-lg overflow-hidden'
+              : 'rounded-xl border bg-white p-4',
+
+            className
+          )}
+        >
+          {children}
+        </div>
+      </DialogPrimitive.Content>
 
     </DialogPrimitive.Portal>
   )
 }
+
 /* ================= HEADER ================= */
 
 export function DialogHeader({
