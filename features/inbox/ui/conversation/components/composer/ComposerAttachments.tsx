@@ -1,101 +1,85 @@
 'use client'
 
-import {
- X,
- File
-} from 'lucide-react'
+import { X } from 'lucide-react'
 
-import { Attachment }
-from '@/features/inbox/domain/attachment/attachment.types'
+import { Attachment } from '@/features/inbox/domain/attachment/attachment.types'
 
-type Props={
+import { MediaRenderer } from '@/features/media/ui/components/base/MediaRenderer'
+import { mapAttachmentToMedia } from '@/features/media/application/mappers/attachmentToMedia'
 
- files:Attachment[]
-
- onRemove:(id:string)=>void
-
+type Props = {
+  files: Attachment[]
+  onRemove: (id: string) => void
 }
 
 export function ComposerAttachments({
+  files,
+  onRemove,
+}: Props) {
+  if (!files.length) return null
 
- files,
- onRemove
+  return (
+    <div className="px-3 py-2 flex gap-2 flex-wrap">
 
-}:Props){
+      {files.map((file) => {
+        const media = mapAttachmentToMedia(file)
+        const isMedia = media.type !== 'other'
 
- if(!files.length)
-  return null
+        return (
+          <div
+            key={file.id}
+            className="
+              relative
+              w-20 h-20
+              rounded-md
+              overflow-hidden
+              border
+              bg-bg-muted
+              flex items-center justify-center
+            "
+          >
 
- return(
+            {/* -----------------------------
+               MEDIA THUMBNAIL
+            ----------------------------- */}
+            {isMedia ? (
+              <MediaRenderer media={media} />
+            ) : (
+              <div className="text-xs px-2 text-center truncate">
+                {file.fileName}
+              </div>
+            )}
 
-  <div className="px-3 py-2 flex gap-2 flex-wrap">
+            {/* -----------------------------
+               UPLOADING STATE
+            ----------------------------- */}
+            {!file.storageKey && (
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-[10px] text-white">
+                Uploading...
+              </div>
+            )}
 
-   {files.map(file=>(
+            {/* -----------------------------
+               REMOVE BUTTON
+            ----------------------------- */}
+            <button
+              disabled={!file.storageKey}
+              onClick={() => onRemove(file.id)}
+              className="
+                absolute top-1 right-1
+                w-5 h-5
+                flex items-center justify-center
+                rounded-full
+                bg-black/70 text-white
+              "
+            >
+              <X size={12} />
+            </button>
 
-    <div
-
-     key={file.id}
-
-     className="
-
-      flex
-      items-center
-      gap-2
-
-      border
-      rounded
-
-      px-2 py-1
-
-      text-xs
-
-      bg-gray-50
-
-     "
-
-    >
-
-     <File size={14}/>
-
-     <div className="flex flex-col">
-
-      <span>
-       {file.fileName}
-      </span>
-
-      {!file.storageKey && (
-
-       <span className="text-[10px] text-gray-400">
-
-        uploading...
-
-       </span>
-
-      )}
-
-     </div>
-
-     <button
-
-      disabled={!file.storageKey}
-
-      onClick={()=>
-
-       onRemove(file.id)
-
-      }
-
-     >
-
-      <X size={14}/>
-
-     </button>
+          </div>
+        )
+      })}
 
     </div>
-
-   ))}
-
-  </div>
-
- )
+  )
 }
