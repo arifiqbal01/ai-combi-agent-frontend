@@ -15,7 +15,6 @@ export const CONNECTION_STATE = {
 
 export const CHANNEL_TYPES = [
   { value: 'email', label: 'Email' },
-  { value: 'sms', label: 'SMS' },
   { value: 'messaging', label: 'Messaging' },
 ] as const
 
