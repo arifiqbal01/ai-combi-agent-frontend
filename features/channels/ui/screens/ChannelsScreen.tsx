@@ -2,9 +2,7 @@
 
 import {
   PageLayout,
-  PageHeader,
   PageSection,
-  PageActions,
   EmptyState,
   LoadingState,
 } from '@/ui'
@@ -18,24 +16,16 @@ export function ChannelsScreen() {
   const channels = data ?? []
 
   return (
-    <PageLayout>
-
-      <PageHeader
-        title="Channels"
-        description="Manage your connected communication channels"
-        actions={
-          <PageActions>
-              <CreateChannelDialog />
-            </PageActions>
-        }
-      />
-
+    <PageLayout
+      title="Channels"
+      description="Manage your connected communication channels"
+      actions={<CreateChannelDialog />}
+    >
       <PageSection>
-
         {isLoading && <LoadingState />}
 
         {!isLoading && channels.length === 0 && (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex items-center justify-center min-h-[300px]">
             <EmptyState
               title="No channels yet"
               description="Connect your first channel to start receiving messages"
@@ -46,9 +36,7 @@ export function ChannelsScreen() {
         {!isLoading && channels.length > 0 && (
           <ChannelList channels={channels} />
         )}
-
       </PageSection>
-
     </PageLayout>
   )
 }

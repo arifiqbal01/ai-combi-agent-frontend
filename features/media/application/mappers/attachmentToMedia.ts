@@ -1,6 +1,9 @@
 import { Attachment } from '@/features/inbox/domain/attachment/attachment.types'
 import { Media } from '../../domain/media.types'
-import { MEDIA_TYPE, MEDIA_SOURCE } from '../../domain/media.constants'
+import {
+  MEDIA_TYPE,
+  MEDIA_SOURCE,
+} from '../../domain/media.constants'
 
 export function mapAttachmentToMedia(
   file: Attachment
@@ -14,16 +17,15 @@ export function mapAttachmentToMedia(
 
     storageKey: file.storageKey,
 
+    // backend signed preview/download URL
+    directUrl: file.previewUrl ?? undefined,
+
     fileName: file.fileName,
     fileSize: file.fileSize,
 
-    source: MEDIA_SOURCE.UPLOAD, // default (can improve later)
+    source: MEDIA_SOURCE.UPLOAD,
   }
 }
-
-/* ----------------------------------------
-   Mapping
----------------------------------------- */
 
 function mapKindToMediaType(
   kind: Attachment['kind']

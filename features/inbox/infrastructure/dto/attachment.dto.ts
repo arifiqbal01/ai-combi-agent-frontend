@@ -12,32 +12,22 @@ export type UploadUrlRequestDTO={
 
 }
 
-export type UploadUrlResponseDTO={
-
-  upload_url:string
-
-  storage_key:string
-
-  file_name:string
-
-  mime_type:string
-
-  file_size:number
-
+export type UploadUrlResponseDTO = {
+  upload_url: string
+  storage_key: string
+  file_name: string
+  mime_type: string
+  file_size: number
+  preview_url?: string | null
 }
 
-export type AttachmentDTO={
-
-  id?:string
-
-  file_name:string
-
-  mime_type:string
-
-  file_size:number
-
-  storage_key:string
-
+export type AttachmentDTO = {
+  id?: string
+  file_name: string
+  mime_type: string
+  file_size: number
+  storage_key: string
+  preview_url?: string | null
 }
 
 export type SendMessageParticipantDTO={

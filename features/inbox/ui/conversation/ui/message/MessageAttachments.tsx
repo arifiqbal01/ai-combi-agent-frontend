@@ -50,8 +50,9 @@ export function MessageAttachments({ attachments }: Props) {
         return (
           <a
             key={key}
-            href={`/api/media/local-download/${file.storageKey}`}
+            href={file.previewUrl ?? `/api/media/local-download/${file.storageKey}`}
             target="_blank"
+            rel="noopener noreferrer"
             className="
               flex items-center gap-3
               text-[12px]

@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import {
   PageLayout,
-  PageHeader,
   PageSection,
   PageActions,
   Text,
@@ -24,7 +23,6 @@ import {
 
 export function KnowledgeScreen() {
   const { data: sources = [], isLoading, isFetching } = useSources()
-
   const rebuild = useRebuildSnapshot()
 
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -43,37 +41,29 @@ export function KnowledgeScreen() {
   const isEmpty = !isLoading && sources.length === 0
 
   return (
-    <PageLayout>
+    <PageLayout
+      title="Knowledge"
+      description="Manage your knowledge sources and documents"
+      actions={
+        <PageActions>
+          <Inline gap="sm">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => rebuild.mutate()}
+              loading={rebuild.isPending}
+            >
+              Rebuild Snapshot
+            </Button>
 
-      <PageHeader
-        title="Knowledge"
-        description="Manage your knowledge sources and documents"
-        actions={
-          <PageActions>
-            <Inline gap="sm">
-
-              {/* 🔥 SNAPSHOT ACTION */}
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => rebuild.mutate()}
-                loading={rebuild.isPending}
-              >
-                Rebuild Snapshot
-              </Button>
-
-              {/* PRIMARY ACTION */}
-              <Button onClick={openGlobal}>
-                Add Knowledge
-              </Button>
-
-            </Inline>
-          </PageActions>
-        }
-      />
-
+            <Button onClick={openGlobal}>
+              Add Knowledge
+            </Button>
+          </Inline>
+        </PageActions>
+      }
+    >
       <PageSection>
-
         <KnowledgePresetDialog
           open={dialogOpen}
           onClose={() => setDialogOpen(false)}
@@ -81,12 +71,10 @@ export function KnowledgeScreen() {
         />
 
         {isLoading && <KnowledgeSkeletonList />}
-
         {isEmpty && <KnowledgeEmptyState />}
 
         {!isLoading && sources.length > 0 && (
-          <div className="space-y-3 px-2 md:px-0">
-
+          <div className="space-y-3">
             {isFetching && (
               <Text size="xs" tone="muted">
                 Updating...
@@ -100,12 +88,9 @@ export function KnowledgeScreen() {
                 onAdd={openForSource}
               />
             ))}
-
           </div>
         )}
-
       </PageSection>
-
     </PageLayout>
   )
 }

@@ -80,3 +80,5 @@ export { MultiSelect } from './overlays/MultiSelect'
 export { AccordionSection } from './overlays/Accordion'
 export { FormField } from './FormField'
 export { Table } from './Table'
+
+export { AppPanel } from './layout/AppPanel'

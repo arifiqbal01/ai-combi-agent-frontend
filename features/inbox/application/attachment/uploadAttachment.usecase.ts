@@ -47,75 +47,89 @@ export function useUploadAttachment(
     useState(false)
 
   async function uploadFile(
-    file: File
-  ): Promise<Attachment | null> {
+  file: File
+): Promise<Attachment | null> {
+  const validation =
+    validateAttachment(file, safePolicy)
 
-    const validation =
-      validateAttachment(file, safePolicy)
-
-    if (!validation.valid) {
-      console.warn(validation.reason)
-      return null
-    }
-
-    const item = createQueueItem(file)
-
-    setQueue(prev => [...prev, item])
-    setUploading(true)
-
-    try {
-
-      // ✅ FORCE TYPE SAFE
-      setQueue(prev =>
-        markUploading(prev, item.id) as UploadQueueItem[]
-      )
-
-      const dto = await requestUploadUrl({
-        file_name: file.name,
-        mime_type: file.type,
-        file_size: file.size
-      })
-
-      const upload = await fetch(dto.upload_url, {
-        method: 'PUT',
-        body: file,
-        headers: {
-          'Content-Type': file.type
-        }
-      })
-
-      if (!upload.ok) {
-        throw new Error('Upload failed')
-      }
-
-      const attachment = mapAttachmentDTO({
-        file_name: dto.file_name,
-        mime_type: dto.mime_type,
-        file_size: dto.file_size,
-        storage_key: dto.storage_key,
-        id: dto.storage_key
-      })
-
-      // ✅ FORCE TYPE SAFE
-      setQueue(prev =>
-        markDone(prev, item.id, attachment) as UploadQueueItem[]
-      )
-
-      return attachment
-
-    } catch (err) {
-
-      // ✅ FORCE TYPE SAFE
-      setQueue(prev =>
-        markFailed(prev, item.id) as UploadQueueItem[]
-      )
-
-      return null
-
-    } finally {
-      setUploading(false)
-    }
+  if (!validation.valid) {
+    console.warn(validation.reason)
+    return null
   }
+
+  const item = createQueueItem(file)
+  setQueue(prev => [...prev, item])
+  setUploading(true)
+
+  /**
+   * Local preview for immediate UI rendering
+   */
+  const localPreviewUrl =
+    file.type.startsWith('image/') ||
+    file.type.startsWith('video/')
+      ? URL.createObjectURL(file)
+      : undefined
+
+  try {
+    setQueue(prev =>
+      markUploading(prev, item.id) as UploadQueueItem[]
+    )
+
+    const dto = await requestUploadUrl({
+      file_name: file.name,
+      mime_type: file.type,
+      file_size: file.size
+    })
+
+    const upload = await fetch(dto.upload_url, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': file.type
+      }
+    })
+
+    if (!upload.ok) {
+      throw new Error('Upload failed')
+    }
+
+    const attachment = mapAttachmentDTO({
+      file_name: dto.file_name,
+      mime_type: dto.mime_type,
+      file_size: dto.file_size,
+      storage_key: dto.storage_key,
+      id: dto.storage_key,
+
+      /**
+       * Prefer backend URL if available,
+       * otherwise keep local preview
+       */
+      preview_url:
+        dto.preview_url ??
+        localPreviewUrl
+    })
+
+    setQueue(prev =>
+      markDone(prev, item.id, attachment) as UploadQueueItem[]
+    )
+
+    return attachment
+
+  } catch {
+    if (localPreviewUrl) {
+      URL.revokeObjectURL(localPreviewUrl)
+    }
+
+    setQueue(prev =>
+      markFailed(prev, item.id) as UploadQueueItem[]
+    )
+
+    return null
+
+  } finally {
+    setUploading(false)
+  }
+}
 
   async function uploadFiles(
     files: File[],

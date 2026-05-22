@@ -1,5 +1,5 @@
 /* infrastructure/dto/message.dto.ts */
-
+import { AttachmentDTO } from './attachment.dto'
 export type MessageDirectionDTO =
   | 'inbound'
   | 'outbound'
@@ -9,13 +9,7 @@ export type ActorTypeDTO =
   | 'ai'
   | 'system'
 
-export type MessageAttachmentDTO = {
-  id: string
-  file_name: string
-  mime_type: string
-  file_size: number
-  storage_key: string
-}
+export type MessageAttachmentDTO = AttachmentDTO
 
 export type MessageDTO = {
   id: string

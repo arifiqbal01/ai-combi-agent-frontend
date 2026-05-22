@@ -1,3 +1,4 @@
+// features/media/infrastructure/api/media.api.ts
 import { buildApiUrl } from '@/infra/api/config'
 
 export const mediaApi = {

@@ -68,21 +68,23 @@ export function mapAttachmentDTO(
   const kind = resolveAttachmentKind(dto.mime_type)
 
   return {
-    id: dto.id ?? dto.storage_key,
+      id: dto.id ?? dto.storage_key,
 
-    fileName: dto.file_name || 'file',
+      fileName: dto.file_name || 'file',
 
-    mimeType: dto.mime_type || 'application/octet-stream',
+      mimeType: dto.mime_type || 'application/octet-stream',
 
-    fileSize:
-      typeof dto.file_size === 'number'
-        ? dto.file_size
-        : 0,
+      fileSize:
+        typeof dto.file_size === 'number'
+          ? dto.file_size
+          : 0,
 
-    storageKey: dto.storage_key,
+      storageKey: dto.storage_key,
 
-    kind,
-    icon: resolveIcon(kind)
+      previewUrl: dto.preview_url ?? undefined,
+
+      kind,
+      icon: resolveIcon(kind)
   }
 }
 

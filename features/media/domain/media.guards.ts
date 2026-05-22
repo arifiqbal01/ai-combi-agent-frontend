@@ -44,11 +44,12 @@ export function hasThumbnail(media: Media): boolean {
 }
 
 export function hasPreview(media: Media): boolean {
-  return !!media.previewKey
+  return !!media.directUrl || !!media.previewKey
 }
 
-export function getBestPreviewKey(media: Media): string {
+export function getBestPreviewSource(media: Media): string {
   return (
+    media.directUrl ||
     media.thumbnailKey ||
     media.previewKey ||
     media.storageKey

@@ -17,20 +17,13 @@ export type AttachmentKind =
   keyof typeof AttachmentKind
  ]
 
-export type Attachment={
-
- id:string
-
- fileName:string
-
- mimeType:string
-
- fileSize:number
-
- storageKey:string
-
- kind:AttachmentKind
-
- icon:string
-
+export type Attachment = {
+  id: string
+  fileName: string
+  mimeType: string
+  fileSize: number
+  storageKey: string
+  previewUrl?: string
+  kind: AttachmentKind
+  icon: string
 }

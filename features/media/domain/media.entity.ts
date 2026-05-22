@@ -12,9 +12,10 @@ export function createMediaEntity(data: Media): Media {
 
     storageKey: data.storageKey,
 
-    // 🔥 include variants (important)
     thumbnailKey: data.thumbnailKey ?? undefined,
     previewKey: data.previewKey ?? undefined,
+
+    directUrl: data.directUrl ?? undefined,
 
     fileName: data.fileName ?? undefined,
     fileSize: data.fileSize ?? undefined,

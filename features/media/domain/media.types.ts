@@ -33,9 +33,10 @@ export type Media = {
 
   storageKey: string
 
-  // 🔥 variants
   thumbnailKey?: string
   previewKey?: string
+
+  directUrl?: string
 
   fileName?: string
   fileSize?: number
