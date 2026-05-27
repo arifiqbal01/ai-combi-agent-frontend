@@ -1,12 +1,9 @@
-// features/media/application/hooks/useMediaUrl.ts
-
-import { mediaApi } from '../../infrastructure/api/media.api'
+import { useQuery } from '@tanstack/react-query'
 import { Media } from '../../domain/media.types'
-import { MEDIA_VARIANT } from '../../domain/media.constants'
+import { getAttachmentSignedUrl } from '@/features/inbox/infrastructure/api/attachment.api'
 
 export function useMediaUrl(
-  media?: Media,
-  variant: 'thumbnail' | 'preview' | 'full' = MEDIA_VARIANT.PREVIEW
+  media?: Media
 ) {
   if (media?.directUrl) {
     return {
@@ -16,22 +13,29 @@ export function useMediaUrl(
     }
   }
 
-  const key =
-    variant === MEDIA_VARIANT.THUMBNAIL
-      ? media?.thumbnailKey ||
-        media?.previewKey ||
-        media?.storageKey
-      : variant === MEDIA_VARIANT.PREVIEW
-      ? media?.previewKey ||
-        media?.storageKey
-      : media?.storageKey
+  return useQuery({
+    queryKey: [
+      'media-url',
+      media?.id
+    ],
 
-  return {
-    data: key
-      ? mediaApi.getDownloadUrl(key)
-      : null,
+    queryFn: async () => {
+      const result =
+        await getAttachmentSignedUrl(
+          media!.id
+        )
 
-    isLoading: false,
-    isError: false,
-  }
+      return result.url
+    },
+
+    enabled: !!media?.id,
+
+    staleTime:
+      4 * 60 * 1000,
+
+    gcTime:
+      10 * 60 * 1000,
+
+    retry: 1
+  })
 }

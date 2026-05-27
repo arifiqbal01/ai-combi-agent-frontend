@@ -2,13 +2,11 @@
 
 import { Media } from '@/features/media/domain/media.types'
 import { useMediaUrl } from '@/features/media/application/hooks/useMediaUrl'
-import { MEDIA_VARIANT } from '@/features/media/domain/media.constants'
+import { useInViewport } from '@/features/media/application/hooks/useInViewport'
 
 import {
   isImage,
   isVideo,
-  isAudio,
-  isDocument,
 } from '@/features/media/domain/media.guards'
 
 import { MediaIcon } from '@/features/media/ui/components/base/media.icon'
@@ -24,16 +22,30 @@ export function MediaThumbnailItem({
   active,
   onClick,
 }: Props) {
-  const { data: url, isLoading } = useMediaUrl(
+  const { ref, visible } =
+    useInViewport('100px')
+
+  /**
+   * Only image thumbnails auto-fetch.
+   * Videos/files remain icon-only until selected.
+   */
+  const shouldFetch =
+    isImage(media)
+
+  const {
+    data: url,
+    isLoading
+  } = useMediaUrl(
     media,
-    MEDIA_VARIANT.THUMBNAIL
+    shouldFetch && visible
   )
 
-  const isVisual = isImage(media) || isVideo(media)
-  const isFile = isAudio(media) || isDocument(media)
+  const isVisual =
+    isImage(media) || isVideo(media)
 
   return (
     <div
+      ref={ref}
       onClick={(e) => {
         e.stopPropagation()
         onClick()
@@ -48,33 +60,34 @@ export function MediaThumbnailItem({
         border
         bg-bg-muted
         flex items-center justify-center
-        ${active ? 'border-blue-500' : 'border-transparent'}
+        ${
+          active
+            ? 'border-blue-500'
+            : 'border-transparent'
+        }
       `}
     >
-      {/* -----------------------------
-         IMAGE / VIDEO
-      ----------------------------- */}
-      {isVisual && url && !isLoading ? (
+      {/* IMAGE / VIDEO */}
+      {isVisual &&
+      url &&
+      !isLoading ? (
         <img
           src={url}
+          alt={media.fileName || 'media'}
           className="w-full h-full object-cover"
         />
       ) : isVisual && isLoading ? (
         <div className="w-full h-full animate-pulse bg-bg-muted" />
-      ) : null}
-
-      {/* -----------------------------
-         AUDIO / DOCUMENT (ICON CENTER)
-      ----------------------------- */}
-      {(!isVisual || !url) && (
+      ) : (
         <div className="flex items-center justify-center w-full h-full">
-          <MediaIcon media={media} size="md" />
+          <MediaIcon
+            media={media}
+            size="md"
+          />
         </div>
       )}
 
-      {/* -----------------------------
-         VIDEO BADGE (optional polish)
-      ----------------------------- */}
+      {/* VIDEO BADGE */}
       {isVideo(media) && (
         <div className="absolute bottom-1 right-1 text-[10px] bg-black/60 text-white px-1 rounded">
           VIDEO

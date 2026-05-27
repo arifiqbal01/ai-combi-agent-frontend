@@ -6,6 +6,7 @@ import { MediaGrid } from '@/features/media/ui/components/grid/MediaGrid'
 import { mapAttachmentToMedia } from '@/features/media/application/mappers/attachmentToMedia'
 
 import { formatFileSize } from '@/features/inbox/domain/attachment/attachment.utils'
+import { getAttachmentSignedUrl } from '@/features/inbox/infrastructure/api/attachment.api'
 
 import { Icon } from '@/ui'
 import { Paperclip } from 'lucide-react'
@@ -14,12 +15,11 @@ type Props = {
   attachments: Attachment[]
 }
 
-export function MessageAttachments({ attachments }: Props) {
+export function MessageAttachments({
+  attachments
+}: Props) {
   if (!attachments?.length) return null
 
-  /* ----------------------------------------
-     Map attachments → media
-  ---------------------------------------- */
   const mediaItems = attachments
     .map(mapAttachmentToMedia)
     .filter((m) => m.type !== 'other')
@@ -29,31 +29,48 @@ export function MessageAttachments({ attachments }: Props) {
     return media.type === 'other'
   })
 
+  async function openFile(
+    attachmentId: string
+  ) {
+    try {
+      const result =
+        await getAttachmentSignedUrl(
+          attachmentId
+        )
+
+      window.open(
+        result.url,
+        '_blank',
+        'noopener,noreferrer'
+      )
+
+    } catch {
+      console.error(
+        'Failed to open attachment'
+      )
+    }
+  }
+
   return (
     <div className="mt-2 space-y-2">
-      {/* -----------------------------
-         MEDIA GRID
-      ----------------------------- */}
       {mediaItems.length > 0 && (
         <MediaGrid items={mediaItems} />
       )}
 
-      {/* -----------------------------
-         FALLBACK FILES
-      ----------------------------- */}
       {otherFiles.map((file, index) => {
         const key =
           file.id ??
-          file.storageKey ??
           `${file.fileName}-${index}`
 
         return (
-          <a
+          <button
             key={key}
-            href={file.previewUrl ?? `/api/media/local-download/${file.storageKey}`}
-            target="_blank"
-            rel="noopener noreferrer"
+            type="button"
+            onClick={() =>
+              openFile(file.id)
+            }
             className="
+              w-full
               flex items-center gap-3
               text-[12px]
               border border-gray-200
@@ -68,7 +85,7 @@ export function MessageAttachments({ attachments }: Props) {
               <Paperclip />
             </Icon>
 
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 text-left">
               <div className="font-medium text-gray-800 truncate">
                 {file.fileName}
               </div>
@@ -77,7 +94,7 @@ export function MessageAttachments({ attachments }: Props) {
                 {formatFileSize(file.fileSize)}
               </div>
             </div>
-          </a>
+          </button>
         )
       })}
     </div>

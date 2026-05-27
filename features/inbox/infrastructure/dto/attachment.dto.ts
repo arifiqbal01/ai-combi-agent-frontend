@@ -1,15 +1,10 @@
 /* infrastructure/dto/attachment.dto.ts */
 
-export type UploadUrlRequestDTO={
-
-  file_name:string
-
-  mime_type:string
-
-  file_size:number
-
-  content_hash?:string
-
+export type UploadUrlRequestDTO = {
+  file_name: string
+  mime_type: string
+  file_size: number
+  content_hash?: string
 }
 
 export type UploadUrlResponseDTO = {
@@ -18,16 +13,27 @@ export type UploadUrlResponseDTO = {
   file_name: string
   mime_type: string
   file_size: number
-  preview_url?: string | null
 }
 
 export type AttachmentDTO = {
-  id?: string
+  id: string
   file_name: string
   mime_type: string
   file_size: number
   storage_key: string
-  preview_url?: string | null
+}
+
+export type AttachmentDTO = {
+  id: string
+  file_name: string
+  mime_type: string
+  file_size: number
+  storage_key: string
+}
+
+export type AttachmentSignedUrlResponseDTO = {
+  url: string
+  expires_in: number
 }
 
 export type SendMessageParticipantDTO={

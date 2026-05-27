@@ -2,7 +2,7 @@
 
 import { Media } from '@/features/media/domain/media.types'
 import { useMediaUrl } from '@/features/media/application/hooks/useMediaUrl'
-import { MEDIA_VARIANT } from '@/features/media/domain/media.constants'
+import { useInViewport } from '@/features/media/application/hooks/useInViewport'
 
 import {
   isImage,
@@ -24,15 +24,26 @@ export function MediaGridItem({
   onClick,
   overlay,
 }: Props) {
-  const { data: url, isLoading } = useMediaUrl(
+  const { ref, visible } =
+    useInViewport('200px')
+
+  const shouldFetch =
+    isImage(media)
+
+  const {
+    data: url,
+    isLoading
+  } = useMediaUrl(
     media,
-    MEDIA_VARIANT.THUMBNAIL
+    shouldFetch && visible
   )
 
-  const isVisual = isImage(media) || isVideo(media)
+  const isVisual =
+    isImage(media) || isVideo(media)
 
   return (
     <div
+      ref={ref}
       onClick={(e) => {
         e.stopPropagation()
         onClick(index)
@@ -51,11 +62,15 @@ export function MediaGridItem({
       {isVisual && url && !isLoading ? (
         <img
           src={url}
+          alt={media.fileName || 'media'}
           className="w-full h-full object-cover"
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center">
-          <MediaIcon media={media} size="lg" />
+          <MediaIcon
+            media={media}
+            size="lg"
+          />
         </div>
       )}
 
@@ -68,12 +83,14 @@ export function MediaGridItem({
 
       {/* +MORE OVERLAY */}
       {overlay && (
-        <div className="
-          absolute inset-0
-          bg-black/60
-          flex items-center justify-center
-          text-white text-lg font-semibold
-        ">
+        <div
+          className="
+            absolute inset-0
+            bg-black/60
+            flex items-center justify-center
+            text-white text-lg font-semibold
+          "
+        >
           {overlay}
         </div>
       )}

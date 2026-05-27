@@ -15,10 +15,12 @@ export function mapAttachmentToMedia(
 
     mimeType: file.mimeType,
 
-    storageKey: file.storageKey,
-
-    // backend signed preview/download URL
-    directUrl: file.previewUrl ?? undefined,
+    /**
+     * Local optimistic preview only.
+     * Persisted attachments fetch signed URLs lazily.
+     */
+    directUrl:
+      file.localPreviewUrl ?? undefined,
 
     fileName: file.fileName,
     fileSize: file.fileSize,

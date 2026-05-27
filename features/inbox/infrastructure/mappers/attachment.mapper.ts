@@ -64,27 +64,19 @@ function resolveIcon(kind: AttachmentKind): string {
 export function mapAttachmentDTO(
   dto: AttachmentDTO
 ): Attachment {
-
   const kind = resolveAttachmentKind(dto.mime_type)
 
   return {
-      id: dto.id ?? dto.storage_key,
-
-      fileName: dto.file_name || 'file',
-
-      mimeType: dto.mime_type || 'application/octet-stream',
-
-      fileSize:
-        typeof dto.file_size === 'number'
-          ? dto.file_size
-          : 0,
-
-      storageKey: dto.storage_key,
-
-      previewUrl: dto.preview_url ?? undefined,
-
-      kind,
-      icon: resolveIcon(kind)
+    id: dto.id,
+    fileName: dto.file_name || 'file',
+    mimeType: dto.mime_type || 'application/octet-stream',
+    fileSize:
+      typeof dto.file_size === 'number'
+        ? dto.file_size
+        : 0,
+    storageKey: dto.storage_key,
+    kind,
+    icon: resolveIcon(kind)
   }
 }
 

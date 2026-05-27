@@ -1,7 +1,6 @@
 import {
   MEDIA_TYPE,
   MEDIA_SOURCE,
-  MEDIA_VARIANT,
 } from './media.constants'
 
 /* -----------------------------
@@ -17,12 +16,6 @@ export type MediaSource =
   (typeof MEDIA_SOURCE)[keyof typeof MEDIA_SOURCE]
 
 /* -----------------------------
-   Media Variant
------------------------------ */
-export type MediaVariant =
-  (typeof MEDIA_VARIANT)[keyof typeof MEDIA_VARIANT]
-
-/* -----------------------------
    Media (Domain)
 ----------------------------- */
 export type Media = {
@@ -31,11 +24,10 @@ export type Media = {
   type: MediaType
   mimeType?: string
 
-  storageKey: string
-
-  thumbnailKey?: string
-  previewKey?: string
-
+  /**
+   * Local optimistic preview only.
+   * Persisted media fetch signed URLs lazily.
+   */
   directUrl?: string
 
   fileName?: string

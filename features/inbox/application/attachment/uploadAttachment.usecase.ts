@@ -93,21 +93,26 @@ export function useUploadAttachment(
       throw new Error('Upload failed')
     }
 
-    const attachment = mapAttachmentDTO({
-      file_name: dto.file_name,
-      mime_type: dto.mime_type,
-      file_size: dto.file_size,
-      storage_key: dto.storage_key,
-      id: dto.storage_key,
+    const attachment = {
+      ...mapAttachmentDTO({
+        file_name: dto.file_name,
+        mime_type: dto.mime_type,
+        file_size: dto.file_size,
+        storage_key: dto.storage_key,
+
+        /**
+         * Temporary client-side identifier until
+         * backend persists real attachment entity
+         */
+        id: dto.storage_key
+      }),
 
       /**
-       * Prefer backend URL if available,
-       * otherwise keep local preview
+       * Local optimistic preview only
+       * (images/videos before persisted fetch flow)
        */
-      preview_url:
-        dto.preview_url ??
-        localPreviewUrl
-    })
+      localPreviewUrl
+    }
 
     setQueue(prev =>
       markDone(prev, item.id, attachment) as UploadQueueItem[]

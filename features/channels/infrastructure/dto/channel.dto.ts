@@ -3,7 +3,6 @@
 export type ChannelAccountDTO = {
   id: string
   label: string
-  provider: string
   channel_type: string
 
   status: string
@@ -15,18 +14,20 @@ export type ChannelAccountDTO = {
 
 export type CreateChannelAccountDTO = {
   channel_type: string
-  provider: string
   label: string
 }
 
-/* 🔥 NEW — unified connect */
+/* unified connect */
 export type ConnectRequestDTO = {
   data?: Record<string, unknown>
 }
 
 export type ConnectResponseDTO =
   | {
-      status: 'oauth_required' | 'manual_required' | 'connected'
+      status:
+        | 'oauth_required'
+        | 'manual_required'
+        | 'connected'
       redirect_url?: string | null
     }
   | {

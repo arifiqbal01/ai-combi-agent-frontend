@@ -1,39 +1,63 @@
 // features/media/application/hooks/useMediaUrls.ts
 
-import { mediaApi } from '../../infrastructure/api/media.api'
+import { useQueries } from '@tanstack/react-query'
+
 import { Media } from '../../domain/media.types'
-import { MEDIA_VARIANT } from '../../domain/media.constants'
+
+import { getAttachmentSignedUrl } from '@/features/inbox/infrastructure/api/attachment.api'
+
+type VisibilityMap = Record<string, boolean>
 
 export function useMediaUrls(
   mediaItems: Media[],
-  variant: 'thumbnail' | 'preview' | 'full' = MEDIA_VARIANT.PREVIEW
+  visibleMap?: VisibilityMap
 ) {
-  return mediaItems.map((media) => {
-    if (media.directUrl) {
-      return {
-        data: media.directUrl,
-        isLoading: false,
-        isError: false,
+  return useQueries({
+    queries: mediaItems.map((media) => {
+      /**
+       * Local optimistic preview
+       */
+      if (media.directUrl) {
+        return {
+          queryKey: ['media-local', media.id],
+
+          queryFn: async () =>
+            media.directUrl,
+
+          staleTime: Infinity,
+          gcTime: Infinity,
+        }
       }
-    }
 
-    const key =
-      variant === MEDIA_VARIANT.THUMBNAIL
-        ? media.thumbnailKey ||
-          media.previewKey ||
-          media.storageKey
-        : variant === MEDIA_VARIANT.PREVIEW
-        ? media.previewKey ||
-          media.storageKey
-        : media.storageKey
+      /**
+       * Fetch only when explicitly enabled
+       */
+      const enabled =
+        !!media.id &&
+        (visibleMap?.[media.id] ?? false)
 
-    return {
-      data: key
-        ? mediaApi.getDownloadUrl(key)
-        : null,
+      return {
+        queryKey: ['media-url', media.id],
 
-      isLoading: false,
-      isError: false,
-    }
+        queryFn: async () => {
+          const result =
+            await getAttachmentSignedUrl(
+              media.id
+            )
+
+          return result.url
+        },
+
+        enabled,
+
+        staleTime:
+          4 * 60 * 1000,
+
+        gcTime:
+          10 * 60 * 1000,
+
+        retry: 1,
+      }
+    }),
   })
 }

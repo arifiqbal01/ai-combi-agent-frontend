@@ -5,6 +5,7 @@ import { Channel } from './channel.types'
 import {
   normalizeStatus,
   normalizeConnectionState,
+  normalizeChannelType,
 } from './channel.guards'
 
 import {
@@ -13,12 +14,11 @@ import {
 } from './channel.constants'
 
 /**
- * Build full domain entity (SINGLE SOURCE OF DERIVED LOGIC)
+ * Build full domain entity (single source of derived logic)
  */
 export function createChannelEntity(raw: {
   id: string
   label: string
-  provider: string
   channel_type: string
 
   status?: string
@@ -33,6 +33,10 @@ export function createChannelEntity(raw: {
     raw.connection_state
   )
 
+  const channelType = normalizeChannelType(
+    raw.channel_type
+  )
+
   const isConnected =
     connectionState === CONNECTION_STATE.CONNECTED
 
@@ -45,8 +49,7 @@ export function createChannelEntity(raw: {
   return {
     id: raw.id,
     label: raw.label,
-    provider: raw.provider,
-    channelType: raw.channel_type,
+    channelType,
 
     status,
     connectionState,

@@ -1,10 +1,18 @@
 // features/media/infrastructure/api/media.api.ts
-import { buildApiUrl } from '@/infra/api/config'
+
+import { apiClient } from '@/infra/api/client'
+
+type SignedUrlResponse = {
+  url: string
+  expires_in: number
+}
 
 export const mediaApi = {
-  getDownloadUrl(storageKey: string): Promise<string> {
-      return Promise.resolve(
-        buildApiUrl(`/media/local-download/${encodeURIComponent(storageKey)}`)
-      )
+  async getSignedUrl(
+    attachmentId: string
+  ): Promise<SignedUrlResponse> {
+    return apiClient.get(
+      `/inbox/attachments/${attachmentId}/signed-url`
+    )
   },
 }

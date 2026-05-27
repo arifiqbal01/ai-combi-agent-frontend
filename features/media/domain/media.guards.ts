@@ -4,26 +4,36 @@ import { Media } from './media.types'
 /* ----------------------------------------
    Type Guards
 ---------------------------------------- */
-export function isImage(media: Media): boolean {
+export function isImage(
+  media: Media
+): boolean {
   return media.type === MEDIA_TYPE.IMAGE
 }
 
-export function isVideo(media: Media): boolean {
+export function isVideo(
+  media: Media
+): boolean {
   return media.type === MEDIA_TYPE.VIDEO
 }
 
-export function isAudio(media: Media): boolean {
+export function isAudio(
+  media: Media
+): boolean {
   return media.type === MEDIA_TYPE.AUDIO
 }
 
-export function isDocument(media: Media): boolean {
+export function isDocument(
+  media: Media
+): boolean {
   return media.type === MEDIA_TYPE.DOCUMENT
 }
 
 /* ----------------------------------------
    Capability Checks
 ---------------------------------------- */
-export function canPreview(media: Media): boolean {
+export function canPreview(
+  media: Media
+): boolean {
   return (
     isImage(media) ||
     isVideo(media) ||
@@ -32,48 +42,59 @@ export function canPreview(media: Media): boolean {
   )
 }
 
-export function isPlayable(media: Media): boolean {
-  return isVideo(media) || isAudio(media)
+export function isPlayable(
+  media: Media
+): boolean {
+  return (
+    isVideo(media) ||
+    isAudio(media)
+  )
 }
 
 /* ----------------------------------------
-   Variant Helpers (🔥 NEW)
+   Preview Helpers
 ---------------------------------------- */
-export function hasThumbnail(media: Media): boolean {
-  return !!media.thumbnailKey
+export function hasLocalPreview(
+  media: Media
+): boolean {
+  return !!media.directUrl
 }
 
-export function hasPreview(media: Media): boolean {
-  return !!media.directUrl || !!media.previewKey
-}
-
-export function getBestPreviewSource(media: Media): string {
-  return (
-    media.directUrl ||
-    media.thumbnailKey ||
-    media.previewKey ||
-    media.storageKey
-  )
+export function getLocalPreviewSource(
+  media: Media
+): string | undefined {
+  return media.directUrl
 }
 
 /* ----------------------------------------
    File Helpers
 ---------------------------------------- */
-export function getDisplayName(media: Media): string {
+export function getDisplayName(
+  media: Media
+): string {
   return media.fileName || 'File'
 }
 
 /* ----------------------------------------
-   Fallback Type Detection (optional)
+   MIME Helpers
 ---------------------------------------- */
-export function isImageMime(mime?: string): boolean {
-  return !!mime && mime.startsWith('image/')
+export function isImageMime(
+  mime?: string
+): boolean {
+  return !!mime &&
+    mime.startsWith('image/')
 }
 
-export function isVideoMime(mime?: string): boolean {
-  return !!mime && mime.startsWith('video/')
+export function isVideoMime(
+  mime?: string
+): boolean {
+  return !!mime &&
+    mime.startsWith('video/')
 }
 
-export function isAudioMime(mime?: string): boolean {
-  return !!mime && mime.startsWith('audio/')
+export function isAudioMime(
+  mime?: string
+): boolean {
+  return !!mime &&
+    mime.startsWith('audio/')
 }

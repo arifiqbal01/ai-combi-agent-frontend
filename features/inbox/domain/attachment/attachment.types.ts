@@ -22,8 +22,9 @@ export type Attachment = {
   fileName: string
   mimeType: string
   fileSize: number
-  storageKey: string
-  previewUrl?: string
   kind: AttachmentKind
   icon: string
+
+  storageKey?: string
+  localPreviewUrl?: string
 }

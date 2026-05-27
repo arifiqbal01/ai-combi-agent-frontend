@@ -50,10 +50,10 @@ const CHANNEL_POLICY: Record<ChannelType, MessagePolicyOverride> = {
   },
 
   [ChannelType.INSTAGRAM]: {
-    capabilities: {
-      canAttach: false
-    }
-  },
+      capabilities: {
+        canAttach: true
+      }
+    },
 
   [ChannelType.SLACK]: {},
 

@@ -1,6 +1,5 @@
 import { Media } from '@/features/media/domain/media.types'
 import { useMediaUrl } from '@/features/media/application/hooks/useMediaUrl'
-import { MEDIA_VARIANT } from '@/features/media/domain/media.constants'
 import { Icon } from '@/ui'
 import { X } from 'lucide-react'
 
@@ -11,7 +10,8 @@ export function LightboxHeader({
   media: Media
   onClose: () => void
 }) {
-  const { data: url } = useMediaUrl(media, MEDIA_VARIANT.FULL)
+  const { data: url } =
+    useMediaUrl(media)
 
   return (
     <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-3 py-2.5 bg-bg-surface/90 backdrop-blur border-b border-border-subtle">

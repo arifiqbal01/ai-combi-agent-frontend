@@ -4,7 +4,6 @@ import {
   CHANNEL_STATUS,
   CONNECTION_STATE,
   CHANNEL_TYPES,
-  PROVIDERS,
 } from './channel.constants'
 
 export type ChannelStatus =
@@ -13,12 +12,14 @@ export type ChannelStatus =
 export type ConnectionState =
   (typeof CONNECTION_STATE)[keyof typeof CONNECTION_STATE]
 
+export type ChannelType =
+  (typeof CHANNEL_TYPES)[number]['value']
+
 export type Channel = {
   id: string
 
   label: string
-  provider: string
-  channelType: string
+  channelType: ChannelType
 
   status: ChannelStatus
   connectionState: ConnectionState
@@ -28,12 +29,5 @@ export type Channel = {
 
   isConnected: boolean
   isActive: boolean
-
   requiresReconnect: boolean
 }
-
-export type ChannelType =
-  (typeof CHANNEL_TYPES)[number]['value']
-
-export type Provider =
-  (typeof PROVIDERS)[ChannelType][number]['value']

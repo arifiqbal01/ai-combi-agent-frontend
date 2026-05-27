@@ -5,7 +5,6 @@ import { useRef, useEffect } from 'react'
 import { Media } from '@/features/media/domain/media.types'
 import { getMediaAdapter } from '@/features/media/infrastructure/registry/media.registry'
 import { useMediaUrl } from '@/features/media/application/hooks/useMediaUrl'
-import { MEDIA_VARIANT } from '@/features/media/domain/media.constants'
 
 export function LightboxContent({
   mediaList,
@@ -19,35 +18,31 @@ export function LightboxContent({
   const media = mediaList[index]
   const adapter = getMediaAdapter(media)
 
-  const { data: url, isLoading, isError } = useMediaUrl(
-    media,
-    MEDIA_VARIANT.FULL
-  )
+  const {
+    data: url,
+    isLoading,
+    isError
+  } = useMediaUrl(media)
 
-  /**
-   * ⚠️ CRITICAL FIX (DO NOT CHANGE)
-   *
-   * We reset URL when media changes.
-   * This prevents PDF flicker / unmount issues.
-   *
-   * DO NOT replace with global cache.
-   */
-  const stableUrlRef = useRef<string | null>(null)
+  const stableUrlRef =
+    useRef<string | null>(null)
 
   useEffect(() => {
     stableUrlRef.current = null
   }, [media.id])
 
-  if (url && !stableUrlRef.current) {
-    stableUrlRef.current = url
-  }
+  useEffect(() => {
+    if (url) {
+      stableUrlRef.current = url
+    }
+  }, [url])
 
-  const stableUrl = stableUrlRef.current
+  const stableUrl =
+    stableUrlRef.current
 
   return (
     <div className="w-full h-full pt-14 px-4 pb-20 bg-bg-muted">
       <div className="w-full h-full flex items-center justify-center">
-
         {!adapter && (
           <div className="text-sm text-red-500">
             Unsupported media
@@ -66,13 +61,16 @@ export function LightboxContent({
           </div>
         )}
 
-        {adapter && stableUrl &&
-          adapter?.renderFull?.(media, {
-            variant: MEDIA_VARIANT.FULL,
-            url: stableUrl,
-            isLoading,
-            isError,
-          })}
+        {adapter &&
+          stableUrl &&
+          adapter.renderFull?.(
+            media,
+            {
+              url: stableUrl,
+              isLoading,
+              isError,
+            }
+          )}
       </div>
     </div>
   )

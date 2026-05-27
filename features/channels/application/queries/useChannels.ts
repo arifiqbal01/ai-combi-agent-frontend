@@ -13,15 +13,11 @@ export function useChannels() {
       return mapChannels(res)
     },
 
-    // ✅ CACHE (channels rarely change)
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
 
-    // ✅ UX
-    placeholderData: (prev) => prev,
-
-    // ✅ REFRESH STRATEGY
-    refetchInterval: false,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: false,
   })
 }

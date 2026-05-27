@@ -18,12 +18,3 @@ export const MEDIA_SOURCE = {
   INSTAGRAM: 'instagram',
   UPLOAD: 'upload',
 } as const
-
-/* -----------------------------
-   Media Variant
------------------------------ */
-export const MEDIA_VARIANT = {
-  THUMBNAIL: 'thumbnail',
-  PREVIEW: 'preview',
-  FULL: 'full',
-} as const

@@ -3,11 +3,13 @@
 import {
   CHANNEL_STATUS,
   CONNECTION_STATE,
+  CHANNEL_TYPES,
 } from './channel.constants'
 
 import {
   ChannelStatus,
   ConnectionState,
+  ChannelType,
 } from './channel.types'
 
 /**
@@ -23,7 +25,7 @@ export function normalizeConnectionState(
     case 'invalid':
       return CONNECTION_STATE.ERROR
 
-    // 🔥 unified reconnect states
+    // unified reconnect states
     case 'expired':
     case 'revoked':
     case 'requires_reauth':
@@ -56,4 +58,23 @@ export function normalizeStatus(
     default:
       return CHANNEL_STATUS.UNKNOWN
   }
+}
+
+/**
+ * Normalize backend channel type → domain type
+ */
+export function normalizeChannelType(
+  channelType?: string
+): ChannelType {
+  const validTypes = CHANNEL_TYPES.map(
+    (channel) => channel.value
+  )
+
+  if (
+    validTypes.includes(channelType as ChannelType)
+  ) {
+    return channelType as ChannelType
+  }
+
+  return 'imap_email'
 }
