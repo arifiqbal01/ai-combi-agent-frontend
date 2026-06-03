@@ -1,37 +1,33 @@
 import {
-
- Participant,
-
- ParticipantTransportRole,
-
- ParticipantIdentityRole
-
+  Participant,
+  ParticipantTransportRole,
+  ParticipantIdentityRole,
 } from './participant.types'
 
 export function getPrimaryParticipant(
+  participants: Participant[]
+): Participant | undefined {
+  return participants?.[0]
+}
 
- participants:Participant[]
-
-):Participant | undefined{
-
- return participants?.[0]
-
+export function getParticipantLabel(
+  participant?: Participant
+): string {
+  return (
+    participant?.label ??
+    participant?.displayName ??
+    participant?.username ??
+    participant?.email ??
+    participant?.phone ??
+    participant?.address ??
+    'Unknown'
+  )
 }
 
 export function getParticipantName(
-
- p:Participant
-
-):string{
-
- return (
-
-  p.name ||
-
-  p.address
-
- )
-
+  participant: Participant
+): string {
+  return getParticipantLabel(participant)
 }
 
 /* ---------------------------
@@ -39,49 +35,28 @@ export function getParticipantName(
 --------------------------- */
 
 export function isFromParticipant(
-
- p:Participant
-
-):boolean{
-
- return (
-
-  p.role===
-
-  ParticipantTransportRole.FROM
-
- )
-
+  p: Participant
+): boolean {
+  return (
+    p.role ===
+    ParticipantTransportRole.FROM
+  )
 }
 
 export function isAgentParticipant(
-
- p:Participant
-
-):boolean{
-
- return (
-
-  p.role===
-
-  ParticipantIdentityRole.AGENT
-
- )
-
+  p: Participant
+): boolean {
+  return (
+    p.role ===
+    ParticipantIdentityRole.AGENT
+  )
 }
 
 export function isCustomerParticipant(
-
- p:Participant
-
-):boolean{
-
- return (
-
-  p.role===
-
-  ParticipantIdentityRole.CUSTOMER
-
- )
-
+  p: Participant
+): boolean {
+  return (
+    p.role ===
+    ParticipantIdentityRole.CUSTOMER
+  )
 }

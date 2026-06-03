@@ -38,8 +38,19 @@ export const DEFAULT_POLICY: Readonly<MessagePolicy> = {
 /**
  * MUST match ChannelType EXACTLY
  */
-const CHANNEL_POLICY: Record<ChannelType, MessagePolicyOverride> = {
+const CHANNEL_POLICY: Record<
+  ChannelType,
+  MessagePolicyOverride
+> = {
   [ChannelType.EMAIL]: {},
+
+  [ChannelType.SMS]: {
+    limits: {
+      maxMessageLength: 160,
+      maxAttachments: 0,
+      maxFileSizeMB: 0
+    }
+  },
 
   [ChannelType.WHATSAPP]: {
     limits: {
@@ -50,14 +61,17 @@ const CHANNEL_POLICY: Record<ChannelType, MessagePolicyOverride> = {
   },
 
   [ChannelType.INSTAGRAM]: {
-      capabilities: {
-        canAttach: true
-      }
-    },
+    capabilities: {
+      canAttach: true
+    }
+  },
+
+  [ChannelType.FACEBOOK_MESSENGER]: {},
+
+  [ChannelType.TELEGRAM]: {},
 
   [ChannelType.SLACK]: {},
 
-  // ✅ REQUIRED (was missing)
   [ChannelType.SYSTEM]: {
     capabilities: {
       canReply: false,

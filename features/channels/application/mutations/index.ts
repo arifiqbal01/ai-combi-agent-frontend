@@ -5,4 +5,5 @@ export * from './useEnableChannel'
 export * from './useDisableChannel'
 export * from './useSyncChannel'
 export * from './useTestConnection'
-export * from './useConnectChannel' // ✅ must exist
+export * from './useConnectChannel'
+export * from './useArchiveChannel'

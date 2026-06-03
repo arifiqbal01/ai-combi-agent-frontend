@@ -19,7 +19,11 @@ import { CONNECTION_STATE } from '../../domain/channel.constants'
 export function mapChannelDTO(
   dto: ChannelAccountDTO
 ): Channel {
-  return createChannelEntity(dto)
+  return createChannelEntity({
+    ...dto,
+    archived_at: dto.archived_at ?? undefined,
+    last_synced_at: dto.last_synced_at ?? undefined,
+  })
 }
 
 /* ----------------------------------------
@@ -31,6 +35,11 @@ export function mapChannels(
   return dtos
     .map(mapChannelDTO)
     .sort((a, b) => {
+
+      if (a.isArchived !== b.isArchived) {
+        return a.isArchived ? 1 : -1
+      }
+
       if (a.requiresReconnect !== b.requiresReconnect) {
         return a.requiresReconnect ? -1 : 1
       }

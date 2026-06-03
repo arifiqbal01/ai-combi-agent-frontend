@@ -7,6 +7,10 @@ import {
 } from '@/features/inbox/domain/conversation/conversation.types'
 
 import { ChevronLeft } from 'lucide-react'
+import {
+  getParticipantLabel
+} from '@/features/inbox/domain/participant/participant.selectors'
+
 
 type Props = {
  conversation: Conversation
@@ -18,8 +22,10 @@ export function ConversationHeader({
 
  const { clearSelection } = useInboxContext()
 
- const email =
-  conversation.sender || 'Unknown'
+ const participantName =
+  getParticipantLabel(
+    conversation.participant
+  )
 
  const subject =
   conversation.subject || 'No subject'
@@ -66,7 +72,7 @@ export function ConversationHeader({
          text-text-primary
          truncate
        ">
-         {email}
+         {participantName}
        </div>
 
        {/* SUBJECT / PREVIEW */}

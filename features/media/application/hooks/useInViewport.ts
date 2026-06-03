@@ -6,7 +6,7 @@ export function useInViewport(
   rootMargin = '200px'
 ) {
   const ref =
-    useRef<HTMLElement | null>(null)
+    useRef<HTMLDivElement>(null)
 
   const [visible, setVisible] =
     useState(false)
@@ -20,12 +20,23 @@ export function useInViewport(
         { rootMargin }
       )
 
-    if (ref.current) {
-      observer.observe(ref.current)
+    const element = ref.current
+
+    if (element) {
+      observer.observe(element)
     }
 
-    return () => observer.disconnect()
+    return () => {
+      if (element) {
+        observer.unobserve(element)
+      }
+
+      observer.disconnect()
+    }
   }, [rootMargin])
 
-  return { ref, visible }
+  return {
+    ref,
+    visible,
+  }
 }

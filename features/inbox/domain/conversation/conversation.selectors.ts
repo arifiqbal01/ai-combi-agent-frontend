@@ -42,24 +42,28 @@ export function isClosed(
 }
 
 export function getConversationDisplayName(
+  conversation: Conversation
+): string {
 
- conversation:Conversation
+  if (conversation.subject) {
+    return conversation.subject
+  }
 
-):string{
+  const sender =
+    conversation.participants?.find(
+      p => p.role === 'from'
+    )
 
- if(conversation.subject)
-  return conversation.subject
+  if (sender?.address) {
+    return sender.address
+  }
 
- if(conversation.sender)
-  return conversation.sender
+  if (conversation.participants?.length) {
+    return (
+      conversation.participants[0]?.address ??
+      'Unknown'
+    )
+  }
 
- if(conversation.participants?.length)
-  return (
-   conversation.participants[0]
-    ?.address ||
-   'Unknown'
-  )
-
- return 'Unknown'
-
+  return 'Unknown'
 }

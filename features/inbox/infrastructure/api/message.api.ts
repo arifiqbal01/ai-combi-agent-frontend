@@ -2,7 +2,8 @@ import { apiClient } from '@/infra/api/client'
 
 import {
   MessageResponseDTO,
-  NewMessageRequestDTO
+  NewMessageRequestDTO,
+  MarkMessageReadResponseDTO,
 } from '../dto/message.dto'
 
 const BASE = '/inbox/conversations'
@@ -20,9 +21,9 @@ export function sendMessage(
 
 export function markMessageRead(
   messageId: string
-): Promise<void> {
+): Promise<MarkMessageReadResponseDTO> {
 
-  return apiClient.post<void>(
+  return apiClient.post<MarkMessageReadResponseDTO>(
     `/inbox/messages/${messageId}/read`,
     {}
   )

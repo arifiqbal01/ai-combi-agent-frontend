@@ -66,6 +66,7 @@ export function LightboxContent({
           adapter.renderFull?.(
             media,
             {
+              variant: 'full',
               url: stableUrl,
               isLoading,
               isError,

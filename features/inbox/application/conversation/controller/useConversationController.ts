@@ -15,8 +15,6 @@ import { useConversationSendController } from './useConversationSendController'
 import { useConversationReadController } from './useConversationReadController'
 import { useConversationDerivedState } from './useConversationDerivedState'
 
-import { useConversationAIOrchestrator } from '@/features/inbox/application/ai/controller/useConversationAIOrchestrator'
-
 import { selectAllMessages } from '../selectors/conversation.selectors'
 
 import { Message } from '@/features/inbox/domain/message/message.types'
@@ -62,8 +60,6 @@ export function useConversationController({
     conversationReducer,
     {
       conversation: null,
-      aiRun: null,
-      aiSuggestion: null,
       lastReadMessageId: null,
     }
   )
@@ -73,21 +69,6 @@ export function useConversationController({
   const [sending, setSending] = useState(false)
   const [, setScrolled] = useState(false)
 
-  /* =========================
-     🔥 AI (NOW CLEAN)
-  ========================= */
-
-  useEffect(() => {
-  if (!conversationId) return
-
-  typedDispatch({ type: 'AI_RESET' })
-
-}, [conversationId])
-
-  useConversationAIOrchestrator({
-    conversationId,
-    dispatch: typedDispatch,
-  })
 
   /* =========================
      CONVERSATION SYNC

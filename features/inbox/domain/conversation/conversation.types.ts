@@ -5,68 +5,67 @@ import { Participant }
 from '../participant/participant.types'
 
 import {
- ChannelType
+  ChannelType
 } from '../channel/channel.types'
 
 export const ConversationStatus = {
 
- OPEN:'open',
+  OPEN:'open',
 
- CLOSED:'closed',
+  CLOSED:'closed',
 
- PENDING:'pending'
+  PENDING:'pending'
 
 } as const
 
 export type ConversationStatus =
- typeof ConversationStatus[
-  keyof typeof ConversationStatus
- ]
+  typeof ConversationStatus[
+    keyof typeof ConversationStatus
+  ]
 
-export type Conversation={
+export type Conversation = {
 
- id:string
+  id:string
 
- subject?:string
+  subject?:string
 
- status:ConversationStatus
+  status:ConversationStatus
 
- channel:ChannelType
+  channel:ChannelType
 
- unreadCount:number
+  unreadCount:number
 
- createdAt:string
+  createdAt:string
 
- updatedAt:string
+  updatedAt:string
 
- participants:Participant[]
+  participant?:Participant
 
- messages?:Message[]
- messageIndex?:Map<string,number>
- lastMessage?:Message
+  participants:Participant[]
 
- sender:string
+  messages?:Message[]
+  messageIndex?:Map<string,number>
 
- channelAccount:string
+  lastMessage?:Message
 
+  channelAccount:string
 }
 
-export type ConversationSummary={
+export type ConversationSummary = {
 
- id:string
+  id:string
 
- subject:string
+  subject:string
 
- preview?:string
+  preview?:string
 
- unreadCount:number
+  unreadCount:number
 
- lastMessageAt:string
+  lastMessageAt:string
 
- channel:ChannelType
+  channel:ChannelType
 
- sender:string
+  participant?:Participant
 
- channelAccount:string
-
+  channelAccount:string
 }

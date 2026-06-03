@@ -9,11 +9,6 @@ import {
 
 import { Attachment } from '@/features/inbox/domain/attachment/attachment.types'
 
-import {
-  AISuggestion,
-  AIRun
-} from '@/features/inbox/domain/ai/ai.types'
-
 /* =========================
    Participant
 ========================= */
@@ -66,12 +61,9 @@ export type ConversationAction =
   | { type: 'SEND_MESSAGE'; payload: SendMessageParams }
   | { type: 'REPLY_MESSAGE'; payload: ReplyMessageParams }
   | { type: 'RETRY_MESSAGE'; payload: RetryMessageParams }
-
   | { type: 'SET_CONVERSATION'; payload: Conversation }
-
   | { type: 'MESSAGE_ADD'; payload: Message }
   | { type: 'MESSAGE_RECONCILE'; payload: Message }
-
   | {
       type: 'DELIVERY_UPDATE'
       payload: {
@@ -80,23 +72,12 @@ export type ConversationAction =
         status: MessageSyncState
       }
     }
-
   | {
       type: 'CONVERSATION_UPDATE'
       payload: Partial<Conversation>
     }
-
   | { type: 'UNREAD_UPDATE'; payload: number }
   | { type: 'MARK_READ_LOCAL'; payload: string }
-
-  /* =========================
-     AI ACTIONS
-  ========================= */
-
-  | { type: 'AI_SUGGESTION'; payload: AISuggestion }
-  | { type: 'AI_SUGGESTION_ERROR'; payload: Error }
-  | { type: 'AI_RUN_UPDATE'; payload: AIRun }
-  | { type: 'AI_RESET' }
 
 /* =========================
    DISPATCH TYPE

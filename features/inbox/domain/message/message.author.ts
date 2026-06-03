@@ -68,21 +68,16 @@ export function getAuthorDisplayName(
 --------------------------- */
 
 export function normalizeAuthor(
+  author?: Partial<MessageAuthor>
+): MessageAuthor {
 
- author?:Partial<MessageAuthor>
+  return {
+    name:
+      author?.name ||
+      'Customer',
 
-):MessageAuthor{
-
- return{
-
-  name:
-    author?.name ||
-    'Unknown',
-
-  type:
-    author?.type ||
-    MessageAuthorType.HUMAN
-
- }
-
+    type:
+      author?.type ||
+      MessageAuthorType.HUMAN
+  }
 }

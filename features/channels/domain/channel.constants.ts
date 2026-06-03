@@ -15,17 +15,14 @@ export const CONNECTION_STATE = {
 
 export const CHANNEL_TYPES = [
   { value: 'gmail', label: 'Gmail' },
-  { value: 'outlook', label: 'Outlook' },
-  { value: 'imap_email', label: 'IMAP Email' },
-
-  { value: 'sms', label: 'SMS' },
-
   { value: 'whatsapp', label: 'WhatsApp' },
   { value: 'instagram', label: 'Instagram' },
   { value: 'facebook_messenger', label: 'Facebook Messenger' },
-
-  { value: 'telegram', label: 'Telegram' },
-  { value: 'slack', label: 'Slack' },
 ] as const
 
 export type ChannelType = typeof CHANNEL_TYPES[number]['value']
+
+export const CHANNEL_LIFECYCLE_STATUS = {
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+} as const

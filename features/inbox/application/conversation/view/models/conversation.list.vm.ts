@@ -1,3 +1,4 @@
+// features/inbox/application/conversation/view/models/conversation.list.vm.ts
 import {
   ConversationSummary
 } from '@/features/inbox/domain/conversation/conversation.types'
@@ -6,10 +7,21 @@ import {
   ChannelType
 } from '@/features/inbox/domain/channel/channel.types'
 
-export type ConversationListItemVM = {
+import {
+  Participant
+} from '@/features/inbox/domain/participant/participant.types'
 
+import {
+  getParticipantLabel
+} from '@/features/inbox/domain/participant/participant.selectors'
+
+export type ConversationListItemVM = {
   id: string
+
+  participant?: Participant
+
   name: string
+
   subject: string
   preview: string
 
@@ -17,30 +29,44 @@ export type ConversationListItemVM = {
   lastMessageAt: string
 
   channel: ChannelType
-  email: string
+  channelAccount?: string
 
-  /* optional UI fields (properly typed) */
+  email?: string
+  avatarUrl?: string
+
+  /* optional UI fields */
   status?: 'open' | 'closed' | 'pending'
   hasAISuggestion?: boolean
   isAIRunning?: boolean
 }
 
-function formatTime(iso: string): string {
+function formatTime(
+  iso: string
+): string {
 
   const date = new Date(iso)
   const now = new Date()
 
   const yesterday = new Date()
-  yesterday.setDate(now.getDate() - 1)
 
-  if (date.toDateString() === now.toDateString()) {
+  yesterday.setDate(
+    now.getDate() - 1
+  )
+
+  if (
+    date.toDateString() ===
+    now.toDateString()
+  ) {
     return date.toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit'
     })
   }
 
-  if (date.toDateString() === yesterday.toDateString()) {
+  if (
+    date.toDateString() ===
+    yesterday.toDateString()
+  ) {
     return 'Yesterday'
   }
 
@@ -56,16 +82,39 @@ export function mapConversationToListVM(
 
   return {
     id: conversation.id,
-    name: conversation.sender,
-    subject: conversation.subject || '',
-    preview: conversation.preview || '',
 
-    unreadCount: conversation.unreadCount,
-    lastMessageAt: formatTime(conversation.lastMessageAt),
+    participant:
+      conversation.participant,
 
-    channel: conversation.channel,
-    email: conversation.sender,
+    name: getParticipantLabel(
+      conversation.participant
+    ),
 
-    // ✅ removed unsafe any usage
+    subject:
+      conversation.subject || '',
+
+    preview:
+      conversation.preview || '',
+
+    unreadCount:
+      conversation.unreadCount,
+
+    lastMessageAt:
+      formatTime(
+        conversation.lastMessageAt
+      ),
+
+    channel:
+      conversation.channel,
+
+    channelAccount: conversation.channelAccount,
+
+    email:
+      conversation.participant?.email ??
+      undefined,
+
+    avatarUrl:
+      conversation.participant?.avatarUrl ??
+      undefined,
   }
 }

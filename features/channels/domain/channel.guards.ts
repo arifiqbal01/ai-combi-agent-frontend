@@ -4,19 +4,21 @@ import {
   CHANNEL_STATUS,
   CONNECTION_STATE,
   CHANNEL_TYPES,
+  CHANNEL_LIFECYCLE_STATUS,
 } from './channel.constants'
 
 import {
   ChannelStatus,
   ConnectionState,
   ChannelType,
+  ChannelLifecycleStatus,
 } from './channel.types'
 
 /**
  * Normalize backend connection state → domain state
  */
 export function normalizeConnectionState(
-  state?: string
+  state?: string | null
 ): ConnectionState {
   switch (state) {
     case 'valid':
@@ -25,7 +27,6 @@ export function normalizeConnectionState(
     case 'invalid':
       return CONNECTION_STATE.ERROR
 
-    // unified reconnect states
     case 'expired':
     case 'revoked':
     case 'requires_reauth':
@@ -46,7 +47,7 @@ export function normalizeConnectionState(
  * Normalize backend status → domain status
  */
 export function normalizeStatus(
-  status?: string
+  status?: string | null
 ): ChannelStatus {
   switch (status) {
     case 'enabled':
@@ -64,17 +65,34 @@ export function normalizeStatus(
  * Normalize backend channel type → domain type
  */
 export function normalizeChannelType(
-  channelType?: string
+  channelType?: string | null
 ): ChannelType {
   const validTypes = CHANNEL_TYPES.map(
-    (channel) => channel.value
+    channel => channel.value
   )
 
   if (
+    channelType &&
     validTypes.includes(channelType as ChannelType)
   ) {
     return channelType as ChannelType
   }
 
-  return 'imap_email'
+  // Default fallback
+  return 'gmail'
+}
+
+/**
+ * Normalize backend lifecycle status → domain lifecycle status
+ */
+export function normalizeLifecycleStatus(
+  status?: string | null
+): ChannelLifecycleStatus {
+  switch (status) {
+    case CHANNEL_LIFECYCLE_STATUS.ARCHIVED:
+      return CHANNEL_LIFECYCLE_STATUS.ARCHIVED
+
+    default:
+      return CHANNEL_LIFECYCLE_STATUS.ACTIVE
+  }
 }

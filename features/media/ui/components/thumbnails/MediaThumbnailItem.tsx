@@ -35,10 +35,7 @@ export function MediaThumbnailItem({
   const {
     data: url,
     isLoading
-  } = useMediaUrl(
-    media,
-    shouldFetch && visible
-  )
+  } = useMediaUrl(media)
 
   const isVisual =
     isImage(media) || isVideo(media)

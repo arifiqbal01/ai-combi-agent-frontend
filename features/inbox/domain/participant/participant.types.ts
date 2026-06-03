@@ -1,45 +1,53 @@
+// features/inbox/domain/participant/participant.types.ts
+
 export const ParticipantTransportRole = {
-
- FROM:'from',
-
- TO:'to',
-
- CC:'cc',
-
- BCC:'bcc'
-
+  FROM: 'from',
+  TO: 'to',
+  CC: 'cc',
+  BCC: 'bcc',
 } as const
 
 export type ParticipantTransportRole =
- typeof ParticipantTransportRole[
-  keyof typeof ParticipantTransportRole
- ]
+  typeof ParticipantTransportRole[
+    keyof typeof ParticipantTransportRole
+  ]
 
 export const ParticipantIdentityRole = {
-
- AGENT:'agent',
-
- CUSTOMER:'customer'
-
+  AGENT: 'agent',
+  CUSTOMER: 'customer',
 } as const
 
 export type ParticipantIdentityRole =
- typeof ParticipantIdentityRole[
-  keyof typeof ParticipantIdentityRole
- ]
+  typeof ParticipantIdentityRole[
+    keyof typeof ParticipantIdentityRole
+  ]
 
 export type ParticipantRole =
+  | ParticipantTransportRole
+  | ParticipantIdentityRole
 
- | ParticipantTransportRole
+export type Participant = {
+  address: string
 
- | ParticipantIdentityRole
+  role?: ParticipantRole
 
-export type Participant={
+  displayName?: string | null
+  username?: string | null
 
- address:string
+  email?: string | null
+  phone?: string | null
 
- role:ParticipantRole
+  avatarUrl?: string | null
 
- name?:string
-
+  /**
+   * Backend-provided display label.
+   *
+   * Fallback order:
+   * display_name
+   * → username
+   * → email
+   * → phone
+   * → address
+   */
+  label?: string | null
 }

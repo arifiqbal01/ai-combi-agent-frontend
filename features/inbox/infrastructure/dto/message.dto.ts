@@ -1,5 +1,8 @@
 /* infrastructure/dto/message.dto.ts */
+
 import { AttachmentDTO } from './attachment.dto'
+import { ParticipantDTO } from './participant.dto'
+
 export type MessageDirectionDTO =
   | 'inbound'
   | 'outbound'
@@ -22,7 +25,7 @@ export type MessageDTO = {
   body_text?: string | null
   preview?: string | null
 
-  sender?: string | null
+  sender?: ParticipantDTO | null
 
   actor_type?: ActorTypeDTO | null
   actor_id?: string | null
@@ -49,6 +52,10 @@ export type MessageResponseDTO = {
     | 'delivered'
     | 'read'
     | 'failed'
+}
+
+export type MarkMessageReadResponseDTO = {
+  status: string
 }
 
 /* =========================

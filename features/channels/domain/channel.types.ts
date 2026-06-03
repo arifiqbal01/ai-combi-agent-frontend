@@ -4,6 +4,7 @@ import {
   CHANNEL_STATUS,
   CONNECTION_STATE,
   CHANNEL_TYPES,
+  CHANNEL_LIFECYCLE_STATUS,
 } from './channel.constants'
 
 export type ChannelStatus =
@@ -15,19 +16,30 @@ export type ConnectionState =
 export type ChannelType =
   (typeof CHANNEL_TYPES)[number]['value']
 
+export type ChannelLifecycleStatus =
+  (typeof CHANNEL_LIFECYCLE_STATUS)[keyof typeof CHANNEL_LIFECYCLE_STATUS]
+
 export type Channel = {
   id: string
 
   label: string
   channelType: ChannelType
 
+  provider: string
+
   status: ChannelStatus
+  lifecycleStatus: ChannelLifecycleStatus
+
   connectionState: ConnectionState
+
+  archivedAt?: string
 
   createdAt: string
   lastSyncedAt?: string
 
   isConnected: boolean
   isActive: boolean
+  isArchived: boolean
+
   requiresReconnect: boolean
 }

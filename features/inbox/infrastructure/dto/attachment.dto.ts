@@ -23,14 +23,6 @@ export type AttachmentDTO = {
   storage_key: string
 }
 
-export type AttachmentDTO = {
-  id: string
-  file_name: string
-  mime_type: string
-  file_size: number
-  storage_key: string
-}
-
 export type AttachmentSignedUrlResponseDTO = {
   url: string
   expires_in: number

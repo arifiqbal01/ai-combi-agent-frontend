@@ -94,7 +94,12 @@ export function resolveKind(
 export function resolveAuthor(
   dto: {
     actor_type?: ActorTypeDTO | string | null
-    sender?: string | null
+
+    sender?: {
+      label?: string | null
+      address?: string | null
+    } | null
+
     direction?: MessageDirectionDTO | string
   }
 ): {
@@ -126,11 +131,12 @@ export function resolveAuthor(
     }
   }
 
-  const sender =
-    dto.sender?.split('@')[0]
-
   return {
-    name: sender || 'Customer',
+    name:
+      dto.sender?.label ||
+      dto.sender?.address ||
+      'Customer',
+
     type: MessageAuthorType.HUMAN
   }
 }
@@ -179,11 +185,14 @@ export function formatDisplayTime(
 
 export function resolveParticipants(
   dto: {
-    sender?: string | null
+    sender?: {
+      address: string
+      label?: string | null
+    } | null
     direction?: MessageDirectionDTO | string
   },
   channelAccount?: string,
-  conversationSender?: string
+  conversationParticipant?: Participant
 ): Participant[] {
 
   const direction =
@@ -192,24 +201,42 @@ export function resolveParticipants(
   if (direction === MessageDirection.INBOUND) {
     return [
       {
-        address: dto.sender ?? '',
-        role: ParticipantTransportRole.FROM
+        address:
+          dto.sender?.address ?? '',
+
+        label:
+          dto.sender?.label,
+
+        role:
+          ParticipantTransportRole.FROM
       },
       {
-        address: channelAccount ?? '',
-        role: ParticipantTransportRole.TO
+        address:
+          channelAccount ?? '',
+
+        role:
+          ParticipantTransportRole.TO
       }
     ]
   }
 
   return [
     {
-      address: channelAccount ?? '',
-      role: ParticipantTransportRole.FROM
+      address:
+        channelAccount ?? '',
+
+      role:
+        ParticipantTransportRole.FROM
     },
     {
-      address: conversationSender ?? '',
-      role: ParticipantTransportRole.TO
+      address:
+        conversationParticipant?.address ?? '',
+
+      label:
+        conversationParticipant?.label,
+
+      role:
+        ParticipantTransportRole.TO
     }
   ]
 }

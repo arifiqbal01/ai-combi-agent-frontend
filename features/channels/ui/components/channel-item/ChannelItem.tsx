@@ -7,19 +7,33 @@ import { ChannelHeader } from './ChannelHeader'
 import { ChannelMeta } from './ChannelMeta'
 import { ChannelActions } from './ChannelActions'
 
-export function ChannelItem({ channel }: { channel: Channel }) {
+export function ChannelItem({
+  channel,
+}: {
+  channel: Channel
+}) {
   return (
     <div
-      className="
+      className={`
         px-4 py-3
-        bg-surface
-        border border-border-subtle
-        rounded-xl
-
+        border rounded-xl
         transition
-        hover:border-border-default
-        hover:bg-surface-hover
-      "
+
+        ${
+          channel.isArchived
+            ? `
+              bg-surface-muted
+              border-border-subtle
+              opacity-70
+            `
+            : `
+              bg-surface
+              border-border-subtle
+              hover:border-border-default
+              hover:bg-surface-hover
+            `
+        }
+      `}
     >
       <Stack gap="sm">
         <ChannelHeader channel={channel} />

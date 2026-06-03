@@ -39,3 +39,12 @@ export type Media = {
 
   source: MediaSource
 }
+
+export const MEDIA_VARIANT = {
+  THUMBNAIL: 'thumbnail',
+  PREVIEW: 'preview',
+  FULL: 'full',
+} as const
+
+export type MediaVariant =
+  (typeof MEDIA_VARIANT)[keyof typeof MEDIA_VARIANT]

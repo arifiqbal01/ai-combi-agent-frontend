@@ -54,31 +54,31 @@ export type MessageMeta = {
   status: DeliveryStatus
 }
 
-export type Message={
+export type Message = {
+  id: string
 
- id:string
+  clientId?: string
 
- clientId?:string
+  direction: MessageDirection
 
- direction:MessageDirection
+  kind: MessageKind
 
- kind:MessageKind
+  subject?: string
 
- subject?:string
+  bodyHtml: string
+  bodyText?: string
 
- bodyHtml:string
- bodyText?:string
+  author: MessageAuthor
 
- author:MessageAuthor
+  sender?: Participant
 
- attachments:Attachment[]
+  attachments: Attachment[]
 
- participants:Participant[]
+  participants: Participant[]
 
- flags?:MessageFlags
+  flags?: MessageFlags
 
- meta:MessageMeta
-
+  meta: MessageMeta
 }
 
 export type SyncableMessage = Message & {

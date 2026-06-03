@@ -3,12 +3,17 @@
 export type ChannelAccountDTO = {
   id: string
   label: string
+
+  provider: string
   channel_type: string
 
   status: string
+  lifecycle_status: string
   connection_state: string
 
-  last_synced_at?: string
+  archived_at?: string | null
+  last_synced_at?: string | null
+
   created_at: string
 }
 

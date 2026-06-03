@@ -1,19 +1,27 @@
 /* infrastructure/mappers/message.mapper.ts */
 
 import {
-  MessageDTO
+  MessageDTO,
 } from '../dto/message.dto'
 
 import {
-  Message
+  Message,
 } from '@/features/inbox/domain/message'
 
 import {
-  mapAttachments
+  Participant,
+} from '@/features/inbox/domain/participant/participant.types'
+
+import {
+  mapAttachments,
 } from './attachment.mapper'
 
 import {
-  processMessages
+  mapParticipantDTO,
+} from './participant.mapper'
+
+import {
+  processMessages,
 } from '@/features/inbox/application/message/message.pipeline'
 
 import {
@@ -23,7 +31,7 @@ import {
   resolveAuthor,
   resolveFlags,
   formatDisplayTime,
-  resolveParticipants
+  resolveParticipants,
 } from './utils/message.utils'
 
 /* =========================
@@ -33,11 +41,13 @@ import {
 export function mapMessageDTO(
   dto: MessageDTO,
   channelAccount?: string,
-  conversationSender?: string
+  conversationParticipant?: Participant
 ): Message {
 
   if (!dto.timestamp) {
-    throw new Error(`MessageDTO missing timestamp: ${dto.id}`)
+    throw new Error(
+      `MessageDTO missing timestamp: ${dto.id}`
+    )
   }
 
   const direction =
@@ -46,15 +56,19 @@ export function mapMessageDTO(
   const kind =
     resolveKind(dto.actor_type)
 
-  const createdAt = dto.timestamp
+  const createdAt =
+    dto.timestamp
 
   const deliveryStatus =
-    normalizeDeliveryStatus(dto.delivery_status)
+    normalizeDeliveryStatus(
+      dto.delivery_status
+    )
 
   return {
     id: dto.id,
 
-    clientId: dto.client_id ?? undefined,
+    clientId:
+      dto.client_id ?? undefined,
 
     direction,
 
@@ -73,14 +87,21 @@ export function mapMessageDTO(
     bodyHtml:
       dto.body ?? '',
 
+    sender:
+      dto.sender
+        ? mapParticipantDTO(dto.sender)
+        : undefined,
+
     attachments:
-      mapAttachments(dto.attachments ?? []),
+      mapAttachments(
+        dto.attachments ?? []
+      ),
 
     participants:
       resolveParticipants(
         dto,
         channelAccount,
-        conversationSender
+        conversationParticipant
       ),
 
     flags:
@@ -91,10 +112,15 @@ export function mapMessageDTO(
 
     meta: {
       createdAt,
+
       displayTime:
-        formatDisplayTime(createdAt),
-      status: deliveryStatus
-    }
+        formatDisplayTime(
+          createdAt
+        ),
+
+      status:
+        deliveryStatus,
+    },
   }
 }
 
@@ -103,22 +129,31 @@ export function mapMessageDTO(
 ========================= */
 
 export function mapMessages(
-  messages: MessageDTO[] | null | undefined,
+  messages:
+    | MessageDTO[]
+    | null
+    | undefined,
+
   channelAccount?: string,
-  conversationSender?: string
+
+  conversationParticipant?: Participant
 ): Message[] {
 
-  if (!messages?.length)
+  if (!messages?.length) {
     return []
+  }
 
   const mapped: Message[] =
-    messages.map((message) =>
-      mapMessageDTO(
-        message,
-        channelAccount,
-        conversationSender
-      )
+    messages.map(
+      (message) =>
+        mapMessageDTO(
+          message,
+          channelAccount,
+          conversationParticipant
+        )
     )
 
-  return processMessages(mapped)
+  return processMessages(
+    mapped
+  )
 }

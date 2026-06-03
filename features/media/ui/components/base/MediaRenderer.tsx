@@ -37,12 +37,7 @@ export function MediaRenderer({
     data: previewUrl,
     isLoading,
     isError,
-  } = useMediaUrl(
-    media,
-    shouldLazyLoad
-      ? visible
-      : false
-  )
+  } = useMediaUrl(media)
 
   if (!adapter) {
     return (
@@ -53,23 +48,24 @@ export function MediaRenderer({
   }
 
   return (
-    <div
-      ref={ref}
-      onClick={(e) => {
-        e.stopPropagation()
-        onClick?.()
-      }}
-      className={
-        onClick
-          ? 'cursor-pointer'
-          : undefined
-      }
-    >
-      {adapter.renderPreview(media, {
-        url: previewUrl ?? null,
-        isLoading,
-        isError,
-      })}
-    </div>
-  )
+  <div
+    ref={ref}
+    onClick={(e) => {
+      e.stopPropagation()
+      onClick?.()
+    }}
+    className={
+      onClick
+        ? 'cursor-pointer'
+        : undefined
+    }
+  >
+    {adapter.renderPreview(media, {
+      variant: 'preview',
+      url: previewUrl ?? null,
+      isLoading,
+      isError,
+    })}
+  </div>
+)
 }

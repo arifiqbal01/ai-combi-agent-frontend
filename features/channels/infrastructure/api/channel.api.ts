@@ -66,6 +66,13 @@ export const channelApi = {
     )
   },
 
+archive(accountId: string) {
+  return apiClient.post<SimpleStatusDTO, void>(
+    joinUrl(BASE, accountId, 'archive'),
+    undefined as unknown as void
+  )
+},
+
   sync(accountId: string) {
     return apiClient.post<SimpleStatusDTO, void>(
       joinUrl(BASE, accountId, 'sync'),

@@ -17,22 +17,43 @@ import {
   mapMessages
 } from './message.mapper'
 
+import {
+  mapParticipantDTO
+} from './participant.mapper'
+
 import { Message } from '@/features/inbox/domain/message/message.types'
 
 /* =========================
  Channel normalization
 ========================= */
 
-function normalizeChannel(channel?: string): ChannelType {
+function normalizeChannel(
+  channel?: string
+): ChannelType {
+
   switch ((channel || '').toLowerCase()) {
+
+    case 'sms':
+      return ChannelType.SMS
+
     case 'whatsapp':
       return ChannelType.WHATSAPP
-    case 'slack':
-      return ChannelType.SLACK
+
     case 'instagram':
       return ChannelType.INSTAGRAM
+
+    case 'facebook_messenger':
+      return ChannelType.FACEBOOK_MESSENGER
+
+    case 'telegram':
+      return ChannelType.TELEGRAM
+
+    case 'slack':
+      return ChannelType.SLACK
+
     case 'system':
       return ChannelType.SYSTEM
+
     case 'email':
     default:
       return ChannelType.EMAIL
@@ -43,8 +64,12 @@ function normalizeChannel(channel?: string): ChannelType {
  Message normalization
 ========================= */
 
-function normalizeMessageStatus(message: Message): Message {
-  if (!message.meta) return message
+function normalizeMessageStatus(
+  message: Message
+): Message {
+  if (!message.meta) {
+    return message
+  }
 
   if (message.meta.status === 'pending') {
     return {
@@ -67,16 +92,37 @@ export function mapConversationListItemDTO(
   dto: ConversationListItemDTO
 ): ConversationSummary {
 
+  const participant =
+    dto.participant
+      ? mapParticipantDTO(dto.participant)
+      : undefined
+
   return {
     id: dto.id,
-    subject: dto.subject || dto.sender || 'Conversation',
-    preview: dto.preview || '',
-    unreadCount: dto.unread_count ?? 0,
-    lastMessageAt: dto.last_message_at,
-    channel: normalizeChannel(dto.channel_type),
 
-    sender: dto.sender ?? '', // ✅ FIX
-    channelAccount: dto.channel_account ?? '' // ✅ FIX
+    subject:
+      dto.subject ||
+      participant?.label ||
+      'Conversation',
+
+    preview:
+      dto.preview || '',
+
+    unreadCount:
+      dto.unread_count ?? 0,
+
+    lastMessageAt:
+      dto.last_message_at,
+
+    channel:
+      normalizeChannel(
+        dto.channel_type
+      ),
+
+    participant,
+
+    channelAccount:
+      dto.channel_account ?? ''
   }
 }
 
@@ -88,57 +134,114 @@ export function mapConversationDetailDTO(
   dto: ConversationDetailDTO
 ): Conversation {
 
-  const messagesDTO = dto.messages ?? []
+  const participant =
+    dto.participant
+      ? mapParticipantDTO(dto.participant)
+      : undefined
+
+  const messagesDTO =
+    dto.messages ?? []
 
   const mappedMessages: Message[] =
     mapMessages(
       messagesDTO,
       dto.channel_account ?? '',
-      dto.sender ?? ''
+      participant
     )
 
   const normalizedMessages =
-    mappedMessages.map(normalizeMessageStatus)
+    mappedMessages.map(
+      normalizeMessageStatus
+    )
 
   const orderedMessages =
-    [...normalizedMessages].sort((a, b) => {
-      const aTime = new Date(a.meta.createdAt).getTime()
-      const bTime = new Date(b.meta.createdAt).getTime()
-      return aTime - bTime
-    })
+    [...normalizedMessages].sort(
+      (a, b) => {
+        const aTime =
+          new Date(
+            a.meta.createdAt
+          ).getTime()
 
-  const messageIndex = new Map<string, number>()
+        const bTime =
+          new Date(
+            b.meta.createdAt
+          ).getTime()
 
-  orderedMessages.forEach((m, i) => {
-    const primaryKey = m.clientId ?? m.id
+        return aTime - bTime
+      }
+    )
 
-    messageIndex.set(primaryKey, i)
-    messageIndex.set(m.id, i)
+  const messageIndex =
+    new Map<string, number>()
 
-    if (m.clientId) {
-      messageIndex.set(m.clientId, i)
+  orderedMessages.forEach(
+    (m, i) => {
+      const primaryKey =
+        m.clientId ?? m.id
+
+      messageIndex.set(
+        primaryKey,
+        i
+      )
+
+      messageIndex.set(
+        m.id,
+        i
+      )
+
+      if (m.clientId) {
+        messageIndex.set(
+          m.clientId,
+          i
+        )
+      }
     }
-  })
+  )
 
   const lastMessage =
     orderedMessages.length > 0
-      ? orderedMessages[orderedMessages.length - 1]
+      ? orderedMessages[
+          orderedMessages.length - 1
+        ]
       : undefined
 
   return {
     id: dto.id,
-    subject: dto.subject || dto.sender || '',
-    status: ConversationStatus.OPEN,
-    channel: normalizeChannel(dto.channel_type),
-    unreadCount: dto.unread_count ?? 0,
-    createdAt: dto.last_message_at,
-    updatedAt: dto.last_message_at,
+
+    subject:
+      dto.subject ||
+      participant?.label ||
+      '',
+
+    status:
+      ConversationStatus.OPEN,
+
+    channel:
+      normalizeChannel(
+        dto.channel_type
+      ),
+
+    unreadCount:
+      dto.unread_count ?? 0,
+
+    createdAt:
+      dto.last_message_at,
+
+    updatedAt:
+      dto.last_message_at,
+
+    participant,
+
     participants: [],
-    messages: orderedMessages,
+
+    messages:
+      orderedMessages,
+
     messageIndex,
+
     lastMessage,
 
-    sender: dto.sender ?? '', // ✅ FIX
-    channelAccount: dto.channel_account ?? '' // ✅ FIX
+    channelAccount:
+      dto.channel_account ?? ''
   }
 }

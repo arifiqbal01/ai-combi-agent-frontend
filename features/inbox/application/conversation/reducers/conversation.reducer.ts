@@ -1,9 +1,8 @@
 import { messageReducer } from './message.reducer'
-import { aiReducer } from '@/features/inbox/application/ai/reducers/ai.reducer'
 import { conversationMetaReducer } from './conversation.meta.reducer'
 
 import { ConversationAction } from '../types/conversation.actions'
-import { ConversationState } from '../types/conversation.types' // ✅ single source
+import { ConversationState } from '../types/conversation.types'
 
 export function conversationReducer(
   state: ConversationState,
@@ -30,11 +29,8 @@ export function conversationReducer(
     action
   )
 
-  const aiState = aiReducer(state, action)
-
   return {
     ...state,
-    ...aiState,
     conversation: updatedConversation
   }
 }

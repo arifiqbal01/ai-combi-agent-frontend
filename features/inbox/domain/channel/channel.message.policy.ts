@@ -103,6 +103,45 @@ export const CHANNEL_MESSAGE_POLICY: Record<
     }
   },
 
+  [ChannelType.SMS]: {
+  capabilities: {
+    canReply: true,
+    canAttach: false,
+    canAI: true
+  },
+  limits: {
+    maxMessageLength: 160,
+    maxAttachments: 0,
+    maxFileSizeMB: 0
+  }
+},
+
+[ChannelType.FACEBOOK_MESSENGER]: {
+  capabilities: {
+    canReply: true,
+    canAttach: true,
+    canAI: true
+  },
+  limits: {
+    maxMessageLength: 2000,
+    maxAttachments: 10,
+    maxFileSizeMB: 25
+  }
+},
+
+[ChannelType.TELEGRAM]: {
+  capabilities: {
+    canReply: true,
+    canAttach: true,
+    canAI: true
+  },
+  limits: {
+    maxMessageLength: 4096,
+    maxAttachments: 10,
+    maxFileSizeMB: 50
+  }
+},
+
   /* 🔥 CRITICAL FIX */
   [ChannelType.SYSTEM]: {
     capabilities: {
