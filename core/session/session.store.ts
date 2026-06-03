@@ -13,23 +13,55 @@ type SessionState = {
 
 const getInitialTenantId = () => {
   if (typeof window === 'undefined') return undefined
+
   return localStorage.getItem('tenant_id') ?? undefined
+}
+
+const getInitialTenantName = () => {
+  if (typeof window === 'undefined') return undefined
+
+  return localStorage.getItem('tenant_name') ?? undefined
+}
+
+const getInitialTenantSlug = () => {
+  if (typeof window === 'undefined') return undefined
+
+  return localStorage.getItem('tenant_slug') ?? undefined
 }
 
 export const useSessionStore = create<SessionState>((set) => ({
   tenantId: getInitialTenantId(),
-  tenantSlug: undefined,
-  tenantName: undefined,
+  tenantName: getInitialTenantName(),
+  tenantSlug: getInitialTenantSlug(),
 
   setSession: (data) =>
     set((state) => {
-      // ✅ HARD GUARD — prevents infinite loop
       if (
         state.tenantId === data.tenantId &&
         state.tenantName === data.tenantName &&
         state.tenantSlug === data.tenantSlug
       ) {
         return state
+      }
+
+      if (typeof window !== 'undefined') {
+        if (data.tenantId !== undefined) {
+          localStorage.setItem('tenant_id', data.tenantId)
+        }
+
+        if (data.tenantName !== undefined) {
+          localStorage.setItem(
+            'tenant_name',
+            data.tenantName
+          )
+        }
+
+        if (data.tenantSlug !== undefined) {
+          localStorage.setItem(
+            'tenant_slug',
+            data.tenantSlug
+          )
+        }
       }
 
       console.log('🟢 ZUSTAND SET SESSION:', data)
@@ -42,9 +74,18 @@ export const useSessionStore = create<SessionState>((set) => ({
 
   clearSession: () =>
     set((state) => {
-      // ✅ prevent unnecessary rerender
-      if (!state.tenantId && !state.tenantName && !state.tenantSlug) {
+      if (
+        !state.tenantId &&
+        !state.tenantName &&
+        !state.tenantSlug
+      ) {
         return state
+      }
+
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('tenant_id')
+        localStorage.removeItem('tenant_name')
+        localStorage.removeItem('tenant_slug')
       }
 
       console.log('🔴 ZUSTAND CLEAR SESSION')

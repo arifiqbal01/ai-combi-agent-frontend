@@ -44,30 +44,34 @@ export function useAppContext() {
   }, [isError])
 
   useEffect(() => {
-    if (!tenants || tenants.length === 0) {
-      return
-    }
+  if (!tenants?.length) {
+    return
+  }
 
-    const firstTenant = tenants[0]
+  const isInvalid =
+    tenantId &&
+    !tenants.some((t) => t.tenant_id === tenantId)
 
-    const isInvalid =
-      tenantId && !tenants.some((t) => t.tenant_id === tenantId)
+  if (isInvalid) {
+    clearSession()
+    localStorage.removeItem('tenant_id')
+    return
+  }
 
-    if (isInvalid) {
-      clearSession()
-      localStorage.removeItem('tenant_id')
-      return
-    }
+  const currentTenant =
+    tenants.find((t) => t.tenant_id === tenantId) ??
+    tenants[0]
 
-    if (!tenantId) {
-      setSession({
-        tenantId: firstTenant.tenant_id,
-        tenantName: firstTenant.name,
-      })
+  setSession({
+    tenantId: currentTenant.tenant_id,
+    tenantName: currentTenant.name,
+  })
 
-      localStorage.setItem('tenant_id', firstTenant.tenant_id)
-    }
-  }, [tenants, tenantId])
+  localStorage.setItem(
+    'tenant_id',
+    currentTenant.tenant_id
+  )
+}, [tenants, tenantId])
 
   const {
     data: tenantMe,
