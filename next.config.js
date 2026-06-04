@@ -1,14 +1,13 @@
+// next.config.mjs
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ['@tanstack/react-query'],
 
-  webpack: (config) => {
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      canvas: false,
-    }
-
-    return config
+  turbopack: {
+    resolveAlias: {
+      canvas: './src/shared/shims/canvas.ts',
+    },
   },
 }
 
